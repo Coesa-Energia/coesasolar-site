@@ -1,198 +1,49 @@
-// REGRESSÃO 02/09/2026 (E2E real): run_log preso em 'running' desde 27/08 (recorrente em
-// 01/09 e 02/09) — a Vercel matava /api/blog/generate com SIGKILL ao bater maxDuration=300s.
-// O catch nunca roda, insertRunLog nunca grava, e a linha do claim fica presa pra sempre.
-// Este teste exercita o handler GET real de ponta a ponta (mocka só as fronteiras de I/O
-// externo — Supabase/DeepSeek/imagem/distribuição — nunca a lógica do route.ts) travando
-// uma fase NÃO-opcional (generateArticleWithSections) pra sempre, o pior caso possível: nem
-// o guard de fases opcionais (hasTimeBudget) cobre essa fase. Prova que o deadline interno
-// (PIPELINE_DEADLINE_MS) sempre vence essa corrida, porque é um timer em JS — checável e
-// determinístico — contra um SIGKILL da plataforma que não pode ser interceptado.
+// REGRESSÃO 13/09/2026 (migração para Workflow DevKit): a rota não chama mais
+// runPipeline() direto — dispara start(generateArticleWorkflow, []) e
+// responde 202 na hora, sem esperar a geração terminar. O mecanismo de
+// deadline interno (PIPELINE_DEADLINE_MS/Promise.race) que existia contra o
+// SIGKILL da Vercel em maxDuration=800s foi REMOVIDO — não é mais
+// necessário: o workflow roda fora desta invocação HTTP, sem teto de tempo
+// artificial. Os invariantes de negócio que viviam nessa rota (circuit
+// breaker de saldo, tolerância de 10% no piso de palavras, alerta na 1ª
+// falha do dia) migraram para DENTRO do workflow — ver
+// src/workflows/generate-article.regression.test.ts, que testa as funções
+// do workflow diretamente (sem bundler: "use step" é um no-op em runtime de
+// teste, as funções são chamáveis como funções JS comuns).
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
 const claimBlogRunToday = vi.fn();
-const insertArticle = vi.fn();
-const insertRunLog = vi.fn();
-const getPublishedKeywords = vi.fn();
-const getLinkCandidates = vi.fn();
 const markAlertedIfFirstFailureToday = vi.fn();
 vi.mock('@/lib/blog/supabase-blog', () => ({
   claimBlogRunToday,
-  insertArticle,
-  insertRunLog,
-  getPublishedKeywords,
-  getLinkCandidates,
   markAlertedIfFirstFailureToday,
+  // A rota importa workflows/generate-article.ts (pra tipar GenerateArticleResult
+  // via generate-status/route.ts, mas o workflow em si é importado transitivamente
+  // por editorial-calendar.ts via getServiceClient) — mock vazio evita I/O real.
+  getServiceClient: vi.fn(),
+  insertArticle: vi.fn(),
+  insertRunLog: vi.fn(),
+  getPublishedKeywords: vi.fn(),
+  getLinkCandidates: vi.fn(),
 }));
 
 const sendFailureAlertEmail = vi.fn().mockResolvedValue(undefined);
 vi.mock('@/lib/blog/alert', () => ({ sendFailureAlertEmail }));
 
-const checkOpenRouterBalance = vi.fn().mockResolvedValue({ ok: true, remaining: 50 });
-vi.mock('@/lib/blog/openrouter-budget', () => ({ checkOpenRouterBalance }));
+const mockStart = vi.fn();
+vi.mock('workflow/api', () => ({ start: mockStart }));
 
-const getNextPlannedEntry = vi.fn();
-const markPublished = vi.fn();
-const saveOutlineStructure = vi.fn();
-vi.mock('@/lib/blog/editorial-calendar', () => ({
-  getNextPlannedEntry,
-  markPublished,
-  saveOutlineStructure,
-}));
-
-const fetchTopKeyword = vi.fn();
-vi.mock('@/lib/blog/gsc', () => ({ fetchTopKeyword }));
-
-const generateArticleWithSections = vi.fn();
-vi.mock('@/lib/blog/deepseek', () => ({
-  generateArticleWithSections,
-  assembleArticleMarkdown: vi.fn(),
-  regenerateSectionsWithFeedback: vi.fn(),
-  injectSectionImages: vi.fn((content: string) => content),
-  fixSimpleValidationIssues: vi.fn((article: unknown) => article),
-}));
-
-vi.mock('@/lib/blog/image-gen', () => ({
-  generateAndUploadCover: vi.fn(),
-  generateAndUploadBodyImages: vi.fn(),
-  generateAndUploadInfographic: vi.fn(),
-}));
-
-vi.mock('@/lib/blog/image-body', () => ({
-  injectInfographic: vi.fn((content: string) => content),
-  injectInlineCtas: vi.fn((content: string) => content),
-}));
-
-const countArticleWords = vi.fn(() => 5000);
-vi.mock('@/lib/blog/validate', () => ({
-  countArticleWords,
-  MIN_ARTICLE_WORDS: 4500,
-  MIN_ACCEPTABLE_ARTICLE_WORDS: 4050,
-  validateArticle: vi.fn(() => ({ ok: true, issues: [] })),
-}));
-
-vi.mock('@/lib/blog/quality-gate', () => ({
-  runQualityGateLoop: vi.fn(),
-}));
-
-vi.mock('@/lib/blog/internal-links', () => ({
-  scoreInternalLinks: vi.fn(() => []),
-}));
-
-vi.mock('@/lib/blog/distribution', () => ({
-  distributeArticle: vi.fn(),
-  buildDistributionArticle: vi.fn(),
-}));
-
-vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
-
-describe("REGRESSÃO 02/09/2026 (E2E real): deadline interno sempre vence o SIGKILL da Vercel", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.useFakeTimers();
-    process.env.CRON_SECRET = 'test-secret';
-    claimBlogRunToday.mockResolvedValue('claimed');
-    getNextPlannedEntry.mockResolvedValue({
-      keyword: 'energia solar teste',
-      relatedKeywords: [],
-      competitors: [],
-      attentionPoints: '',
-    });
-    insertRunLog.mockResolvedValue(undefined);
-    saveOutlineStructure.mockResolvedValue(undefined);
-    markPublished.mockResolvedValue(undefined);
-    markAlertedIfFirstFailureToday.mockResolvedValue(true);
+function makeRequest(): NextRequest {
+  return new NextRequest('https://coesasolar.com.br/api/blog/generate', {
+    headers: { authorization: 'Bearer test-secret' },
   });
+}
 
-  afterEach(() => {
-    vi.useRealTimers();
-    delete process.env.CRON_SECRET;
-  });
-
-  it('generateArticleWithSections travado pra sempre → responde 500 e grava erro ANTES do maxDuration da Vercel, nunca mais preso em running', async () => {
-    // Pior caso possível: trava numa fase NÃO-opcional, que o guard hasTimeBudget não cobre.
-    generateArticleWithSections.mockReturnValue(new Promise(() => {}));
-
-    const { GET } = await import('./route');
-    const request = new NextRequest('https://coesasolar.com.br/api/blog/generate', {
-      headers: { authorization: 'Bearer test-secret' },
-    });
-
-    const responsePromise = GET(request);
-    // maxDuration=800s, DEADLINE_MARGIN_MS=30s → PIPELINE_DEADLINE_MS=770s. Avançar exatamente
-    // até lá é o pior caso que ainda deve responder — 30s de sobra antes do kill real da Vercel.
-    await vi.advanceTimersByTimeAsync(770_000);
-    const response = await responsePromise;
-
-    expect(response.status).toBe(500);
-    const body = await response.json();
-    expect(body.error).toBe('pipeline_deadline_exceeded');
-
-    // A garantia central: insertRunLog SEMPRE roda, mesmo com uma fase travada pra sempre —
-    // isso elimina a origem do bug (linha presa em 'running' sem erro visível pro Sentinel).
-    expect(insertRunLog).toHaveBeenCalledWith({
-      keyword: 'energia solar teste',
-      status: 'error',
-      error: 'pipeline_deadline_exceeded',
-    });
-
-    // O deadline dispara ANTES do teto real da Vercel — a garantia não depende de sorte.
-    expect(770_000).toBeLessThan(800_000);
-  });
-
-  async function setupHappyPathMocks() {
-    generateArticleWithSections.mockResolvedValue({
-      title: 'T', slug: 'slug-ok', meta_desc: 'M', image_prompt: 'p', content: 'conteúdo',
-      structure: { sections: [], faq: [] }, bodies: [], sectionImagePrompts: [],
-      cover_alt: null, category: null,
-    });
-    const { runQualityGateLoop } = await import('@/lib/blog/quality-gate');
-    (runQualityGateLoop as ReturnType<typeof vi.fn>).mockImplementation(async (initial: unknown) => ({
-      content: initial,
-      judged: { skipped: true, score: null, issues: [], categories: null },
-      attempts: 0,
-    }));
-    const { generateAndUploadCover, generateAndUploadBodyImages, generateAndUploadInfographic } =
-      await import('@/lib/blog/image-gen');
-    (generateAndUploadCover as ReturnType<typeof vi.fn>).mockResolvedValue('https://x/cover.webp');
-    (generateAndUploadBodyImages as ReturnType<typeof vi.fn>).mockResolvedValue([]);
-    (generateAndUploadInfographic as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-    insertArticle.mockResolvedValue('slug-ok');
-  }
-
-  it('pipeline normal (sem travamento) não é afetado pelo deadline — resolve e limpa o timer', async () => {
-    await setupHappyPathMocks();
-
-    const { GET } = await import('./route');
-    const request = new NextRequest('https://coesasolar.com.br/api/blog/generate', {
-      headers: { authorization: 'Bearer test-secret' },
-    });
-
-    const response = await GET(request);
-
-    expect(response.status).toBe(200);
-    const body = await response.json();
-    expect(body.success).toBe(true);
-    expect(insertRunLog).toHaveBeenCalledWith({ keyword: 'energia solar teste', status: 'success' });
-  });
-});
-
-// REGRESSÃO 02/09/2026 (achado real em produção): o gate exigia o piso EXATO de 4500
-// palavras contra um total que é SOMA de 7-9 seções escritas "sem contar palavra"
-// (instrução deliberada no prompt — contar produz prosa artificialmente inchada). Achado
-// real: artigo com 4421/4500 (1,8% abaixo) derrubado e descartado inteiro. Tolerância de
-// 10% no gate de PUBLICAÇÃO — decisão do dono.
-describe('REGRESSÃO 02/09/2026: tolerância de 10% no piso de palavras do gate de publicação', () => {
+describe('GET /api/blog/generate', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.CRON_SECRET = 'test-secret';
-    claimBlogRunToday.mockResolvedValue('claimed');
-    getNextPlannedEntry.mockResolvedValue({
-      keyword: 'energia solar teste', relatedKeywords: [], competitors: [], attentionPoints: '',
-    });
-    insertRunLog.mockResolvedValue(undefined);
-    saveOutlineStructure.mockResolvedValue(undefined);
-    markPublished.mockResolvedValue(undefined);
     markAlertedIfFirstFailureToday.mockResolvedValue(true);
   });
 
@@ -200,178 +51,66 @@ describe('REGRESSÃO 02/09/2026: tolerância de 10% no piso de palavras do gate 
     delete process.env.CRON_SECRET;
   });
 
-  async function setupHappyPathMocks() {
-    generateArticleWithSections.mockResolvedValue({
-      title: 'T', slug: 'slug-ok', meta_desc: 'M', image_prompt: 'p', content: 'conteúdo',
-      structure: { sections: [], faq: [] }, bodies: [], sectionImagePrompts: [],
-      cover_alt: null, category: null,
-    });
-    const { runQualityGateLoop } = await import('@/lib/blog/quality-gate');
-    (runQualityGateLoop as ReturnType<typeof vi.fn>).mockImplementation(async (initial: unknown) => ({
-      content: initial,
-      judged: { skipped: true, score: null, issues: [], categories: null },
-      attempts: 0,
-    }));
-    const { generateAndUploadCover, generateAndUploadBodyImages, generateAndUploadInfographic } =
-      await import('@/lib/blog/image-gen');
-    (generateAndUploadCover as ReturnType<typeof vi.fn>).mockResolvedValue('https://x/cover.webp');
-    (generateAndUploadBodyImages as ReturnType<typeof vi.fn>).mockResolvedValue([]);
-    (generateAndUploadInfographic as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-    insertArticle.mockResolvedValue('slug-ok');
-  }
-
-  it('4421 palavras (achado real, 1,8% abaixo de 4500) publica — dentro da tolerância de 10%', async () => {
-    await setupHappyPathMocks();
-    countArticleWords.mockReturnValueOnce(4421);
-
+  it('sem authorization correto → 401, nunca chama claim nem start', async () => {
     const { GET } = await import('./route');
-    const request = new NextRequest('https://coesasolar.com.br/api/blog/generate', {
-      headers: { authorization: 'Bearer test-secret' },
-    });
+    const request = new NextRequest('https://coesasolar.com.br/api/blog/generate');
     const response = await GET(request);
 
-    expect(response.status).toBe(200);
-    expect(insertArticle).toHaveBeenCalled();
+    expect(response.status).toBe(401);
+    expect(claimBlogRunToday).not.toHaveBeenCalled();
+    expect(mockStart).not.toHaveBeenCalled();
   });
 
-  it('4050 palavras (exatamente 90% de 4500) publica — fronteira inclusiva', async () => {
-    await setupHappyPathMocks();
-    countArticleWords.mockReturnValueOnce(4050);
+  it('claim already_run → 200 sem disparar workflow', async () => {
+    claimBlogRunToday.mockResolvedValue('already_run');
 
     const { GET } = await import('./route');
-    const request = new NextRequest('https://coesasolar.com.br/api/blog/generate', {
-      headers: { authorization: 'Bearer test-secret' },
-    });
-    const response = await GET(request);
+    const response = await GET(makeRequest());
 
     expect(response.status).toBe(200);
-  });
-
-  it('4049 palavras (1 abaixo da fronteira de 90%) ainda reprova — tolerância não é ilimitada', async () => {
-    await setupHappyPathMocks();
-    countArticleWords.mockReturnValueOnce(4049);
-
-    const { GET } = await import('./route');
-    const request = new NextRequest('https://coesasolar.com.br/api/blog/generate', {
-      headers: { authorization: 'Bearer test-secret' },
-    });
-    const response = await GET(request);
-
-    expect(response.status).toBe(500);
     const body = await response.json();
-    expect(body.error).toBe('article_below_4050_words:4049');
-    expect(insertArticle).not.toHaveBeenCalled();
-  });
-});
-
-// REGRESSÃO 02/09/2026: falha só ficava visível no relatório do Sentinel do dia SEGUINTE —
-// tarde demais pra intervenção no mesmo dia útil (foi a intervenção manual do dono que
-// salvou a publicação de hoje). markAlertedIfFirstFailureToday é atômico: só true na 1ª
-// falha do dia — retries de cron subsequentes no mesmo dia não devem reenviar o alerta.
-describe('REGRESSÃO 02/09/2026: alerta em tempo real na 1ª falha do dia', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    process.env.CRON_SECRET = 'test-secret';
-    claimBlogRunToday.mockResolvedValue('claimed');
-    getNextPlannedEntry.mockResolvedValue({
-      keyword: 'energia solar teste', relatedKeywords: [], competitors: [], attentionPoints: '',
-    });
-    insertRunLog.mockResolvedValue(undefined);
-    saveOutlineStructure.mockResolvedValue(undefined);
-    markPublished.mockResolvedValue(undefined);
-    generateArticleWithSections.mockRejectedValue(new Error('deepseek_structure_failed'));
+    expect(body.message).toBe('already_run_today');
+    expect(mockStart).not.toHaveBeenCalled();
   });
 
-  afterEach(() => {
-    delete process.env.CRON_SECRET;
-  });
-
-  it('1ª falha do dia (RPC devolve true): dispara o alerta com o erro e a keyword certos', async () => {
-    markAlertedIfFirstFailureToday.mockResolvedValue(true);
-
-    const { GET } = await import('./route');
-    const request = new NextRequest('https://coesasolar.com.br/api/blog/generate', {
-      headers: { authorization: 'Bearer test-secret' },
-    });
-    await GET(request);
-
-    expect(sendFailureAlertEmail).toHaveBeenCalledWith(
-      expect.objectContaining({ keyword: 'energia solar teste', error: 'deepseek_structure_failed' }),
-    );
-  });
-
-  it('falha subsequente no mesmo dia (RPC devolve false): NÃO reenvia o alerta', async () => {
-    markAlertedIfFirstFailureToday.mockResolvedValue(false);
-
-    const { GET } = await import('./route');
-    const request = new NextRequest('https://coesasolar.com.br/api/blog/generate', {
-      headers: { authorization: 'Bearer test-secret' },
-    });
-    await GET(request);
-
-    expect(sendFailureAlertEmail).not.toHaveBeenCalled();
-  });
-
-  it('falha no claim (infra) também conta como 1ª falha do dia e dispara alerta', async () => {
+  it('claim error (infra) → 500, alerta disparado, nunca dispara workflow', async () => {
     claimBlogRunToday.mockResolvedValue('error');
-    markAlertedIfFirstFailureToday.mockResolvedValue(true);
 
     const { GET } = await import('./route');
-    const request = new NextRequest('https://coesasolar.com.br/api/blog/generate', {
-      headers: { authorization: 'Bearer test-secret' },
-    });
-    const response = await GET(request);
+    const response = await GET(makeRequest());
 
     expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.error).toBe('claim_failed');
+    expect(mockStart).not.toHaveBeenCalled();
     expect(sendFailureAlertEmail).toHaveBeenCalledWith(expect.objectContaining({ error: 'claim_failed' }));
   });
-});
 
-// REGRESSÃO 02/09/2026: circuit breaker de saldo — a conta OpenRouter compartilhada já
-// zerou uma vez (Doctor do ig-sentinel, 30-31/08). Checar ANTES de queimar tokens numa
-// geração fadada a falhar no meio evita gastar as 5 tentativas do dia inteiras à toa.
-describe('REGRESSÃO 02/09/2026: circuit breaker de saldo bloqueia ANTES de gerar', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    process.env.CRON_SECRET = 'test-secret';
+  it('claim ok → dispara start(generateArticleWorkflow, []) e responde 202 com runId', async () => {
     claimBlogRunToday.mockResolvedValue('claimed');
-    getNextPlannedEntry.mockResolvedValue({
-      keyword: 'energia solar teste', relatedKeywords: [], competitors: [], attentionPoints: '',
-    });
-    insertRunLog.mockResolvedValue(undefined);
-    markAlertedIfFirstFailureToday.mockResolvedValue(true);
-  });
-
-  afterEach(() => {
-    delete process.env.CRON_SECRET;
-  });
-
-  it('saldo baixo: bloqueia SEM chamar generateArticleWithSections (nunca queima tokens à toa)', async () => {
-    checkOpenRouterBalance.mockResolvedValue({ ok: false, remaining: 0.42 });
+    mockStart.mockResolvedValue({ runId: 'wrun_teste' });
 
     const { GET } = await import('./route');
-    const request = new NextRequest('https://coesasolar.com.br/api/blog/generate', {
-      headers: { authorization: 'Bearer test-secret' },
-    });
-    const response = await GET(request);
+    const response = await GET(makeRequest());
+
+    expect(response.status).toBe(202);
+    const body = await response.json();
+    expect(body).toEqual({ ok: true, runId: 'wrun_teste' });
+    expect(mockStart).toHaveBeenCalledTimes(1);
+    const [, args] = mockStart.mock.calls[0];
+    expect(args).toEqual([]);
+  });
+
+  it('start() lança → 500, alerta disparado com a mensagem real', async () => {
+    claimBlogRunToday.mockResolvedValue('claimed');
+    mockStart.mockRejectedValue(new Error('workflow_dispatch_failed'));
+
+    const { GET } = await import('./route');
+    const response = await GET(makeRequest());
 
     expect(response.status).toBe(500);
     const body = await response.json();
-    expect(body.error).toBe('openrouter_balance_low:$0.42');
-    expect(generateArticleWithSections).not.toHaveBeenCalled();
-    expect(sendFailureAlertEmail).toHaveBeenCalledWith(expect.objectContaining({ error: 'openrouter_balance_low:$0.42' }));
-  });
-
-  it('saldo ok (ou checagem indisponível): segue gerando normalmente', async () => {
-    checkOpenRouterBalance.mockResolvedValue({ ok: true, remaining: null });
-    generateArticleWithSections.mockRejectedValue(new Error('outro_erro_qualquer'));
-
-    const { GET } = await import('./route');
-    const request = new NextRequest('https://coesasolar.com.br/api/blog/generate', {
-      headers: { authorization: 'Bearer test-secret' },
-    });
-    await GET(request);
-
-    expect(generateArticleWithSections).toHaveBeenCalled();
+    expect(body.error).toBe('workflow_dispatch_failed');
+    expect(sendFailureAlertEmail).toHaveBeenCalledWith(expect.objectContaining({ error: 'workflow_dispatch_failed' }));
   });
 });

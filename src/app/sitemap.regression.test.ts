@@ -24,8 +24,12 @@ describe('REGRESSÃO: sitemap.xml precisa revalidar (não pode ficar preso ao bu
     expect(seconds).toBeLessThanOrEqual(86400) // no máximo 24h — nunca mais frouxo que a página de artigo
   })
 
+  // REGRESSÃO 13/09/2026 (migração para Workflow DevKit): a revalidação de
+  // paths pós-publicação (incluindo o sitemap) migrou da rota síncrona
+  // (api/blog/generate/route.ts) pro workflow (revalidateStep, dentro de
+  // src/workflows/generate-article.ts) — a rota agora só dispara start().
   it('a publicação revalida explicitamente o sitemap', () => {
-    const route = readFileSync(join(__dirname, 'api/blog/generate/route.ts'), 'utf-8')
-    expect(semComentarios(route)).toContain("revalidatePath('/sitemap.xml')")
+    const workflow = readFileSync(join(__dirname, '..', 'workflows', 'generate-article.ts'), 'utf-8')
+    expect(semComentarios(workflow)).toContain("revalidatePath('/sitemap.xml')")
   })
 })
