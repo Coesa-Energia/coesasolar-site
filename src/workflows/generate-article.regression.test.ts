@@ -288,4 +288,18 @@ describe('generateArticleWorkflow — passos pós-publicação não derrubam um 
     const result = await generateArticleWorkflow();
     expect(result).toEqual({ slug: 'slug-workflow-test', warnings: [] });
   });
+
+  // REGRESSÃO 14/09/2026 (achado da 2ª passada da auditoria): published.warnings (o aviso de
+  // piso de palavras do PR #76) era computado dentro de qualityGateAndPublishStep mas nunca
+  // chegava ao retorno final de generateArticleWorkflow — só os warnings do checklist
+  // on-page eram propagados. O artigo publicava certo, mas o aviso de tamanho desaparecia
+  // silenciosamente pra quem consome o resultado (rota, e-mail, dashboard).
+  it('aviso de piso de palavras chega até o retorno final do workflow, não só até qualityGateAndPublishStep', async () => {
+    countArticleWords.mockReturnValueOnce(3900).mockReturnValueOnce(3900);
+    const result = await generateArticleWorkflow();
+    expect(result).toEqual({
+      slug: 'slug-workflow-test',
+      warnings: ['article_below_4050_words:3900'],
+    });
+  });
 });
