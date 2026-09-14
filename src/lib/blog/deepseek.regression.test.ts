@@ -326,8 +326,9 @@ describe('REGRESSÃO checklist 25/08/2026: writeSection nunca depende do default
     expect(createMock).toHaveBeenCalledTimes(2);
   });
 
-  it('REGRESSÃO 25/08/2026 (lapidação — achado no motor irmão gaussmob-nextjs): vazio nas 2 tentativas cai no content_brief, nunca publica H2 sem corpo', async () => {
+  it('REGRESSÃO 25/08/2026 (lapidação — achado no motor irmão gaussmob-nextjs): vazio em TODAS as tentativas cai no content_brief, nunca publica H2 sem corpo', async () => {
     createMock
+      .mockResolvedValueOnce({ choices: [{ message: { content: '' } }] })
       .mockResolvedValueOnce({ choices: [{ message: { content: '' } }] })
       .mockResolvedValueOnce({ choices: [{ message: { content: '' } }] });
 
@@ -335,7 +336,28 @@ describe('REGRESSÃO checklist 25/08/2026: writeSection nunca depende do default
 
     expect(body).toBe('Instrução do brief como corpo mínimo.');
     expect(body).not.toBe('');
-    expect(createMock).toHaveBeenCalledTimes(2);
+    expect(createMock).toHaveBeenCalledTimes(3);
+  });
+
+  // REGRESSÃO 14/09/2026 (achado real em produção): as 2 tentativas antigas (1x PRIMARY, 1x
+  // FALLBACK) vieram AMBAS vazias pra mesma seção — HTTP 200 nas duas, sem exceção — e a
+  // seção caiu no content_brief cru, derrubando o artigo do dia abaixo do piso de palavras.
+  // writeSection ganhou uma 3ª tentativa, alternando PRIMARY/FALLBACK/PRIMARY (preserva o
+  // "troca de provedor a cada falha" já testado acima) — este teste trava que ela existe e
+  // recupera o corpo real em vez de desistir cedo demais.
+  it('REGRESSÃO 14/09/2026: 3ª tentativa recupera quando as 2 primeiras vêm vazias', async () => {
+    createMock
+      .mockResolvedValueOnce({ choices: [{ message: { content: '' } }] })
+      .mockResolvedValueOnce({ choices: [{ message: { content: '' } }] })
+      .mockResolvedValueOnce({ choices: [{ message: { content: 'Corpo real na 3ª tentativa.' } }] });
+
+    const body = await writeSection('placa solar', { h2: 'X', content_brief: 'brief', word_target: 600, image_prompt: 'p' }, 0, 8);
+
+    expect(body).toBe('Corpo real na 3ª tentativa.');
+    expect(createMock).toHaveBeenCalledTimes(3);
+    expect(createMock.mock.calls[0][0].model).toBe('deepseek/deepseek-v4-flash-0731');
+    expect(createMock.mock.calls[1][0].model).toBe('z-ai/glm-5.3-flash');
+    expect(createMock.mock.calls[2][0].model).toBe('deepseek/deepseek-v4-flash-0731');
   });
 
   it('REGRESSÃO 11/09/2026: timeout troca de provedor sem retry interno do SDK', async () => {

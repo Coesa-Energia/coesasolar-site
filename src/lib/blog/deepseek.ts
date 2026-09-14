@@ -431,11 +431,19 @@ Alvo: ${section.word_target} palavras (não conte, escreva naturalmente até cob
 
   // ACHADO 25/08/2026 (teste E2E real): 1 de 8 seções voltou vazia (mesma armadilha de
   // reasoning_content do deepseek-v4-flash, ver reference_deepseek_v4_reasoning_gotchas.md) —
-  // sem retry, essa seção publicava com H2 e nenhum corpo. 2 tentativas (mesmo padrão de
-  // generateArticleStructure/generateArticle), nunca lança — retorna vazio no pior caso, o
-  // pipeline segue publicável (mesmo contrato de antes).
-  for (let attempt = 1; attempt <= 2; attempt++) {
-    const model = attempt === 1 ? PRIMARY_STRUCTURE_MODEL : FALLBACK_STRUCTURE_MODEL;
+  // sem retry, essa seção publicava com H2 e nenhum corpo. Nunca lança — retorna o
+  // content_brief no pior caso, o pipeline segue publicável (mesmo contrato de antes).
+  //
+  // REGRESSÃO 14/09/2026 (achado real em produção): as 2 tentativas antigas (1x PRIMARY, 1x
+  // FALLBACK) vieram AMBAS vazias pra mesma seção — zero exceção nos logs, HTTP 200 nas duas,
+  // confirmando reasoning_content comendo o teto nas duas, não um erro pontual de rede. Essa
+  // seção caiu no content_brief cru (uma instrução de 1 linha, não prosa) e derrubou o artigo
+  // do dia abaixo do piso de palavras. 3ª tentativa adicionada, alternando PRIMARY/FALLBACK/
+  // PRIMARY — preserva o comportamento já testado (11/09/2026) de trocar de provedor a cada
+  // falha, exceção ou vazio, só dando mais uma chance em vez de desistir na 2ª.
+  const WRITE_SECTION_MODELS_BY_ATTEMPT = [PRIMARY_STRUCTURE_MODEL, FALLBACK_STRUCTURE_MODEL, PRIMARY_STRUCTURE_MODEL] as const;
+  for (let attempt = 1; attempt <= WRITE_SECTION_MODELS_BY_ATTEMPT.length; attempt++) {
+    const model = WRITE_SECTION_MODELS_BY_ATTEMPT[attempt - 1];
     try {
       const response = await client.chat.completions.create({
         user: 'coesasolar/blog/write-section',
@@ -450,18 +458,19 @@ Alvo: ${section.word_target} palavras (não conte, escreva naturalmente até cob
       });
       const text = response.choices[0]?.message?.content?.trim() ?? '';
       if (text) return text;
+      console.warn(`[deepseek] Seção "${section.h2}" voltou vazia na tentativa ${attempt} (${model}) — HTTP ok, content vazio.`);
     } catch (err) {
       console.warn(`[deepseek] Seção "${section.h2}" falhou na tentativa ${attempt} (${model}).`, err);
     }
-    if (attempt === 2) break;
-    console.warn(`[deepseek] Retentando seção "${section.h2}" com ${FALLBACK_STRUCTURE_MODEL}...`);
+    if (attempt === WRITE_SECTION_MODELS_BY_ATTEMPT.length) break;
+    console.warn(`[deepseek] Retentando seção "${section.h2}" (tentativa ${attempt + 1}, modelo ${WRITE_SECTION_MODELS_BY_ATTEMPT[attempt]})...`);
   }
   // ACHADO na lapidação (mesmo dia, motor irmão gaussmob-nextjs): sem fallback textual, uma
-  // seção que segue vazia nas 2 tentativas publica um H2 seguido de NADA — o mesmo defeito
-  // real que o retry acima corrige na maioria dos casos, só que residual. Mesmo padrão já
-  // aplicado em generateSection do gaussmob-nextjs (article-generator.ts): cai no content_brief
-  // em vez de string vazia — pior que um resumo do brief, nunca é publicar em branco.
-  console.warn(`[deepseek] Seção "${section.h2}" voltou vazia nas 2 tentativas — publicando o content_brief como corpo.`);
+  // seção que segue vazia esgota as tentativas e publica um H2 seguido de NADA — o mesmo
+  // defeito real que o retry acima corrige na maioria dos casos, só que residual. Mesmo
+  // padrão já aplicado em generateSection do gaussmob-nextjs (article-generator.ts): cai no
+  // content_brief em vez de string vazia — pior que um resumo do brief, nunca é publicar em branco.
+  console.warn(`[deepseek] Seção "${section.h2}" voltou vazia em todas as ${WRITE_SECTION_MODELS_BY_ATTEMPT.length} tentativas — publicando o content_brief como corpo.`);
   return section.content_brief;
 }
 
