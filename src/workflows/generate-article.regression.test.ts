@@ -35,10 +35,11 @@ vi.mock('@/lib/blog/editorial-calendar', () => ({
   saveOutlineStructure: vi.fn(),
 }));
 vi.mock('@/lib/blog/gsc', () => ({ fetchTopKeyword: vi.fn() }));
+const regenerateSectionsWithFeedback = vi.fn();
 vi.mock('@/lib/blog/deepseek', () => ({
   generateArticleWithSections: vi.fn(),
   assembleArticleMarkdown: vi.fn(() => 'conteúdo regenerado'),
-  regenerateSectionsWithFeedback: vi.fn(),
+  regenerateSectionsWithFeedback,
   injectSectionImages: vi.fn((content: string) => content),
   fixSimpleValidationIssues: vi.fn((article: unknown) => article),
 }));
@@ -56,6 +57,7 @@ const countArticleWords = vi.fn(() => 5000);
 vi.mock('@/lib/blog/validate', () => ({
   countArticleWords,
   MIN_ACCEPTABLE_ARTICLE_WORDS: 4050,
+  MIN_ARTICLE_WORDS: 4500,
   validateArticle: vi.fn(() => ({ ok: true, issues: [] })),
 }));
 
@@ -103,6 +105,7 @@ describe('qualityGateAndPublishStep — tolerância de 10% no piso de palavras',
     }));
     insertArticle.mockResolvedValue('slug-ok');
     insertRunLog.mockResolvedValue(undefined);
+    regenerateSectionsWithFeedback.mockResolvedValue([]);
   });
 
   it('4421 palavras (achado real, 1,8% abaixo de 4500) publica — dentro da tolerância', async () => {
@@ -118,11 +121,50 @@ describe('qualityGateAndPublishStep — tolerância de 10% no piso de palavras',
     expect('slug' in result).toBe(true);
   });
 
-  it('4049 palavras (1 abaixo da fronteira de 90%) reprova — tolerância não é ilimitada', async () => {
-    countArticleWords.mockReturnValueOnce(4049);
+  it('4049 palavras (1 abaixo da fronteira de 90%), sem melhora na regeneração extra, reprova — tolerância não é ilimitada', async () => {
+    countArticleWords.mockReturnValueOnce(4049).mockReturnValueOnce(4049);
     const result = await qualityGateAndPublishStep('kw', ARTICLE_STUB, 'conteúdo', null, [], null, null);
     expect(result).toEqual({ error: 'article_below_4050_words:4049' });
     expect(insertArticle).not.toHaveBeenCalled();
+  });
+});
+
+// REGRESSÃO 14/09/2026 (achado real em produção: 3826/4050): o gate de qualidade por LLM
+// (runQualityGateLoop) nunca avalia tamanho — só pontua conteúdo/SEO/E-E-A-T/técnico/GEO.
+// Antes deste fix, um artigo podia passar no gate de qualidade e ainda assim reprovar
+// direto no piso de palavras, sem NUNCA tentar corrigir o próprio motivo da reprovação.
+describe('qualityGateAndPublishStep — retry de tamanho quando o gate de qualidade passa mas o artigo sai curto (REGRESSÃO 14/09/2026)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    runQualityGateLoop.mockImplementation(async (initial: unknown) => ({
+      content: initial,
+      judged: { skipped: true, score: null, issues: [], categories: null },
+      attempts: 0,
+    }));
+    insertArticle.mockResolvedValue('slug-ok');
+    insertRunLog.mockResolvedValue(undefined);
+    regenerateSectionsWithFeedback.mockResolvedValue([]);
+  });
+
+  it('artigo curto dispara UMA regeneração extra e publica se ela corrigir', async () => {
+    countArticleWords.mockReturnValueOnce(3826).mockReturnValueOnce(4200);
+    const result = await qualityGateAndPublishStep('kw', ARTICLE_STUB, 'conteúdo', null, [], null, null);
+    expect(regenerateSectionsWithFeedback).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({ slug: 'slug-ok', warnings: [] });
+  });
+
+  it('se a regeneração extra ainda sair curta, reprova — não tenta infinitamente', async () => {
+    countArticleWords.mockReturnValueOnce(3826).mockReturnValueOnce(3900);
+    const result = await qualityGateAndPublishStep('kw', ARTICLE_STUB, 'conteúdo', null, [], null, null);
+    expect(regenerateSectionsWithFeedback).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({ error: 'article_below_4050_words:3900' });
+  });
+
+  it('artigo já dentro do piso NÃO dispara regeneração extra', async () => {
+    countArticleWords.mockReturnValueOnce(4200);
+    const result = await qualityGateAndPublishStep('kw', ARTICLE_STUB, 'conteúdo', null, [], null, null);
+    expect(regenerateSectionsWithFeedback).not.toHaveBeenCalled();
+    expect(result).toEqual({ slug: 'slug-ok', warnings: [] });
   });
 });
 
