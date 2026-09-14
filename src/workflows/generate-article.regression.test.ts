@@ -72,7 +72,11 @@ const { checkBalanceStep, qualityGateAndPublishStep, recordFailureStep } = await
 
 const ARTICLE_STUB = {
   title: 'T', slug: 'slug-ok', meta_desc: 'M', image_prompt: 'p', content: 'conteúdo',
-  structure: { sections: [], faq: [], summary_bullets: [], title: 'T', page_title: 'T', slug: 'slug-ok', meta_desc: 'M', cover_image_prompt: 'p', cover_alt: null, category: null },
+  structure: {
+    sections: [{ h2: 'Seção 1' }, { h2: 'Seção 2' }],
+    faq: [], summary_bullets: [], title: 'T', page_title: 'T', slug: 'slug-ok', meta_desc: 'M',
+    cover_image_prompt: 'p', cover_alt: null, category: null,
+  },
   bodies: [], sectionImagePrompts: [], cover_alt: null, category: null,
 } as unknown as Parameters<typeof qualityGateAndPublishStep>[1];
 
@@ -151,6 +155,20 @@ describe('qualityGateAndPublishStep — retry de tamanho quando o gate de qualid
     const result = await qualityGateAndPublishStep('kw', ARTICLE_STUB, 'conteúdo', null, [], null, null);
     expect(regenerateSectionsWithFeedback).toHaveBeenCalledTimes(1);
     expect(result).toEqual({ slug: 'slug-ok', warnings: [] });
+  });
+
+  // REGRESSÃO 14/09/2026 (2ª rodada — achado real de produção 3902/4050, DEPOIS do fix
+  // acima já estar no ar): regenerateSectionsWithFeedback só regenera seções cujo
+  // `issue.section` bate EXATAMENTE com um h2 da estrutura (findIndex por igualdade) — a
+  // 1ª versão deste fix mandava `section: 'geral'`, que não casa com NENHUM h2 real; a
+  // regeneração virava no-op silencioso (currentBodies inalterado) e o artigo continuava
+  // curto. Esta issue trava que as issues sintéticas usam os h2 REAIS da estrutura.
+  it('a issue sintética de expansão usa os h2 REAIS da estrutura, não um rótulo genérico', async () => {
+    countArticleWords.mockReturnValueOnce(3826).mockReturnValueOnce(4200);
+    await qualityGateAndPublishStep('kw', ARTICLE_STUB, 'conteúdo', null, [], null, null);
+    const issuesPassadas = regenerateSectionsWithFeedback.mock.calls[0]?.[3];
+    expect(issuesPassadas).toHaveLength(2);
+    expect(issuesPassadas.map((i: { section: string }) => i.section)).toEqual(['Seção 1', 'Seção 2']);
   });
 
   it('se a regeneração extra ainda sair curta, reprova — não tenta infinitamente', async () => {
