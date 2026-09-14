@@ -125,11 +125,14 @@ describe('qualityGateAndPublishStep — tolerância de 10% no piso de palavras',
     expect('slug' in result).toBe(true);
   });
 
-  it('4049 palavras (1 abaixo da fronteira de 90%), sem melhora na regeneração extra, reprova — tolerância não é ilimitada', async () => {
+  // DECISÃO DO DONO 14/09/2026: piso de palavras nunca mais bloqueia publicação (ver
+  // REGRESSÃO 14/09/2026 abaixo) — mesmo sem melhora na regeneração extra, publica com
+  // aviso em vez de reprovar o dia inteiro.
+  it('4049 palavras (1 abaixo da fronteira de 90%), sem melhora na regeneração extra, PUBLICA com aviso', async () => {
     countArticleWords.mockReturnValueOnce(4049).mockReturnValueOnce(4049);
     const result = await qualityGateAndPublishStep('kw', ARTICLE_STUB, 'conteúdo', null, [], null, null);
-    expect(result).toEqual({ error: 'article_below_4050_words:4049' });
-    expect(insertArticle).not.toHaveBeenCalled();
+    expect(result).toEqual({ slug: 'slug-ok', warnings: ['article_below_4050_words:4049'] });
+    expect(insertArticle).toHaveBeenCalled();
   });
 });
 
@@ -171,11 +174,16 @@ describe('qualityGateAndPublishStep — retry de tamanho quando o gate de qualid
     expect(issuesPassadas.map((i: { section: string }) => i.section)).toEqual(['Seção 1', 'Seção 2']);
   });
 
-  it('se a regeneração extra ainda sair curta, reprova — não tenta infinitamente', async () => {
+  // REGRESSÃO 14/09/2026 (3ª rodada — decisão do dono): reprovar o dia inteiro por causa de
+  // uma métrica de tamanho, mesmo depois de já ter tentado corrigir, era o oposto da
+  // garantia que o dono queria ("a publicação VAI SAIR todo dia"). Uma tentativa a mais é
+  // best-effort; nunca é motivo pra bloquear. Publica com aviso mesmo sem melhora.
+  it('se a regeneração extra ainda sair curta, PUBLICA com aviso — não bloqueia, não tenta infinitamente', async () => {
     countArticleWords.mockReturnValueOnce(3826).mockReturnValueOnce(3900);
     const result = await qualityGateAndPublishStep('kw', ARTICLE_STUB, 'conteúdo', null, [], null, null);
     expect(regenerateSectionsWithFeedback).toHaveBeenCalledTimes(1);
-    expect(result).toEqual({ error: 'article_below_4050_words:3900' });
+    expect(result).toEqual({ slug: 'slug-ok', warnings: ['article_below_4050_words:3900'] });
+    expect(insertArticle).toHaveBeenCalled();
   });
 
   it('artigo já dentro do piso NÃO dispara regeneração extra', async () => {
@@ -183,6 +191,20 @@ describe('qualityGateAndPublishStep — retry de tamanho quando o gate de qualid
     const result = await qualityGateAndPublishStep('kw', ARTICLE_STUB, 'conteúdo', null, [], null, null);
     expect(regenerateSectionsWithFeedback).not.toHaveBeenCalled();
     expect(result).toEqual({ slug: 'slug-ok', warnings: [] });
+  });
+
+  // REGRESSÃO 14/09/2026 (garantia pedida pelo dono, verbatim: "eu quero o fix no código
+  // garantido que a publicação VAI SAIR"): qualityGateAndPublishStep NUNCA retorna
+  // `{ error }` por piso de palavras, nem no pior caso extremo — só publica com aviso.
+  // Isso é o que garante que o dia nunca fica sem artigo por essa causa: `'error' in
+  // result` é sempre falso aqui, então generateArticleWorkflow nunca cai no branch de
+  // recordFailureStep/sendFailureAlertEmail por causa de tamanho.
+  it('GARANTIA: mesmo com 100 palavras (bem abaixo do piso), publica — piso de palavras nunca bloqueia', async () => {
+    countArticleWords.mockReturnValueOnce(100).mockReturnValueOnce(100);
+    const result = await qualityGateAndPublishStep('kw', ARTICLE_STUB, 'conteúdo', null, [], null, null);
+    expect('error' in result).toBe(false);
+    expect(result).toEqual({ slug: 'slug-ok', warnings: ['article_below_4050_words:100'] });
+    expect(insertArticle).toHaveBeenCalled();
   });
 });
 

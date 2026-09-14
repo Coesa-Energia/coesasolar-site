@@ -216,8 +216,20 @@ export async function qualityGateAndPublishStep(
 
   const finalArticle = finalContent.article;
   const finalContentWithCtas = finalContent.content;
+  const warnings: string[] = [];
+  // DECISÃO DO DONO 14/09/2026: bloquear a publicação por piso de palavras reprovava o DIA
+  // INTEIRO — zero artigo, mesmo com milhares de palavras de conteúdo substancial já
+  // prontas, só porque uma métrica de tamanho não bateu mesmo depois da tentativa extra de
+  // expansão acima. O LLM é probabilístico — nenhuma quantidade de retry é garantia
+  // matemática de bater o piso exato. A garantia real pedida foi inverter a prioridade:
+  // publicar SEMPRE (best-effort de tamanho já feito acima), nunca mais bloquear por isso.
+  // Mesmo tratamento que o checklist on-page já dá a outras issues não-fatais — aviso, não
+  // bloqueio. Consequência direta: essa causa nunca mais dispara o alerta de falha do dia
+  // (recordFailureStep só roda pra erro real de pipeline, não pra isso).
   if (finalWordCount < MIN_ACCEPTABLE_ARTICLE_WORDS) {
-    return { error: `article_below_${MIN_ACCEPTABLE_ARTICLE_WORDS}_words:${finalWordCount}` };
+    const warning = `article_below_${MIN_ACCEPTABLE_ARTICLE_WORDS}_words:${finalWordCount}`;
+    console.warn(`[workflow/generate-article] Publicando mesmo assim com ${finalWordCount} palavras (piso ${MIN_ACCEPTABLE_ARTICLE_WORDS}) — piso de palavras não bloqueia mais publicação.`);
+    warnings.push(warning);
   }
 
   const finalSlug = await insertArticle({
@@ -237,7 +249,7 @@ export async function qualityGateAndPublishStep(
   // o próximo cron run (5x/dia) vê 'success' e não duplica o artigo.
   await insertRunLog({ keyword, status: 'success' });
 
-  return { slug: finalSlug, warnings: [] };
+  return { slug: finalSlug, warnings };
 }
 qualityGateAndPublishStep.maxRetries = 0;
 
