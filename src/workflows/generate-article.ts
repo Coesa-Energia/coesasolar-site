@@ -389,7 +389,12 @@ export async function generateArticleWorkflow(): Promise<GenerateArticleResult> 
       console.warn('[workflow/generate-article] Publicado com ressalvas do checklist:', warnings);
     }
 
-    return { slug: published.slug, warnings: warnings.map(w => w.message) };
+    // REGRESSÃO 14/09/2026 (achado da 2ª passada da auditoria): published.warnings (ex.: o
+    // aviso de piso de palavras do PR #76) era computado dentro de qualityGateAndPublishStep
+    // mas nunca chegava até aqui — só os warnings do checklist on-page eram propagados. O
+    // artigo publicava certo, mas quem consome o resultado (rota, e-mail, dashboard) nunca
+    // via o aviso de tamanho.
+    return { slug: published.slug, warnings: [...warnings.map(w => w.message), ...published.warnings] };
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     console.error('[workflow/generate-article] Pipeline falhou:', errorMsg);
