@@ -61,8 +61,8 @@ import {
 } from '@/lib/blog/deepseek';
 import { generateAndUploadCover, generateAndUploadBodyImages, generateAndUploadInfographic } from '@/lib/blog/image-gen';
 import { injectInfographic, injectInlineCtas, type InlineCta } from '@/lib/blog/image-body';
-import { countArticleWords, MIN_ACCEPTABLE_ARTICLE_WORDS, validateArticle } from '@/lib/blog/validate';
-import { runQualityGateLoop, type QualityGateResult } from '@/lib/blog/quality-gate';
+import { countArticleWords, MIN_ACCEPTABLE_ARTICLE_WORDS, MIN_ARTICLE_WORDS, validateArticle } from '@/lib/blog/validate';
+import { runQualityGateLoop, type QualityGateResult, type JudgeIssue } from '@/lib/blog/quality-gate';
 import { checkOpenRouterBalance } from '@/lib/blog/openrouter-budget';
 import { scoreInternalLinks } from '@/lib/blog/internal-links';
 import { distributeArticle, buildDistributionArticle } from '@/lib/blog/distribution';
@@ -159,33 +159,59 @@ export async function qualityGateAndPublishStep(
   'use step';
   type GateContent = { article: ArticleWithSections; content: string };
 
+  const regenerateWithIssues = async ({ article: a }: GateContent, issues: JudgeIssue[]): Promise<GateContent> => {
+    const newBodies = await regenerateSectionsWithFeedback(keyword, a.structure, a.bodies, issues);
+    const newContent = assembleArticleMarkdown(a.structure, newBodies);
+    const revised = { ...a, bodies: newBodies, content: newContent };
+    // As imagens de seção/infográfico JÁ GERADAS continuam válidas — só
+    // reinjeta nos NOVOS corpos regenerados, sem gerar imagem de novo
+    // (mesmo comportamento do runPipeline síncrono original).
+    const regenBody = injectSectionImages(newContent, sectionImages);
+    const regenWithInfographic = injectInfographic(
+      regenBody,
+      infographicUrl ? { url: infographicUrl, alt: `${keyword} — infográfico` } : null,
+    );
+    return { article: revised, content: injectInlineCtas(regenWithInfographic, cta) };
+  };
+
   const gateResult = await runQualityGateLoop<GateContent>(
     { article, content: contentWithCtas },
     ({ article: a, content }) => `# ${a.title}\n\nMeta description: ${a.meta_desc}\n\n${content}`,
-    async ({ article: a }, issues) => {
+    (content, issues) => {
       console.warn('[workflow/generate-article] Quality gate abaixo de 90 — regenerando:', issues);
-      const newBodies = await regenerateSectionsWithFeedback(keyword, a.structure, a.bodies, issues);
-      const newContent = assembleArticleMarkdown(a.structure, newBodies);
-      const revised = { ...a, bodies: newBodies, content: newContent };
-      // As imagens de seção/infográfico JÁ GERADAS continuam válidas — só
-      // reinjeta nos NOVOS corpos regenerados, sem gerar imagem de novo
-      // (mesmo comportamento do runPipeline síncrono original).
-      const regenBody = injectSectionImages(newContent, sectionImages);
-      const regenWithInfographic = injectInfographic(
-        regenBody,
-        infographicUrl ? { url: infographicUrl, alt: `${keyword} — infográfico` } : null,
-      );
-      return { article: revised, content: injectInlineCtas(regenWithInfographic, cta) };
+      return regenerateWithIssues(content, issues);
     },
   );
 
-  const finalArticle = gateResult.content.article;
-  const finalContentWithCtas = gateResult.content.content;
+  let finalContent = gateResult.content;
   if (!gateResult.judged.skipped) {
     console.warn(`[workflow/generate-article] Quality gate score final: ${gateResult.judged.score}`);
   }
 
-  const finalWordCount = countArticleWords(finalContentWithCtas);
+  let finalWordCount = countArticleWords(finalContent.content);
+  // REGRESSÃO 14/09/2026 (achado real: 3826/4050): o gate de qualidade por LLM acima
+  // nunca avalia tamanho (suas 5 categorias são conteúdo/SEO/E-E-A-T/técnico/GEO) — um
+  // artigo pode pontuar >=90 e sair curto do mesmo jeito, sem NUNCA passar pelo loop de
+  // regeneração. Antes deste fix, isso reprovava o dia inteiro na 1ª geração curta. Uma
+  // tentativa extra, reaproveitando o MESMO regenerate do gate de qualidade, com uma
+  // issue sintética pedindo mais profundidade — mesma classe de correção, agora fechada
+  // pra tamanho.
+  if (finalWordCount < MIN_ACCEPTABLE_ARTICLE_WORDS) {
+    console.warn(`[workflow/generate-article] Artigo com ${finalWordCount} palavras (piso ${MIN_ACCEPTABLE_ARTICLE_WORDS}) — regenerando com pedido de expansão.`);
+    finalContent = await regenerateWithIssues(finalContent, [
+      {
+        severity: 'P0',
+        category: 'content_quality',
+        section: 'geral',
+        problem: `Artigo com ${finalWordCount} palavras, abaixo do piso de ${MIN_ACCEPTABLE_ARTICLE_WORDS}.`,
+        fix_instruction: `Expanda TODAS as seções com mais profundidade, exemplos e detalhes práticos até somar pelo menos ${MIN_ARTICLE_WORDS} palavras no total — sem redundância nem enrolação.`,
+      },
+    ]);
+    finalWordCount = countArticleWords(finalContent.content);
+  }
+
+  const finalArticle = finalContent.article;
+  const finalContentWithCtas = finalContent.content;
   if (finalWordCount < MIN_ACCEPTABLE_ARTICLE_WORDS) {
     return { error: `article_below_${MIN_ACCEPTABLE_ARTICLE_WORDS}_words:${finalWordCount}` };
   }
