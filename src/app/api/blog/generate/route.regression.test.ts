@@ -59,7 +59,11 @@ describe('GET /api/blog/generate', () => {
     expect(response.status).toBe(401);
     expect(claimBlogRunToday).not.toHaveBeenCalled();
     expect(mockStart).not.toHaveBeenCalled();
-  });
+    // Flake sob suíte completa (48 arquivos, workers concorrentes): o `import('./route')'
+    // dinâmico é o 1º ponto do arquivo a resolver a árvore de módulos do Next.js — sob
+    // contenção de CPU isso passou de 5s (timeout default) em alguns runs, mesmo sempre
+    // <2s isolado. Timeout maior aqui, não em todo o arquivo/suíte.
+  }, 20_000);
 
   it('claim already_run → 200 sem disparar workflow', async () => {
     claimBlogRunToday.mockResolvedValue('already_run');
