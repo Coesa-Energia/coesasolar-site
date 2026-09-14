@@ -198,15 +198,19 @@ export async function qualityGateAndPublishStep(
   // pra tamanho.
   if (finalWordCount < MIN_ACCEPTABLE_ARTICLE_WORDS) {
     console.warn(`[workflow/generate-article] Artigo com ${finalWordCount} palavras (piso ${MIN_ACCEPTABLE_ARTICLE_WORDS}) — regenerando com pedido de expansão.`);
-    finalContent = await regenerateWithIssues(finalContent, [
-      {
-        severity: 'P0',
-        category: 'content_quality',
-        section: 'geral',
-        problem: `Artigo com ${finalWordCount} palavras, abaixo do piso de ${MIN_ACCEPTABLE_ARTICLE_WORDS}.`,
-        fix_instruction: `Expanda TODAS as seções com mais profundidade, exemplos e detalhes práticos até somar pelo menos ${MIN_ARTICLE_WORDS} palavras no total — sem redundância nem enrolação.`,
-      },
-    ]);
+    // regenerateSectionsWithFeedback só regenera seções cujo `issue.section` bate
+    // EXATAMENTE com um h2 da estrutura (findIndex por igualdade) — uma issue genérica
+    // ("geral") não casa com nenhuma seção e é descartada em silêncio (secoesComIssue
+    // fica vazio, currentBodies volta inalterado). Uma issue por seção real é o que
+    // aciona a regeneração de todas elas.
+    const expandAllSections: JudgeIssue[] = finalContent.article.structure.sections.map(s => ({
+      severity: 'P0',
+      category: 'content_quality',
+      section: s.h2,
+      problem: `Artigo com ${finalWordCount} palavras no total, abaixo do piso de ${MIN_ACCEPTABLE_ARTICLE_WORDS}.`,
+      fix_instruction: `Expanda esta seção com mais profundidade, exemplos e detalhes práticos — contribua para o artigo somar pelo menos ${MIN_ARTICLE_WORDS} palavras no total, sem redundância nem enrolação.`,
+    }));
+    finalContent = await regenerateWithIssues(finalContent, expandAllSections);
     finalWordCount = countArticleWords(finalContent.content);
   }
 
