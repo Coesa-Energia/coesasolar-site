@@ -366,9 +366,24 @@ export async function generateArticleWorkflow(): Promise<GenerateArticleResult> 
       return { slug: null, error: published.error };
     }
 
-    await markPublishedStep(kw, published.slug);
-    await revalidateStep(published.slug, article.category);
-    await distributeStep({ title: article.title, page_title: article.page_title ?? null, keyword: kw }, published.slug);
+    // REGRESSÃO 14/09/2026 (achado da auditoria "garantia irrestrita de publicação"): daqui
+    // pra baixo o artigo JÁ está publicado — coesa_articles + insertRunLog(success) já
+    // gravados dentro de qualityGateAndPublishStep. markPublished/revalidate/distribute são
+    // acessórios (calendário, cache, redes sociais); um deles lançando (ex.: revalidatePath
+    // fora do contexto de request do Next.js) não pode mais virar "o dia não teve artigo" —
+    // isso já aconteceu: o catch externo tratava qualquer exceção daqui como falha total do
+    // pipeline e disparava recordFailureStep, que envia um alerta de falha FALSO (a RPC
+    // coesa_blog_mark_alerted não verifica status, só `alerted=false` — dispara mesmo com o
+    // artigo já publicado). Cada passo já é fail-open por dentro (markPublished/
+    // distributeArticle nunca lançam de fato), mas o guard aqui cobre qualquer exceção
+    // residual sem depender de cada implementação individual permanecer fail-open pra sempre.
+    try {
+      await markPublishedStep(kw, published.slug);
+      await revalidateStep(published.slug, article.category);
+      await distributeStep({ title: article.title, page_title: article.page_title ?? null, keyword: kw }, published.slug);
+    } catch (err) {
+      console.warn('[workflow/generate-article] Passo pós-publicação falhou (artigo já está no ar, não bloqueia):', err);
+    }
 
     if (warnings.length) {
       console.warn('[workflow/generate-article] Publicado com ressalvas do checklist:', warnings);

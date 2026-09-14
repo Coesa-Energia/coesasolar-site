@@ -29,15 +29,18 @@ vi.mock('@/lib/blog/alert', () => ({ sendFailureAlertEmail }));
 const checkOpenRouterBalance = vi.fn();
 vi.mock('@/lib/blog/openrouter-budget', () => ({ checkOpenRouterBalance }));
 
+const getNextPlannedEntry = vi.fn();
+const saveOutlineStructure = vi.fn();
 vi.mock('@/lib/blog/editorial-calendar', () => ({
-  getNextPlannedEntry: vi.fn(),
+  getNextPlannedEntry,
   markPublished: vi.fn(),
-  saveOutlineStructure: vi.fn(),
+  saveOutlineStructure,
 }));
 vi.mock('@/lib/blog/gsc', () => ({ fetchTopKeyword: vi.fn() }));
 const regenerateSectionsWithFeedback = vi.fn();
+const generateArticleWithSections = vi.fn();
 vi.mock('@/lib/blog/deepseek', () => ({
-  generateArticleWithSections: vi.fn(),
+  generateArticleWithSections,
   assembleArticleMarkdown: vi.fn(() => 'conteúdo regenerado'),
   regenerateSectionsWithFeedback,
   injectSectionImages: vi.fn((content: string) => content),
@@ -66,9 +69,10 @@ vi.mock('@/lib/blog/quality-gate', () => ({ runQualityGateLoop }));
 
 vi.mock('@/lib/blog/internal-links', () => ({ scoreInternalLinks: vi.fn(() => []) }));
 vi.mock('@/lib/blog/distribution', () => ({ distributeArticle: vi.fn(), buildDistributionArticle: vi.fn() }));
-vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
+const revalidatePath = vi.fn();
+vi.mock('next/cache', () => ({ revalidatePath }));
 
-const { checkBalanceStep, qualityGateAndPublishStep, recordFailureStep } = await import('./generate-article');
+const { checkBalanceStep, qualityGateAndPublishStep, recordFailureStep, generateArticleWorkflow } = await import('./generate-article');
 
 const ARTICLE_STUB = {
   title: 'T', slug: 'slug-ok', meta_desc: 'M', image_prompt: 'p', content: 'conteúdo',
@@ -235,5 +239,53 @@ describe('recordFailureStep — alerta em tempo real na 1ª falha do dia', () =>
     markAlertedIfFirstFailureToday.mockResolvedValue(false);
     await recordFailureStep('energia solar teste', 'algum erro');
     expect(insertRunLog).toHaveBeenCalledWith({ keyword: 'energia solar teste', status: 'error', error: 'algum erro' });
+  });
+});
+
+// REGRESSÃO 14/09/2026 (achado da auditoria pedida pelo dono, "garantia irrestrita de
+// publicação"): markPublishedStep/revalidateStep/distributeStep rodam DEPOIS de
+// qualityGateAndPublishStep já ter inserido o artigo (coesa_articles) e gravado
+// insertRunLog(success) — mas as 3 chamadas ficam dentro do MESMO try/catch do workflow.
+// Se qualquer uma lançar (ex.: revalidatePath fora do contexto de request do Next.js —
+// erro documentado do framework: "Invariant: static generation store missing"), o catch
+// externo tratava isso como falha TOTAL do pipeline: recordFailureStep disparava um alerta
+// de e-mail dizendo que o artigo NÃO publicou, quando na verdade já estava em produção.
+// coesa_blog_insert_run_log (lida ao vivo no Supabase) só faz UPDATE quando status='running'
+// — não sobrescreve um 'success' já gravado — mas coesa_blog_mark_alerted não tem essa
+// mesma trava (só checa `alerted=false`), então o e-mail falso disparava mesmo assim.
+describe('generateArticleWorkflow — passos pós-publicação não derrubam um artigo já publicado (REGRESSÃO 14/09/2026)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    checkOpenRouterBalance.mockResolvedValue({ ok: true, remaining: 50 });
+    getNextPlannedEntry.mockResolvedValue({ keyword: 'kw-workflow-test' });
+    generateArticleWithSections.mockResolvedValue(ARTICLE_STUB);
+    runQualityGateLoop.mockImplementation(async (initial: unknown) => ({
+      content: initial,
+      judged: { skipped: true, score: null, issues: [], categories: null },
+      attempts: 0,
+    }));
+    insertArticle.mockResolvedValue('slug-workflow-test');
+    insertRunLog.mockResolvedValue(undefined);
+    markAlertedIfFirstFailureToday.mockResolvedValue(false);
+    saveOutlineStructure.mockResolvedValue(undefined);
+  });
+
+  it('revalidatePath falhando DEPOIS do artigo já inserido NÃO derruba a publicação nem dispara alerta falso', async () => {
+    revalidatePath.mockImplementationOnce(() => {
+      throw new Error('Invariant: static generation store missing in revalidatePath');
+    });
+
+    const result = await generateArticleWorkflow();
+
+    expect(result).toEqual({ slug: 'slug-workflow-test', warnings: [] });
+    expect(insertArticle).toHaveBeenCalled();
+    expect(insertRunLog).toHaveBeenCalledWith({ keyword: 'kw-workflow-test', status: 'success' });
+    expect(insertRunLog).not.toHaveBeenCalledWith(expect.objectContaining({ status: 'error' }));
+    expect(sendFailureAlertEmail).not.toHaveBeenCalled();
+  });
+
+  it('caso positivo: sem falha nos passos pós-publicação, publica normalmente', async () => {
+    const result = await generateArticleWorkflow();
+    expect(result).toEqual({ slug: 'slug-workflow-test', warnings: [] });
   });
 });
