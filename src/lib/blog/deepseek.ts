@@ -400,6 +400,8 @@ Persona: ${editorial.persona}. Tom: ${editorial.tone}.
 
 Escreva SOMENTE o corpo desta seção em markdown — SEM o título H2 (será adicionado por fora),
 SEM front-matter, SEM comentários. Regras:
+- NUNCA use "## " (H2) dentro do corpo — mesmo se o brief cobrir mais de um sub-tema, o H2
+  desta seção já existe por fora. Se precisar de sub-divisão, use "### " (H3).
 - Parágrafos máx 4 linhas, uma ideia por parágrafo.
 - Bullets/listas e tabelas markdown quando o conteúdo permitir (simplificação visual).
 - Dados concretos > percentuais vagos ("R$ 3.200/mês" em vez de "até 40%").
@@ -482,9 +484,25 @@ Alvo: ${section.word_target} palavras (não conte, escreva naturalmente até cob
 /** Monta o markdown final (seções + FAQ) a partir da estrutura e dos corpos já escritos —
  *  extraída para ser reusada por regenerateSectionsWithFeedback (Task 4), que reescreve só
  *  os `bodies` das seções com issue e precisa remontar o mesmo content. */
+// REGRESSÃO 16/09/2026 (achado real em produção, artigo 712bbe6b — 16 H2s publicados contra
+// o contrato de 7-9): SECTION_SYSTEM_PROMPT instrui o modelo a NÃO escrever o H2 principal da
+// seção ("será adicionado por fora"), mas nunca proíbe o modelo de abrir SEUS PRÓPRIOS `##`
+// dentro do corpo quando o content_brief cobre mais de um sub-tema (ex.: seção "Diferença entre
+// assinatura e instalação de placas" virou 3 H2s reais: a própria + "O custo inicial..." +
+// "Manutenção e espaço..." — sub-pontos que deveriam ser H3). validateArticle já mede h2_count
+// fora de MIN_SECTIONS-MAX_SECTIONS, mas é só aviso (fixSimpleValidationIssues não sabe corrigir
+// isso e regenerar o artigo inteiro é o que causava o timeout de 800s documentado acima) — o
+// artigo publica de qualquer forma. Fix determinístico, não depende do modelo obedecer prompt:
+// qualquer `##` (exatamente 2 #, nunca ### ou mais) dentro do CORPO de uma seção é rebaixado a
+// `###` antes da montagem final — o H2 real de cada seção continua sendo só o que assembleArticleMarkdown
+// adiciona por fora.
+export function demoteStrayH2HeadingsInBody(body: string): string {
+  return body.replace(/^##(?!#)(\s)/gm, '###$1');
+}
+
 export function assembleArticleMarkdown(structure: ArticleStructure, bodies: string[]): string {
   const sectionsMd = structure.sections
-    .map((s, i) => `## ${s.h2}\n\n${bodies[i]}\n\n<!-- IMG_SLOT:${i} -->`)
+    .map((s, i) => `## ${s.h2}\n\n${demoteStrayH2HeadingsInBody(bodies[i]!)}\n\n<!-- IMG_SLOT:${i} -->`)
     .join('\n\n');
 
   // Box "Em resumo" (GEO) — validateArticle exige um H2 fixo com ≥3 bullets, ANTES do

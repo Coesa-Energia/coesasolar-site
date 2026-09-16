@@ -33,6 +33,7 @@ const {
   regenerateSectionsWithFeedback,
   assembleArticleMarkdown,
   generateArticleStructure,
+  demoteStrayH2HeadingsInBody,
 } = await import('./deepseek');
 
 const ARTICLE = {
@@ -563,6 +564,41 @@ describe('REGRESSÃO checklist 25/08/2026: assembleArticleMarkdown é reusada po
     expect(md1).toBe(md2);
     expect(md1).toContain('<!-- IMG_SLOT:0 -->');
     expect(md1).toContain('## Perguntas Frequentes');
+  });
+});
+
+describe('REGRESSÃO 16/09/2026 (achado real em produção, artigo 712bbe6b — 16 H2s publicados contra o contrato de 7-9): demoteStrayH2HeadingsInBody', () => {
+  it('rebaixa "## " solto no corpo pra "### " (sub-tema não pode virar seção nova)', () => {
+    const body = 'Parágrafo normal.\n\n## Sub-tema que o modelo decidiu abrir\n\nMais texto.';
+    expect(demoteStrayH2HeadingsInBody(body)).toBe(
+      'Parágrafo normal.\n\n### Sub-tema que o modelo decidiu abrir\n\nMais texto.',
+    );
+  });
+
+  it('nunca toca em H3/H4 já corretos (### e ####), só em H2 exato', () => {
+    const body = '### Já é H3\n\n#### Já é H4\n\nTexto.';
+    expect(demoteStrayH2HeadingsInBody(body)).toBe(body);
+  });
+
+  it('corpo sem heading nenhum passa inalterado', () => {
+    const body = 'Só prosa, sem headings.';
+    expect(demoteStrayH2HeadingsInBody(body)).toBe(body);
+  });
+
+  it('assembleArticleMarkdown nunca deixa passar H2 extra vindo do corpo de uma seção', () => {
+    const structure = {
+      title: 't', page_title: 't', slug: 's', meta_desc: 'm', cover_image_prompt: 'c',
+      cover_alt: 'a', category: 'cat',
+      sections: [{ h2: 'Diferença entre A e B', content_brief: 'b', word_target: 100, image_prompt: 'p' }],
+      faq: [{ question: 'Pergunta?', answer: 'Resposta.' }],
+      summary_bullets: ['Bullet 1', 'Bullet 2', 'Bullet 3'],
+    };
+    const bodyComH2Solto = 'Intro.\n\n## O custo inicial é a maior diferença\n\nDetalhe.';
+    const md = assembleArticleMarkdown(structure, [bodyComH2Solto]);
+    const h2Count = (md.match(/^##(?!#)\s/gm) ?? []).length;
+    // Só os H2 estruturais: a seção real ("Diferença entre A e B"), "Em resumo" e "Perguntas Frequentes".
+    expect(h2Count).toBe(3);
+    expect(md).toContain('### O custo inicial é a maior diferença');
   });
 });
 
