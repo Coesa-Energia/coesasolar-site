@@ -34,7 +34,22 @@ const {
   assembleArticleMarkdown,
   generateArticleStructure,
   demoteStrayH2HeadingsInBody,
+  FAQ_ANSWER_MIN_WORDS,
+  FAQ_ANSWER_MAX_WORDS,
 } = await import('./deepseek');
+
+// REGRESSÃO 17/09/2026: resposta de FAQ dentro do contrato real (100-150 palavras) — usada em
+// todas as fixtures de estrutura "válida" deste arquivo. Uma resposta de 1-2 palavras (como
+// antes) não passa mais em isValidStructure/generateArticleStructure depois do fix do bug de
+// FAQ raso (artigo 02630ebf, 33-37 palavras por resposta em produção).
+const VALID_FAQ_ANSWER =
+  'Essa é uma resposta completa de FAQ usada nos testes de regressão para simular o texto ' +
+  'final que a etapa de estrutura precisa produzir, já que não existe uma segunda chamada que ' +
+  'expanda esse conteúdo depois, ao contrário do que acontece com o brief de cada seção do ' +
+  'artigo. O texto cobre o contexto da pergunta, explica o raciocínio por trás da resposta com ' +
+  'um exemplo prático do dia a dia do leitor, cita um número concreto para dar credibilidade e ' +
+  'fecha reforçando o ponto central, sem enrolação e sem clichês, mantendo o tom direto e ' +
+  'objetivo esperado de um conteúdo editorial publicado de verdade no blog da empresa.';
 
 const ARTICLE = {
   title: 'Título original',
@@ -246,7 +261,7 @@ describe('REGRESSÃO checklist 25/08/2026: estrutura precisa de 7-9 seções e 7
       word_target: 650,
       image_prompt: 'Photorealistic detail shot, no text',
     })),
-    faq: Array.from({ length: 7 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, answer: 'Resposta.' })),
+    faq: Array.from({ length: 7 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, answer: VALID_FAQ_ANSWER })),
     summary_bullets: ['Bullet 1', 'Bullet 2', 'Bullet 3'],
   };
 
@@ -272,6 +287,49 @@ describe('REGRESSÃO checklist 25/08/2026: estrutura precisa de 7-9 seções e 7
   });
   it('estrutura com 5 perguntas de FAQ é inválida (exatas 7)', () => {
     expect(isValidStructure({ ...ESTRUTURA_VALIDA, faq: ESTRUTURA_VALIDA.faq.slice(0, 5) }, 'placa solar')).toBe(false);
+  });
+
+  // REGRESSÃO 17/09/2026 (achado real em produção, artigo 02630ebf publicado 16/09 às 09:14):
+  // STRUCTURE_SYSTEM_PROMPT pedia respostas de FAQ "CURTAS (20-40 palavras)" — herdado por
+  // engano do padrão de content_brief das seções, que É só um brief expandido depois por
+  // writeSection. O FAQ não tem essa segunda etapa: o `answer` da estrutura É o texto final
+  // publicado. Resultado real: as 7 respostas do artigo saíram com 33-37 palavras, longe do
+  // contrato documentado (100-150). isValidStructure/describeStructureInvalidity agora barram
+  // isso na origem, antes de qualquer chamada de escrita de seção.
+  it('estrutura com resposta de FAQ abaixo de 100 palavras é inválida', () => {
+    const faqCurta = [
+      { question: ESTRUTURA_VALIDA.faq[0]!.question, answer: 'Resposta curta de poucas palavras, bem abaixo do piso exigido pelo contrato.' },
+      ...ESTRUTURA_VALIDA.faq.slice(1),
+    ];
+    expect(isValidStructure({ ...ESTRUTURA_VALIDA, faq: faqCurta }, 'placa solar')).toBe(false);
+  });
+  it('estrutura com resposta de FAQ acima de 150 palavras é inválida', () => {
+    const faqLonga = [
+      { question: ESTRUTURA_VALIDA.faq[0]!.question, answer: `${VALID_FAQ_ANSWER} ${VALID_FAQ_ANSWER}` },
+      ...ESTRUTURA_VALIDA.faq.slice(1),
+    ];
+    expect(isValidStructure({ ...ESTRUTURA_VALIDA, faq: faqLonga }, 'placa solar')).toBe(false);
+  });
+  it('estrutura com resposta de FAQ nas fronteiras exatas de 100 e 150 palavras é válida', () => {
+    const palavra = (n: number) => Array.from({ length: n }, () => 'palavra').join(' ');
+    const faq100 = [
+      { question: ESTRUTURA_VALIDA.faq[0]!.question, answer: palavra(FAQ_ANSWER_MIN_WORDS) },
+      ...ESTRUTURA_VALIDA.faq.slice(1),
+    ];
+    const faq150 = [
+      { question: ESTRUTURA_VALIDA.faq[0]!.question, answer: palavra(FAQ_ANSWER_MAX_WORDS) },
+      ...ESTRUTURA_VALIDA.faq.slice(1),
+    ];
+    expect(isValidStructure({ ...ESTRUTURA_VALIDA, faq: faq100 }, 'placa solar')).toBe(true);
+    expect(isValidStructure({ ...ESTRUTURA_VALIDA, faq: faq150 }, 'placa solar')).toBe(true);
+  });
+  it('describeStructureInvalidity: resposta de FAQ curta aponta a seção e a contagem de palavras', () => {
+    const faqCurta = [
+      { question: ESTRUTURA_VALIDA.faq[0]!.question, answer: 'Resposta muito curta.' },
+      ...ESTRUTURA_VALIDA.faq.slice(1),
+    ];
+    const reasons = describeStructureInvalidity({ ...ESTRUTURA_VALIDA, faq: faqCurta }, 'placa solar');
+    expect(reasons).toContain(`faq_0_answer_3_palavras_fora_de_${FAQ_ANSWER_MIN_WORDS}-${FAQ_ANSWER_MAX_WORDS}`);
   });
   it('estrutura sem a keyword no título é inválida', () => {
     expect(isValidStructure({ ...ESTRUTURA_VALIDA, title: 'Guia genérico sem o termo' }, 'placa solar')).toBe(false);
@@ -386,7 +444,7 @@ describe('REGRESSÃO 25/08/2026 (lapidação Task 6): generateArticleStructure n
     sections: Array.from({ length: 7 }, (_, i) => ({
       h2: `Seção ${i + 1}`, content_brief: 'brief', word_target: 650, image_prompt: 'p',
     })),
-    faq: Array.from({ length: 7 }, (_, i) => ({ question: `P${i}?`, answer: 'R' })),
+    faq: Array.from({ length: 7 }, (_, i) => ({ question: `P${i}?`, answer: VALID_FAQ_ANSWER })),
     summary_bullets: ['B1', 'B2', 'B3'],
   };
 
@@ -431,7 +489,7 @@ describe('REGRESSÃO checklist 25/08/2026: montagem por seções (generateArticl
       word_target: 650,
       image_prompt: 'Photorealistic detail shot, no text',
     })),
-    faq: Array.from({ length: 7 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, answer: 'Resposta.' })),
+    faq: Array.from({ length: 7 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, answer: VALID_FAQ_ANSWER })),
     summary_bullets: ['Bullet 1', 'Bullet 2', 'Bullet 3'],
   };
 
@@ -556,7 +614,7 @@ describe('REGRESSÃO checklist 25/08/2026: assembleArticleMarkdown é reusada po
       title: 't', page_title: 't', slug: 's', meta_desc: 'm', cover_image_prompt: 'c',
       cover_alt: 'a', category: 'cat',
       sections: [{ h2: 'H2 único', content_brief: 'b', word_target: 100, image_prompt: 'p' }],
-      faq: [{ question: 'Pergunta?', answer: 'Resposta.' }],
+      faq: [{ question: 'Pergunta?', answer: VALID_FAQ_ANSWER }],
       summary_bullets: ['Bullet 1', 'Bullet 2', 'Bullet 3'],
     };
     const md1 = assembleArticleMarkdown(structure, ['corpo']);
@@ -590,7 +648,7 @@ describe('REGRESSÃO 16/09/2026 (achado real em produção, artigo 712bbe6b — 
       title: 't', page_title: 't', slug: 's', meta_desc: 'm', cover_image_prompt: 'c',
       cover_alt: 'a', category: 'cat',
       sections: [{ h2: 'Diferença entre A e B', content_brief: 'b', word_target: 100, image_prompt: 'p' }],
-      faq: [{ question: 'Pergunta?', answer: 'Resposta.' }],
+      faq: [{ question: 'Pergunta?', answer: VALID_FAQ_ANSWER }],
       summary_bullets: ['Bullet 1', 'Bullet 2', 'Bullet 3'],
     };
     const bodyComH2Solto = 'Intro.\n\n## O custo inicial é a maior diferença\n\nDetalhe.';
@@ -696,7 +754,7 @@ describe('REGRESSÃO 26/08/2026: isValidStructure aceita keyword separada por po
       word_target: 650,
       image_prompt: 'p',
     })),
-    faq: Array.from({ length: 7 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, answer: 'Resposta.' })),
+    faq: Array.from({ length: 7 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, answer: VALID_FAQ_ANSWER })),
     summary_bullets: ['Bullet 1', 'Bullet 2', 'Bullet 3'],
   });
 
@@ -726,7 +784,7 @@ describe('REGRESSÃO 02/09/2026: titleContainsKeywordInOrder aceita palavra de l
     sections: Array.from({ length: 7 }, (_, i) => ({
       h2: `Seção ${i + 1}`, content_brief: 'brief', word_target: 650, image_prompt: 'p',
     })),
-    faq: Array.from({ length: 7 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, answer: 'Resposta.' })),
+    faq: Array.from({ length: 7 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, answer: VALID_FAQ_ANSWER })),
     summary_bullets: ['Bullet 1', 'Bullet 2', 'Bullet 3'],
   });
 
@@ -763,7 +821,7 @@ describe('REGRESSÃO 26/08/2026: generateArticleStructure dá feedback à 2ª te
       word_target: 650,
       image_prompt: 'p',
     })),
-    faq: Array.from({ length: 7 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, answer: 'Resposta.' })),
+    faq: Array.from({ length: 7 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, answer: VALID_FAQ_ANSWER })),
     summary_bullets: ['Bullet 1', 'Bullet 2', 'Bullet 3'],
   });
 
@@ -824,7 +882,7 @@ describe('REGRESSÃO 02/09/2026: generateArticleStructure troca de modelo na 3ª
     sections: Array.from({ length: 7 }, (_, i) => ({
       h2: `Seção ${i + 1}`, content_brief: 'brief', word_target: 650, image_prompt: 'p',
     })),
-    faq: Array.from({ length: 7 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, answer: 'Resposta.' })),
+    faq: Array.from({ length: 7 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, answer: VALID_FAQ_ANSWER })),
     summary_bullets: ['Bullet 1', 'Bullet 2', 'Bullet 3'],
   });
 
@@ -881,7 +939,7 @@ describe('REGRESSÃO 08/09/2026: generateArticleStructure para de tentar quando 
     title: 'Guia genérico sem a keyword',
     page_title: 'x', slug: 'x', meta_desc: 'x', cover_image_prompt: 'x', cover_alt: 'x', category: 'faq',
     sections: [{ h2: 'Só uma seção', content_brief: 'brief', word_target: 350, image_prompt: 'p' }],
-    faq: [{ question: 'Pergunta?', answer: 'Resposta.' }],
+    faq: [{ question: 'Pergunta?', answer: VALID_FAQ_ANSWER }],
     summary_bullets: ['Bullet 1'],
   };
 
@@ -909,7 +967,7 @@ describe('REGRESSÃO 08/09/2026: generateArticleStructure para de tentar quando 
       title: 'Placa Solar: Guia Completo 2026', page_title: 'x', slug: 'x', meta_desc: 'x',
       cover_image_prompt: 'x', cover_alt: 'x', category: 'faq',
       sections: Array.from({ length: 7 }, (_, i) => ({ h2: `Seção ${i + 1}`, content_brief: 'brief', word_target: 650, image_prompt: 'p' })),
-      faq: Array.from({ length: 7 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, answer: 'Resposta.' })),
+      faq: Array.from({ length: 7 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, answer: VALID_FAQ_ANSWER })),
       summary_bullets: ['Bullet 1', 'Bullet 2', 'Bullet 3'],
     };
     createMock.mockResolvedValueOnce({ choices: [{ message: { content: JSON.stringify(valida) } }] });
