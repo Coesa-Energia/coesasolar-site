@@ -148,6 +148,18 @@ export const FAQ_COUNT = 7;
 export const MIN_ARTICLE_WORDS = 4500;
 // O alvo editorial permanece 4.500; validações aceitam a variação autorizada de 10%.
 export const MIN_ACCEPTABLE_ARTICLE_WORDS = Math.floor(MIN_ARTICLE_WORDS * 0.9);
+// BUG REAL (achado 17/09/2026, artigo 02630ebf publicado 16/09 às 09:14 — 5h antes do fix de
+// H2 solto/#79): o comentário acima já dizia "100-150 palavras", mas REGRAS OBRIGATÓRIAS e o
+// exemplo de JSON abaixo pediam 20-40 (herdado por engano do padrão de content_brief das
+// seções — lá é só um BRIEF que writeSection expande depois; aqui o `answer` É o texto final,
+// sem segunda chamada). Resultado real: as 7 respostas do FAQ saíram com 33-37 palavras.
+// Constantes (não string solta) para o prompt e o validador nunca mais divergirem entre si.
+export const FAQ_ANSWER_MIN_WORDS = 100;
+export const FAQ_ANSWER_MAX_WORDS = 150;
+
+function countWords(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
 
 const STRUCTURE_SYSTEM_PROMPT = `Você é um estrategista de conteúdo SEO para ${brand.name} (${brand.siteUrl}),
 ${editorial.businessDescription}. Público: ${editorial.audience}.
@@ -171,7 +183,7 @@ Gere a ESTRUTURA de um artigo (não o texto completo). Retorne SOMENTE JSON vál
     }
   ],
   "faq": [
-    { "question": "Pergunta frequente sobre o tema?", "answer": "Resposta CURTA e completa de 20-40 palavras." }
+    { "question": "Pergunta frequente sobre o tema?", "answer": "Resposta COMPLETA de ${FAQ_ANSWER_MIN_WORDS}-${FAQ_ANSWER_MAX_WORDS} palavras — é o texto final publicado, não um resumo." }
   ],
   "summary_bullets": ["Bullet auto-contido 1", "Bullet auto-contido 2", "Bullet auto-contido 3"]
 }
@@ -180,7 +192,10 @@ REGRAS OBRIGATÓRIAS:
 - Entre ${MIN_SECTIONS} e ${MAX_SECTIONS} seções H2, cada uma sobre um aspecto distinto do tema (sem sobreposição).
 - word_target por seção: 400-700 (soma total mínima ${MIN_ARTICLE_WORDS.toLocaleString('pt-BR')} palavras) — este número é o alvo do REDATOR
   na próxima etapa; content_brief em si fica CURTO (60-90 palavras), é só a instrução, não o texto final.
-- Exatamente ${FAQ_COUNT} perguntas no FAQ, cada resposta CURTA (20-40 palavras) — objetiva, sem enrolação.
+- Exatamente ${FAQ_COUNT} perguntas no FAQ, cada resposta de ${FAQ_ANSWER_MIN_WORDS}-${FAQ_ANSWER_MAX_WORDS} palavras
+  — ao contrário do content_brief das seções, não existe etapa seguinte que expanda isto: o
+  campo "answer" É o texto final publicado, tem que ser completo (contexto + explicação +
+  exemplo quando fizer sentido), nunca um resumo de 1-2 frases.
 - summary_bullets: 3 a 5 frases CURTAS, cada uma auto-contida (entrega a ideia sozinha, sem depender
   do resto do artigo) — vira o box "Em resumo" citável por IA de busca.
 - cover_image_prompt e image_prompt de cada seção sempre em inglês, fotorrealista, sem texto/logo.
@@ -253,7 +268,8 @@ export function isValidStructure(s: ArticleStructure, keyword: string): boolean 
     s.sections.every(sec => !!sec.h2 && !!sec.content_brief && !!sec.image_prompt && sec.word_target >= 400 && sec.word_target <= 700) &&
     s.sections.reduce((total, sec) => total + sec.word_target, 0) >= MIN_ACCEPTABLE_ARTICLE_WORDS &&
     Array.isArray(s.faq) && s.faq.length === FAQ_COUNT &&
-    s.faq.every(f => !!f.question && !!f.answer) &&
+    s.faq.every(f => !!f.question && !!f.answer &&
+      countWords(f.answer) >= FAQ_ANSWER_MIN_WORDS && countWords(f.answer) <= FAQ_ANSWER_MAX_WORDS) &&
     Array.isArray(s.summary_bullets) && s.summary_bullets.length >= 3 && s.summary_bullets.length <= 5 &&
     s.summary_bullets.every(b => !!b)
   );
@@ -287,7 +303,13 @@ export function describeStructureInvalidity(s: ArticleStructure | null, keyword:
   if (!Array.isArray(s.faq)) reasons.push('faq_nao_e_array');
   else {
     if (s.faq.length !== FAQ_COUNT) reasons.push(`faq_count_${s.faq.length}_diferente_de_${FAQ_COUNT}`);
-    s.faq.forEach((f, i) => { if (!f.question || !f.answer) reasons.push(`faq_${i}_campo_ausente`); });
+    s.faq.forEach((f, i) => {
+      if (!f.question || !f.answer) { reasons.push(`faq_${i}_campo_ausente`); return; }
+      const words = countWords(f.answer);
+      if (words < FAQ_ANSWER_MIN_WORDS || words > FAQ_ANSWER_MAX_WORDS) {
+        reasons.push(`faq_${i}_answer_${words}_palavras_fora_de_${FAQ_ANSWER_MIN_WORDS}-${FAQ_ANSWER_MAX_WORDS}`);
+      }
+    });
   }
   if (!Array.isArray(s.summary_bullets)) reasons.push('summary_bullets_nao_e_array');
   else {
@@ -301,9 +323,13 @@ export function describeStructureInvalidity(s: ArticleStructure | null, keyword:
 // é modelo de raciocínio — parte do max_tokens vai pro campo interno reasoning_content,
 // nunca aparece em `content` (reference_deepseek_v4_reasoning_gotchas.md, item 2-3). 8000
 // deu content vazio; 24000 (sem streaming) deu erro de conexão "terminated" — provável
-// timeout de rede no meio de uma resposta muito longa aberta sem stream. 12000 é o meio
+// timeout de rede no meio de uma resposta muito longa aberta sem stream. 12000 era o meio
 // termo: 4x o valor que deu vazio, sem esticar a conexão o bastante pra derrubar de novo.
-const STRUCTURE_MAX_TOKENS = 12000;
+// Bump pra 14000 em 17/09/2026: FAQ_ANSWER_MIN_WORDS/MAX_WORDS subiu de 20-40 pra 100-150
+// palavras por resposta (fix do bug de FAQ raso) — 7 respostas maiores somam ~1.7k tokens a
+// mais na estrutura (2.2 tokens/palavra, mesma estimativa de maxTokensForSection). Ainda bem
+// abaixo dos 24000 que causaram o erro de conexão.
+const STRUCTURE_MAX_TOKENS = 14000;
 
 const PRIMARY_STRUCTURE_MODEL = 'deepseek/deepseek-v4-flash-0731';
 // REGRESSÃO 02/09/2026: as 3 tentativas automáticas do dia usavam o MESMO modelo — um dia
