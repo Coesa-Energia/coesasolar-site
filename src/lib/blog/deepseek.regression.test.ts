@@ -36,6 +36,8 @@ const {
   demoteStrayH2HeadingsInBody,
   FAQ_ANSWER_MIN_WORDS,
   FAQ_ANSWER_MAX_WORDS,
+  SECTION_WORD_MIN,
+  SECTION_WORD_MAX,
 } = await import('./deepseek');
 
 // REGRESSÃO 17/09/2026: resposta de FAQ dentro do contrato real (100-150 palavras) — usada em
@@ -50,6 +52,23 @@ const VALID_FAQ_ANSWER =
   'um exemplo prático do dia a dia do leitor, cita um número concreto para dar credibilidade e ' +
   'fecha reforçando o ponto central, sem enrolação e sem clichês, mantendo o tom direto e ' +
   'objetivo esperado de um conteúdo editorial publicado de verdade no blog da empresa.';
+
+// REGRESSÃO 18/09/2026: corpo de seção dentro do contrato real (400-700 palavras, 402 aqui) —
+// usado nos testes de writeSection abaixo. Um texto de 3-5 palavras (como antes) não passa mais
+// na checagem de contagem real depois do fix do bug de seção curta/longa (artigo 6876c0fe, 8
+// seções mas pelo menos uma fora de 400-700 — o mesmo defeito de word_target nunca conferido
+// que já tinha sido fechado pro FAQ, ver VALID_FAQ_ANSWER acima).
+const VALID_SECTION_BODY = `A escolha da placa solar certa começa pelo entendimento do consumo real da sua casa, não pela oferta mais barata que aparece primeiro na busca. Antes de comparar preços, pegue as últimas três contas de luz e calcule a média de kWh consumidos por mês. Esse número é a base de todo o dimensionamento do sistema — sem ele, qualquer orçamento vira só um chute.
+
+Depois do consumo médio, o segundo fator decisivo é a eficiência do painel, medida em watts-pico por metro quadrado. Painéis monocristalinos costumam entregar mais energia numa área menor, o que importa muito quando o telhado disponível é pequeno ou tem sombreamento parcial em algum horário do dia. Painéis policristalinos, por outro lado, custam menos por watt instalado, mas exigem mais espaço para gerar a mesma quantidade de energia.
+
+Um erro comum é comprar exatamente a potência da conta atual, sem margem para o futuro. Se você pretende trocar o carro por um elétrico, instalar ar-condicionado novo ou simplesmente espera que a família cresça, vale dimensionar o sistema com folga de 15% a 20% acima do consumo hoje. Essa margem custa pouco no orçamento inicial e evita um upgrade caro depois, que normalmente exige mexer de novo na estrutura do telhado.
+
+A orientação e a inclinação do telhado também mudam a conta. No Brasil, telhados voltados para o norte geralmente captam mais sol ao longo do ano, mas painéis instalados para leste ou oeste ainda funcionam bem, só que com uma queda de produção que pode chegar a 10-15%. Um instalador sério sempre faz essa análise antes de fechar orçamento, usando ferramentas de simulação solar que consideram sombra de prédios vizinhos, árvores e até a curvatura do telhado.
+
+Por fim, não esqueça da garantia. Os melhores fabricantes oferecem 25 anos de garantia de performance, com a promessa de que o painel ainda produz pelo menos 80% da capacidade original depois de duas décadas e meia de uso. Fornecedores sem histórico no mercado brasileiro costumam oferecer prazos menores ou letras miúdas que reduzem a cobertura real — vale sempre pedir o contrato completo antes de assinar qualquer proposta.
+
+Vale também considerar o inversor, peça tão importante quanto o painel em si. Um inversor mal dimensionado limita a produção do sistema inteiro, mesmo com painéis de primeira linha instalados corretamente. Peça sempre a ficha técnica completa e compare a eficiência declarada entre pelo menos três marcas diferentes antes de decidir.`;
 
 const ARTICLE = {
   title: 'Título original',
@@ -367,7 +386,7 @@ describe('REGRESSÃO checklist 25/08/2026: estrutura precisa de 7-9 seções e 7
 
 describe('REGRESSÃO checklist 25/08/2026: writeSection nunca depende do default de max_tokens da API', () => {
   it('max_tokens é explícito e proporcional ao word_target', async () => {
-    createMock.mockResolvedValueOnce({ choices: [{ message: { content: 'Corpo da seção.' } }] });
+    createMock.mockResolvedValueOnce({ choices: [{ message: { content: VALID_SECTION_BODY } }] });
     await writeSection('placa solar', { h2: 'X', content_brief: 'brief', word_target: 600, image_prompt: 'p' }, 0, 8);
     const args = createMock.mock.calls[0][0];
     expect(args.max_tokens).toBeGreaterThanOrEqual(1200); // ~2 tokens/palavra PT-BR de folga
@@ -377,11 +396,11 @@ describe('REGRESSÃO checklist 25/08/2026: writeSection nunca depende do default
   it('REGRESSÃO 25/08/2026 (achado E2E: 1 de 8 seções voltou vazia em produção): retenta 1x se vier vazio', async () => {
     createMock
       .mockResolvedValueOnce({ choices: [{ message: { content: '' } }] })
-      .mockResolvedValueOnce({ choices: [{ message: { content: 'Corpo real na 2ª tentativa.' } }] });
+      .mockResolvedValueOnce({ choices: [{ message: { content: VALID_SECTION_BODY } }] });
 
     const body = await writeSection('placa solar', { h2: 'X', content_brief: 'brief', word_target: 600, image_prompt: 'p' }, 0, 8);
 
-    expect(body).toBe('Corpo real na 2ª tentativa.');
+    expect(body).toBe(VALID_SECTION_BODY);
     expect(createMock).toHaveBeenCalledTimes(2);
   });
 
@@ -408,11 +427,11 @@ describe('REGRESSÃO checklist 25/08/2026: writeSection nunca depende do default
     createMock
       .mockResolvedValueOnce({ choices: [{ message: { content: '' } }] })
       .mockResolvedValueOnce({ choices: [{ message: { content: '' } }] })
-      .mockResolvedValueOnce({ choices: [{ message: { content: 'Corpo real na 3ª tentativa.' } }] });
+      .mockResolvedValueOnce({ choices: [{ message: { content: VALID_SECTION_BODY } }] });
 
     const body = await writeSection('placa solar', { h2: 'X', content_brief: 'brief', word_target: 600, image_prompt: 'p' }, 0, 8);
 
-    expect(body).toBe('Corpo real na 3ª tentativa.');
+    expect(body).toBe(VALID_SECTION_BODY);
     expect(createMock).toHaveBeenCalledTimes(3);
     expect(createMock.mock.calls[0][0].model).toBe('deepseek/deepseek-v4-flash-0731');
     expect(createMock.mock.calls[1][0].model).toBe('z-ai/glm-5.3-flash');
@@ -422,13 +441,77 @@ describe('REGRESSÃO checklist 25/08/2026: writeSection nunca depende do default
   it('REGRESSÃO 11/09/2026: timeout troca de provedor sem retry interno do SDK', async () => {
     createMock
       .mockRejectedValueOnce(new Error('Request timed out.'))
-      .mockResolvedValueOnce({ choices: [{ message: { content: 'Corpo recuperado.' } }] });
+      .mockResolvedValueOnce({ choices: [{ message: { content: VALID_SECTION_BODY } }] });
 
     const body = await writeSection('placa solar', { h2: 'X', content_brief: 'brief', word_target: 600, image_prompt: 'p' }, 0, 8);
 
-    expect(body).toBe('Corpo recuperado.');
+    expect(body).toBe(VALID_SECTION_BODY);
     expect(createMock.mock.calls[1][0].model).toBe('z-ai/glm-5.3-flash');
     expect(openAiOptions.at(-1)).toMatchObject({ timeout: 90_000, maxRetries: 0 });
+  });
+
+  // REGRESSÃO 18/09/2026 (cs.22, ig-sentinel — artigo 6876c0fe publicado 17/09 09:03, 8 seções
+  // mas pelo menos uma fora de 400-700 palavras): antes deste fix, qualquer texto NÃO-VAZIO
+  // era aceito sem checar a contagem real — só "vazio" disparava retry. word_target é uma
+  // instrução pro modelo ("escreva naturalmente"), nunca uma garantia.
+  it('REGRESSÃO 18/09/2026 (cs.22): texto curto demais (não vazio) dispara retry, não é aceito de cara', async () => {
+    const curto = 'Texto real, mas bem mais curto do que os 400 a 700 esperados pra seção.'; // ~13 palavras
+    createMock
+      .mockResolvedValueOnce({ choices: [{ message: { content: curto } }] })
+      .mockResolvedValueOnce({ choices: [{ message: { content: VALID_SECTION_BODY } }] });
+
+    const body = await writeSection('placa solar', { h2: 'X', content_brief: 'brief', word_target: 600, image_prompt: 'p' }, 0, 8);
+
+    expect(body).toBe(VALID_SECTION_BODY);
+    expect(createMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('REGRESSÃO 18/09/2026 (cs.22): texto longo demais (>700 palavras) também dispara retry', async () => {
+    const longo = Array.from({ length: 750 }, () => 'palavra').join(' ');
+    createMock
+      .mockResolvedValueOnce({ choices: [{ message: { content: longo } }] })
+      .mockResolvedValueOnce({ choices: [{ message: { content: VALID_SECTION_BODY } }] });
+
+    const body = await writeSection('placa solar', { h2: 'X', content_brief: 'brief', word_target: 600, image_prompt: 'p' }, 0, 8);
+
+    expect(body).toBe(VALID_SECTION_BODY);
+    expect(createMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('REGRESSÃO 18/09/2026 (cs.22): o retry ganha uma dica com a contagem da tentativa anterior, não repete o prompt cego', async () => {
+    const curto = 'Texto real, mas bem mais curto do que os 400 a 700 esperados pra seção.';
+    createMock
+      .mockResolvedValueOnce({ choices: [{ message: { content: curto } }] })
+      .mockResolvedValueOnce({ choices: [{ message: { content: VALID_SECTION_BODY } }] });
+
+    await writeSection('placa solar', { h2: 'X', content_brief: 'brief', word_target: 600, image_prompt: 'p' }, 0, 8);
+
+    const secondCallUser = createMock.mock.calls[1][0].messages[1].content as string;
+    expect(secondCallUser).toContain('curta demais');
+    expect(secondCallUser).toMatch(/\b15\b/); // conta real da tentativa anterior
+  });
+
+  // REGRESSÃO 18/09/2026 (cs.22): se as 3 tentativas saírem fora da faixa mas NENHUMA vazia,
+  // nunca cai no content_brief (que é garantidamente curto demais — reproduziria o mesmo bug).
+  // Usa a tentativa mais próxima do meio da faixa como último recurso.
+  it('REGRESSÃO 18/09/2026 (cs.22): 3 tentativas fora da faixa (nenhuma vazia) usa a mais próxima do meio, nunca o content_brief', async () => {
+    const curtissimo = Array.from({ length: 50 }, () => 'palavra').join(' '); // longe do meio (550)
+    const maisProxima = Array.from({ length: 500 }, () => 'palavra').join(' '); // perto do meio
+    const longuissimo = Array.from({ length: 950 }, () => 'palavra').join(' '); // longe do meio
+    createMock
+      .mockResolvedValueOnce({ choices: [{ message: { content: curtissimo } }] })
+      .mockResolvedValueOnce({ choices: [{ message: { content: maisProxima } }] })
+      .mockResolvedValueOnce({ choices: [{ message: { content: longuissimo } }] });
+
+    const body = await writeSection('placa solar', { h2: 'X', content_brief: 'Instrução do brief como corpo mínimo.', word_target: 600, image_prompt: 'p' }, 0, 8);
+
+    expect(body).toBe(maisProxima);
+    expect(body).not.toBe('Instrução do brief como corpo mínimo.');
+  });
+
+  it('REGRESSÃO 18/09/2026: SECTION_WORD_MIN/MAX batem com o contrato do checklist (400-700)', () => {
+    expect(SECTION_WORD_MIN).toBe(400);
+    expect(SECTION_WORD_MAX).toBe(700);
   });
 });
 
@@ -496,7 +579,7 @@ describe('REGRESSÃO checklist 25/08/2026: montagem por seções (generateArticl
   it('artigo montado tem 1 slot de imagem por seção + FAQ com 7 blocos', async () => {
     createMock
       .mockResolvedValueOnce({ choices: [{ message: { content: JSON.stringify(ESTRUTURA_MONTAGEM) } }] })
-      .mockResolvedValue({ choices: [{ message: { content: 'Corpo de exemplo da seção, texto suficiente.' } }] });
+      .mockResolvedValue({ choices: [{ message: { content: VALID_SECTION_BODY } }] });
 
     const article = await generateArticleWithSections('placa solar');
 
@@ -512,7 +595,7 @@ describe('REGRESSÃO checklist 25/08/2026: montagem por seções (generateArticl
   it('REGRESSÃO 25/08/2026 (achado E2E): monta o H2 "Em resumo" com ≥3 bullets ANTES do FAQ — validateArticle exige isso e o motor por seções não gerava', async () => {
     createMock
       .mockResolvedValueOnce({ choices: [{ message: { content: JSON.stringify(ESTRUTURA_MONTAGEM) } }] })
-      .mockResolvedValue({ choices: [{ message: { content: 'Corpo de exemplo da seção, texto suficiente.' } }] });
+      .mockResolvedValue({ choices: [{ message: { content: VALID_SECTION_BODY } }] });
 
     const article = await generateArticleWithSections('placa solar');
 
@@ -526,11 +609,11 @@ describe('REGRESSÃO checklist 25/08/2026: montagem por seções (generateArticl
     createMock
       .mockResolvedValueOnce({ choices: [{ message: { content: JSON.stringify(ESTRUTURA_MONTAGEM) } }] })
       .mockRejectedValueOnce(new Error('Request timed out.'))
-      .mockResolvedValue({ choices: [{ message: { content: 'Corpo de exemplo da seção.' } }] });
+      .mockResolvedValue({ choices: [{ message: { content: VALID_SECTION_BODY } }] });
 
     const article = await generateArticleWithSections('placa solar');
 
-    expect(article.bodies).toEqual(Array(7).fill('Corpo de exemplo da seção.'));
+    expect(article.bodies).toEqual(Array(7).fill(VALID_SECTION_BODY));
     expect(createMock).toHaveBeenCalledTimes(9);
   });
 
@@ -574,14 +657,14 @@ describe('REGRESSÃO checklist 25/08/2026: regenerateSectionsWithFeedback só re
   const BODIES_ATUAIS = ['Corpo original 1', 'Corpo original 2', 'Corpo original 3'];
 
   it('reescreve só a seção citada na issue, mantém as outras intactas', async () => {
-    createMock.mockResolvedValueOnce({ choices: [{ message: { content: 'Corpo revisado 2' } }] });
+    createMock.mockResolvedValueOnce({ choices: [{ message: { content: VALID_SECTION_BODY } }] });
 
     const novos = await regenerateSectionsWithFeedback('financiamento solar', ESTRUTURA_3_SECOES, BODIES_ATUAIS, [
       { severity: 'P1', category: 'seo', section: 'Seção 2', problem: 'fraco', fix_instruction: 'aprofundar' },
     ]);
 
     expect(novos[0]).toBe('Corpo original 1');
-    expect(novos[1]).toBe('Corpo revisado 2');
+    expect(novos[1]).toBe(VALID_SECTION_BODY);
     expect(novos[2]).toBe('Corpo original 3');
     expect(createMock).toHaveBeenCalledTimes(1);
   });
