@@ -156,6 +156,15 @@ export const MIN_ACCEPTABLE_ARTICLE_WORDS = Math.floor(MIN_ARTICLE_WORDS * 0.9);
 // Constantes (não string solta) para o prompt e o validador nunca mais divergirem entre si.
 export const FAQ_ANSWER_MIN_WORDS = 100;
 export const FAQ_ANSWER_MAX_WORDS = 150;
+// ACHADO 18/09/2026 (cs.22, artigo 6876c0fe publicado 17/09 09:03 — antes do fix acima):
+// isValidStructure só validava o word_target (a META passada pro modelo) das seções, nunca a
+// contagem REAL depois de writeSection() escrever o texto. word_target dentro de 400-700 não
+// garante que o texto de fato saia nessa faixa — o modelo escreve "naturalmente até cobrir o
+// brief" (prompt de writeSection), sem contagem. Mesma classe de bug do FAQ (comentário acima),
+// só que na etapa seguinte do pipeline. Constantes nomeadas pra isValidStructure e writeSection
+// nunca divergirem.
+export const SECTION_WORD_MIN = 400;
+export const SECTION_WORD_MAX = 700;
 
 function countWords(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
@@ -265,7 +274,7 @@ export function isValidStructure(s: ArticleStructure, keyword: string): boolean 
     !!s?.title && titleContainsKeywordInOrder(s.title, keyword) &&
     !!s.slug && !!s.meta_desc && !!s.cover_image_prompt &&
     Array.isArray(s.sections) && s.sections.length >= MIN_SECTIONS && s.sections.length <= MAX_SECTIONS &&
-    s.sections.every(sec => !!sec.h2 && !!sec.content_brief && !!sec.image_prompt && sec.word_target >= 400 && sec.word_target <= 700) &&
+    s.sections.every(sec => !!sec.h2 && !!sec.content_brief && !!sec.image_prompt && sec.word_target >= SECTION_WORD_MIN && sec.word_target <= SECTION_WORD_MAX) &&
     s.sections.reduce((total, sec) => total + sec.word_target, 0) >= MIN_ACCEPTABLE_ARTICLE_WORDS &&
     Array.isArray(s.faq) && s.faq.length === FAQ_COUNT &&
     s.faq.every(f => !!f.question && !!f.answer &&
@@ -295,7 +304,7 @@ export function describeStructureInvalidity(s: ArticleStructure | null, keyword:
     }
     s.sections.forEach((sec, i) => {
       if (!sec.h2 || !sec.content_brief || !sec.image_prompt) reasons.push(`section_${i}_campo_ausente`);
-      if (!(sec.word_target >= 400 && sec.word_target <= 700)) reasons.push(`section_${i}_word_target_${sec.word_target}_fora_de_400-700`);
+      if (!(sec.word_target >= SECTION_WORD_MIN && sec.word_target <= SECTION_WORD_MAX)) reasons.push(`section_${i}_word_target_${sec.word_target}_fora_de_${SECTION_WORD_MIN}-${SECTION_WORD_MAX}`);
     });
     const total = s.sections.reduce((sum, sec) => sum + sec.word_target, 0);
     if (total < MIN_ACCEPTABLE_ARTICLE_WORDS) reasons.push(`soma_word_target_${total}_abaixo_de_${MIN_ACCEPTABLE_ARTICLE_WORDS}`);
@@ -452,10 +461,20 @@ export async function writeSection(
     // o mesmo provedor por até 180s e impedia o fallback de ser alcançado.
     maxRetries: 0,
   });
-  const user = `Tema geral do artigo: "${keyword}" (seção ${sectionIndex + 1} de ${totalSections}).
+  const baseUser = `Tema geral do artigo: "${keyword}" (seção ${sectionIndex + 1} de ${totalSections}).
 Título desta seção (H2): ${section.h2}
 Instrução: ${section.content_brief}
 Alvo: ${section.word_target} palavras (não conte, escreva naturalmente até cobrir o brief).`;
+  // ACHADO 18/09/2026 (cs.22): retry trocava de modelo mas repetia o MESMO prompt — sem dizer
+  // que a tentativa anterior saiu fora da faixa, a próxima tem a mesma chance de errar de novo.
+  // Mesmo padrão de retryHint já usado no retry de estrutura (buildStructureUserPrompt acima).
+  const userFor = (previousWordCount: number | null): string => {
+    if (previousWordCount === null) return baseUser;
+    const hint = previousWordCount < SECTION_WORD_MIN
+      ? `\n\nATENÇÃO: a tentativa anterior teve só ${previousWordCount} palavras — curta demais. Desenvolva mais o tema (exemplos, dados, desdobramentos) até se aproximar de ${section.word_target} palavras.`
+      : `\n\nATENÇÃO: a tentativa anterior teve ${previousWordCount} palavras — longa demais. Seja mais direto, corte redundância, aproxime-se de ${section.word_target} palavras.`;
+    return baseUser + hint;
+  };
 
   // ACHADO 25/08/2026 (teste E2E real): 1 de 8 seções voltou vazia (mesma armadilha de
   // reasoning_content do deepseek-v4-flash, ver reference_deepseek_v4_reasoning_gotchas.md) —
@@ -470,6 +489,13 @@ Alvo: ${section.word_target} palavras (não conte, escreva naturalmente até cob
   // PRIMARY — preserva o comportamento já testado (11/09/2026) de trocar de provedor a cada
   // falha, exceção ou vazio, só dando mais uma chance em vez de desistir na 2ª.
   const WRITE_SECTION_MODELS_BY_ATTEMPT = [PRIMARY_STRUCTURE_MODEL, FALLBACK_STRUCTURE_MODEL, PRIMARY_STRUCTURE_MODEL] as const;
+  // ACHADO 18/09/2026 (cs.22): "voltou vazia" não é o único jeito de uma seção sair errada — o
+  // modelo pode escrever um texto não-vazio, mas curto/longo demais pro contrato de 400-700
+  // (word_target é instrução, "escreva naturalmente", nunca contado). fora_da_faixa guarda a
+  // MELHOR tentativa não-vazia (mais perto do meio da faixa) só como fallback de último recurso
+  // — o caminho normal, com texto dentro da faixa, sempre vence.
+  let bestOutOfRange: { text: string; words: number } | null = null;
+  let lastWordCount: number | null = null;
   for (let attempt = 1; attempt <= WRITE_SECTION_MODELS_BY_ATTEMPT.length; attempt++) {
     const model = WRITE_SECTION_MODELS_BY_ATTEMPT[attempt - 1];
     try {
@@ -478,15 +504,24 @@ Alvo: ${section.word_target} palavras (não conte, escreva naturalmente até cob
         model,
         messages: [
           { role: 'system', content: SECTION_SYSTEM_PROMPT },
-          { role: 'user', content: user },
+          { role: 'user', content: userFor(lastWordCount) },
         ],
         temperature: 0.7,
         max_tokens: maxTokensForSection(section.word_target),
         ...(model === PRIMARY_STRUCTURE_MODEL ? { reasoning_effort: 'low' as const } : {}),
       });
       const text = response.choices[0]?.message?.content?.trim() ?? '';
-      if (text) return text;
-      console.warn(`[deepseek] Seção "${section.h2}" voltou vazia na tentativa ${attempt} (${model}) — HTTP ok, content vazio.`);
+      if (!text) {
+        console.warn(`[deepseek] Seção "${section.h2}" voltou vazia na tentativa ${attempt} (${model}) — HTTP ok, content vazio.`);
+      } else {
+        const words = countWords(text);
+        if (words >= SECTION_WORD_MIN && words <= SECTION_WORD_MAX) return text;
+        console.warn(`[deepseek] Seção "${section.h2}" saiu com ${words} palavras na tentativa ${attempt} (${model}) — fora de ${SECTION_WORD_MIN}-${SECTION_WORD_MAX}.`);
+        lastWordCount = words;
+        const distanceFromMid = Math.abs(words - (SECTION_WORD_MIN + SECTION_WORD_MAX) / 2);
+        const bestDistance = bestOutOfRange ? Math.abs(bestOutOfRange.words - (SECTION_WORD_MIN + SECTION_WORD_MAX) / 2) : Infinity;
+        if (distanceFromMid < bestDistance) bestOutOfRange = { text, words };
+      }
     } catch (err) {
       console.warn(`[deepseek] Seção "${section.h2}" falhou na tentativa ${attempt} (${model}).`, err);
     }
@@ -498,6 +533,17 @@ Alvo: ${section.word_target} palavras (não conte, escreva naturalmente até cob
   // defeito real que o retry acima corrige na maioria dos casos, só que residual. Mesmo
   // padrão já aplicado em generateSection do gaussmob-nextjs (article-generator.ts): cai no
   // content_brief em vez de string vazia — pior que um resumo do brief, nunca é publicar em branco.
+  //
+  // ACHADO 18/09/2026 (cs.22): mas content_brief (uma instrução de 1 linha) É garantidamente
+  // fora de 400-700 também — publicá-lo aqui reproduziria o MESMO defeito que este fix existe
+  // pra fechar. Só cai nele se as 3 tentativas voltaram literalmente vazias (nunca aconteceu
+  // texto nenhum). Se pelo menos uma tentativa produziu texto real, mesmo fora da faixa, usa a
+  // mais próxima do meio — pior que publicar dentro do contrato, mas nunca pior que o que
+  // já publicava antes deste fix (que aceitava qualquer texto não-vazio sem checar nada).
+  if (bestOutOfRange) {
+    console.warn(`[deepseek] Seção "${section.h2}": nenhuma tentativa ficou dentro de ${SECTION_WORD_MIN}-${SECTION_WORD_MAX} — publicando a mais próxima (${bestOutOfRange.words} palavras).`);
+    return bestOutOfRange.text;
+  }
   console.warn(`[deepseek] Seção "${section.h2}" voltou vazia em todas as ${WRITE_SECTION_MODELS_BY_ATTEMPT.length} tentativas — publicando o content_brief como corpo.`);
   return section.content_brief;
 }
