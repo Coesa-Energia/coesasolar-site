@@ -8,8 +8,8 @@ describe("REGRESSÃO: form de candidatura", () => {
   })
   it("valida núcleo + CV pdf ≤4MB + consent", () => {
     const pdf = new File([new Uint8Array(10)], "cv.pdf", { type: "application/pdf" })
-    expect(validarClient({ nome: "Ana", email: "a@b.co", whatsapp: "31999998888", cidade: "BH", consent: true, cv: pdf })).toEqual([])
-    expect(validarClient({ nome: "", email: "x", whatsapp: "1", cidade: "", consent: false, cv: null }).length).toBeGreaterThan(3)
+    expect(validarClient({ nome: "Ana", email: "a@b.co", whatsapp: "31999998888", cidade: "BH", linkedin: "https://linkedin.com/in/ana", consent: true, cv: pdf })).toEqual([])
+    expect(validarClient({ nome: "", email: "x", whatsapp: "1", cidade: "", linkedin: "", consent: false, cv: null })).toContain("Informe a URL do seu LinkedIn.")
   })
 })
 
@@ -41,14 +41,14 @@ describe("REGRESSÃO: máscara de WhatsApp e portfólio (Fase 2)", () => {
 
   it("validarClient rejeita portfolio_url e portfolio (arquivo) juntos", () => {
     const pdf = new File([new Uint8Array(10)], "cv.pdf", { type: "application/pdf" })
-    const base = { nome: "Ana", email: "a@b.co", whatsapp: "31999998888", cidade: "BH", consent: true, cv: pdf }
+    const base = { nome: "Ana", email: "a@b.co", whatsapp: "31999998888", cidade: "BH", linkedin: "https://linkedin.com/in/ana", consent: true, cv: pdf }
     const erros = validarClient({ ...base, portfolioUrl: "https://x.com", portfolioArquivo: pdf })
     expect(erros.length).toBeGreaterThan(0)
   })
 
   it("exige portfólio quando configurado na vaga", () => {
     const pdf = new File([new Uint8Array(10)], "cv.pdf", { type: "application/pdf" })
-    const base = { nome: "Ana", email: "a@b.co", whatsapp: "31999998888", cidade: "BH", consent: true, cv: pdf }
+    const base = { nome: "Ana", email: "a@b.co", whatsapp: "31999998888", cidade: "BH", linkedin: "https://linkedin.com/in/ana", consent: true, cv: pdf }
     expect(validarClient({ ...base, portfolioObrigatorio: true })).toContain("Anexe ou informe o link do portfólio.")
   })
 })
@@ -57,7 +57,7 @@ describe("REGRESSÃO: respostas de campos extras no form (Fase 3a)", () => {
   it("montarFormData inclui respostas_extras como JSON e arquivos com prefixo resposta_", () => {
     const arquivo = new File([new Uint8Array(5)], "anexo.pdf", { type: "application/pdf" });
     const fd = montarFormData(
-      { nome: "Ana", email: "a@b.co", whatsapp: "31999998888", cidade: "BH", consent: true, cv: null, website: "" },
+      { nome: "Ana", email: "a@b.co", whatsapp: "31999998888", cidade: "BH", linkedin: "https://linkedin.com/in/ana", consent: true, cv: null, website: "" },
       "vaga-x",
       {},
       { respostasExtras: { "campo-1": "5 anos" }, arquivosExtras: { "campo-2": arquivo } },
@@ -68,14 +68,14 @@ describe("REGRESSÃO: respostas de campos extras no form (Fase 3a)", () => {
 
   it("validarClient rejeita campo extra obrigatório vazio", () => {
     const campos = [{ id: "campo-1", tipo: "texto_curto" as const, label: "Anos de experiência", obrigatorio: true, opcoes: [] }];
-    const base = { nome: "Ana", email: "a@b.co", whatsapp: "31999998888", cidade: "BH", consent: true, cv: new File([new Uint8Array(1)], "cv.pdf", { type: "application/pdf" }) };
+    const base = { nome: "Ana", email: "a@b.co", whatsapp: "31999998888", cidade: "BH", linkedin: "https://linkedin.com/in/ana", consent: true, cv: new File([new Uint8Array(1)], "cv.pdf", { type: "application/pdf" }) };
     const erros = validarClient({ ...base, camposExtras: campos, respostasExtras: {} });
     expect(erros).toContain("Informe: Anos de experiência.");
   });
 
   it("validarClient rejeita anexo extra obrigatório ausente", () => {
     const campos = [{ id: "campo-2", tipo: "anexo" as const, label: "Comprovante", obrigatorio: true, opcoes: [] }];
-    const base = { nome: "Ana", email: "a@b.co", whatsapp: "31999998888", cidade: "BH", consent: true, cv: new File([new Uint8Array(1)], "cv.pdf", { type: "application/pdf" }) };
+    const base = { nome: "Ana", email: "a@b.co", whatsapp: "31999998888", cidade: "BH", linkedin: "https://linkedin.com/in/ana", consent: true, cv: new File([new Uint8Array(1)], "cv.pdf", { type: "application/pdf" }) };
     expect(validarClient({ ...base, camposExtras: campos, arquivosExtras: {} })).toContain("Anexe: Comprovante.");
   });
 });
@@ -102,7 +102,7 @@ describe("REGRESSÃO: autopreenchimento por IA não sobrescreve campo já preenc
 describe("REGRESSÃO: perfil profissional estruturado", () => {
   it("serializa formação, experiência, habilidades, idiomas e certificações", () => {
     const fd = montarFormData({
-      nome: "Ana", email: "ana@x.com", whatsapp: "31999998888", cidade: "BH", consent: true, cv: null, website: "",
+      nome: "Ana", email: "ana@x.com", whatsapp: "31999998888", cidade: "BH", linkedin: "https://linkedin.com/in/ana", consent: true, cv: null, website: "",
       cargoAtual: "Dev", formacoes: [{ instituicao: "UFMG", curso: "SI" }],
       experiencias: [{ empresa: "Acme", cargo: "Dev" }], habilidades: ["TypeScript"],
       idiomas: [{ idioma: "Inglês", nivel: "avancado" }], certificacoes: ["AWS"],

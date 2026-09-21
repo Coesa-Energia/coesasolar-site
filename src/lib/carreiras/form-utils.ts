@@ -38,6 +38,7 @@ export interface CandidaturaCampos {
   email: string;
   whatsapp: string;
   cidade: string;
+  linkedin: string;
   consent: boolean;
   cv: File | null;
   portfolioUrl?: string;
@@ -70,6 +71,14 @@ export function validarClient(campos: CandidaturaCampos): string[] {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(campos.email)) erros.push('Informe um e-mail válido.');
   if (campos.whatsapp.replace(/\D/g, '').length < 10) erros.push('Informe um WhatsApp válido.');
   if (!campos.cidade.trim()) erros.push('Informe sua cidade.');
+  if (!campos.linkedin.trim()) erros.push('Informe a URL do seu LinkedIn.');
+  else {
+    try {
+      if (!['http:', 'https:'].includes(new URL(campos.linkedin).protocol)) erros.push('Use um link iniciado por http:// ou https://.');
+    } catch {
+      erros.push('Use um link iniciado por http:// ou https://.');
+    }
+  }
   if (!campos.consent) erros.push('É necessário autorizar o uso dos seus dados.');
   if (!campos.cv) {
     erros.push('Anexe seu currículo em PDF.');
@@ -137,7 +146,7 @@ export function montarLinkWhatsapp(whatsapp: string): string {
 
 export function montarFormData(
   campos: {
-    nome: string; email: string; whatsapp: string; cidade: string; linkedin?: string;
+    nome: string; email: string; whatsapp: string; cidade: string; linkedin: string;
     consent: boolean; cv: File | null; website: string;
     portfolioUrl?: string; portfolioArquivo?: File | null;
     pretensaoSalarial?: string; disponibilidade?: string;
@@ -155,7 +164,7 @@ export function montarFormData(
   fd.append('email', campos.email);
   fd.append('whatsapp', campos.whatsapp);
   fd.append('cidade', campos.cidade);
-  if (campos.linkedin) fd.append('linkedin', campos.linkedin);
+  fd.append('linkedin', campos.linkedin);
   fd.append('utm', JSON.stringify(utm));
   fd.append('consent', String(campos.consent));
   fd.append('website', campos.website);
