@@ -42,10 +42,31 @@ describe("formulário progressivo de candidatura", () => {
     fireEvent.change(screen.getByLabelText("Cidade *"), { target: { value: "BH" } })
     fireEvent.submit(form)
     fireEvent.submit(form)
-    fireEvent.change(screen.getByLabelText("LinkedIn (opcional)"), { target: { value: "javascript:alert(1)" } })
+    fireEvent.change(screen.getByLabelText("LinkedIn *"), { target: { value: "javascript:alert(1)" } })
     fireEvent.submit(form)
 
     expect(screen.getAllByText("Use um link iniciado por http:// ou https://.").length).toBeGreaterThan(0)
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it("exige a URL do LinkedIn antes do envio", () => {
+    render(<CandidaturaForm vagaSlug="dev" />)
+    const form = screen.getByRole("button", { name: "Continuar" }).closest("form")!
+    fireEvent.change(screen.getByLabelText(/Currículo/), { target: { files: [new File(["%PDF-1.4"], "cv.pdf", { type: "application/pdf" })] } })
+    fireEvent.click(screen.getByRole("checkbox", { name: /Autorizo o uso dos meus dados/ }))
+    fireEvent.submit(form)
+    fireEvent.change(screen.getByLabelText("Nome completo *"), { target: { value: "Ana" } })
+    fireEvent.change(screen.getByLabelText("E-mail *"), { target: { value: "ana@example.com" } })
+    fireEvent.change(screen.getByLabelText("WhatsApp *"), { target: { value: "31999999999" } })
+    fireEvent.change(screen.getByLabelText("Cidade *"), { target: { value: "BH" } })
+    fireEvent.submit(form)
+    fireEvent.submit(form)
+    fireEvent.submit(form)
+
+    const linkedin = screen.getByLabelText("LinkedIn *")
+    expect(document.getElementById("linkedin-erro")).toHaveTextContent("Informe a URL do seu LinkedIn.")
+    expect(linkedin).toHaveAttribute("aria-required", "true")
+    expect(linkedin).toHaveAttribute("aria-describedby", "linkedin-erro")
     expect(fetch).not.toHaveBeenCalled()
   })
 
@@ -95,6 +116,7 @@ describe("formulário progressivo de candidatura", () => {
     fireEvent.change(screen.getByLabelText("Cidade *"), { target: { value: "Belo Horizonte" } })
     fireEvent.submit(form)
     fireEvent.submit(form)
+    fireEvent.change(screen.getByLabelText("LinkedIn *"), { target: { value: "https://linkedin.com/in/ana" } })
     fireEvent.submit(form)
 
     expect(await screen.findByRole("heading", { name: "Candidatura enviada!" })).toBeInTheDocument()

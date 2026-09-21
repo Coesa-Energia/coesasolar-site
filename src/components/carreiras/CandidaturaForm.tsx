@@ -107,7 +107,8 @@ export function CandidaturaForm({ vagaSlug, feedbackDias, camposExtras = [], por
       })
     }
     if (atual === 4) {
-      if (linkedin && urlWebInvalida(linkedin)) novos.linkedin = "Use um link iniciado por http:// ou https://."
+      if (!linkedin.trim()) novos.linkedin = "Informe a URL do seu LinkedIn."
+      else if (urlWebInvalida(linkedin)) novos.linkedin = "Use um link iniciado por http:// ou https://."
       idiomas.forEach((item, indice) => {
         if (!item.idioma.trim()) novos[`idioma-${indice}`] = "Informe o idioma."
       })
@@ -238,7 +239,7 @@ export function CandidaturaForm({ vagaSlug, feedbackDias, camposExtras = [], por
       </fieldset>}
 
       {etapa === 4 && <fieldset data-etapa="4" className="space-y-5"><legend className="sr-only">Perfil e revisão</legend>
-        <div><Label htmlFor="linkedin">LinkedIn (opcional)</Label><Input id="linkedin" type="url" maxLength={2048} {...atributosErro("linkedin")} value={linkedin} onChange={(e) => setLinkedin(e.target.value)} placeholder="https://linkedin.com/in/seu-perfil" /><FieldError id="linkedin" /></div>
+        <div><Label htmlFor="linkedin">LinkedIn *</Label><Input id="linkedin" type="url" maxLength={2048} required aria-required="true" {...atributosErro("linkedin")} value={linkedin} onChange={(e) => setLinkedin(e.target.value)} placeholder="https://linkedin.com/in/seu-perfil" /><FieldError id="linkedin" /></div>
         <div><Label htmlFor="resumo-profissional">Resumo profissional (opcional)</Label><Textarea id="resumo-profissional" rows={4} maxLength={4000} value={resumoProfissional} onChange={(e) => setResumoProfissional(e.target.value)} /></div>
         <div className="grid gap-5 md:grid-cols-2"><div><Label htmlFor="anos-experiencia">Anos de experiência (opcional)</Label><Input id="anos-experiencia" type="number" min="0" max="100" value={anosExperiencia} onChange={(e) => setAnosExperiencia(e.target.value)} /></div><div><Label htmlFor="pretensao">Pretensão salarial (opcional)</Label><Input id="pretensao" maxLength={120} value={pretensaoSalarial} onChange={(e) => setPretensaoSalarial(e.target.value)} /></div></div>
         <div><Label htmlFor="habilidades">Habilidades (opcional)</Label><Textarea id="habilidades" rows={2} value={habilidades} onChange={(e) => setHabilidades(e.target.value)} placeholder="Separe por vírgula. Ex.: TypeScript, React, SQL" /></div>
