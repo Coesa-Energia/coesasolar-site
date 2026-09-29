@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowUpRight, Check, ChevronRight } from "lucide-react"
+import { ArrowUpRight, ChevronRight } from "lucide-react"
 import coesaLogo from "@/assets/logos/coesa-black.png"
 
 const SITE_URL = "https://coesasolar.com.br"
@@ -35,6 +35,24 @@ const allocation = [
     title: "Tecnologia e crescimento",
     description:
       "Desenvolvimento tecnológico e expansão comercial das demais operações da empresa.",
+  },
+]
+
+const strategicPillars = [
+  {
+    index: "01",
+    title: "Eletromobilidade",
+    description: "A MOVA transforma energia limpa em uso real, conectando recarga, mobilidade e experiência do cliente.",
+  },
+  {
+    index: "02",
+    title: "Infraestrutura",
+    description: "Ativos de energia e recarga dão materialidade à tese e criam uma base física para expansão.",
+  },
+  {
+    index: "03",
+    title: "Inteligência artificial",
+    description: "A CF Gauss adiciona a camada de inteligência para planejamento, automação, monitoramento e escala comercial.",
   },
 ]
 
@@ -118,6 +136,28 @@ export default function InvestimentosPage() {
           </div>
         </section>
 
+        <section className="border-b border-[#0b2c22]/15 bg-white/55">
+          <div className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
+            <div className="mb-10 flex flex-col justify-between gap-3 md:flex-row md:items-end">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#168755]">Empresas investidas</p>
+                <h2 className="mt-3 font-heading text-2xl font-semibold tracking-[-0.03em] md:text-3xl">Duas marcas, uma mesma direção.</h2>
+              </div>
+              <p className="max-w-sm text-sm leading-6 text-[#0b2c22]/55">Tecnologia aplicada e mobilidade elétrica, respaldadas pelo investimento da Coesa Energia.</p>
+            </div>
+            <div className="grid gap-px overflow-hidden border border-[#0b2c22]/15 bg-[#0b2c22]/15 md:grid-cols-2">
+              <figure className="flex min-h-56 flex-col justify-between bg-[#f3f0e8] p-8 md:p-10">
+                <Image src="/brands/cf-gauss-horizontal.webp" alt="CF Gauss" width={1200} height={494} className="h-auto w-full max-w-[19rem] object-contain object-left" />
+                <figcaption className="mt-10 border-t border-[#0b2c22]/15 pt-4 text-xs font-bold uppercase tracking-[0.16em] text-[#0b2c22]/55">Tecnologia · IA · expansão</figcaption>
+              </figure>
+              <figure className="flex min-h-56 flex-col justify-between bg-[#f3f0e8] p-8 md:p-10">
+                <Image src="/brands/mova-wordmark.webp" alt="MOVA — Movement is Art" width={1400} height={325} className="h-auto w-full max-w-[22rem] object-contain object-left" />
+                <figcaption className="mt-10 border-t border-[#0b2c22]/15 pt-4 text-xs font-bold uppercase tracking-[0.16em] text-[#0b2c22]/55">Eletromobilidade · infraestrutura</figcaption>
+              </figure>
+            </div>
+          </div>
+        </section>
+
         <section className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-24">
           <div className="grid gap-12 lg:grid-cols-[0.8fr_1.4fr] lg:gap-20">
             <div>
@@ -157,24 +197,36 @@ export default function InvestimentosPage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-24">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#168755]">Tese de investimento</p>
-              <h2 className="mt-4 font-heading text-3xl font-semibold leading-tight tracking-[-0.03em] md:text-4xl">Infraestrutura real com inteligência de software.</h2>
-            </div>
-            <div className="space-y-6 text-base leading-8 text-[#0b2c22]/70">
-              <p>
-                A Coesa Energia investe na convergência entre energia limpa, mobilidade elétrica e tecnologia aplicada. O aporte amplia a capacidade de execução da CF Gauss e acelera a MOVA, sua operação de mobilidade elétrica.
-              </p>
-              <ul className="grid gap-3 pt-2 text-sm font-semibold text-[#0b2c22]">
-                {["Produto e infraestrutura", "Tecnologia proprietária", "Expansão comercial"].map((item) => (
-                  <li key={item} className="flex items-center gap-3 border-t border-[#0b2c22]/15 pt-3">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#d6ff48]"><Check className="h-3.5 w-3.5" /></span>
-                    {item}
-                  </li>
+        <section className="bg-[#d6ff48]">
+          <div className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-24">
+            <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#0b2c22]/55">Setor e fit estratégico</p>
+                <h2 className="mt-4 max-w-lg font-heading text-3xl font-semibold leading-tight tracking-[-0.04em] md:text-5xl">Energia renovável é a origem da tese.</h2>
+                <p className="mt-6 max-w-lg text-base leading-8 text-[#0b2c22]/70">
+                  O investimento aproxima oferta de energia limpa, infraestrutura física e inteligência digital. A Coesa traz a base energética; a CF Gauss desenvolve tecnologia; a MOVA leva essa combinação à mobilidade elétrica.
+                </p>
+                <div className="mt-8 flex flex-wrap gap-2">
+                  {["Energia renovável", "Eletromobilidade", "Infraestrutura", "Inteligência artificial"].map((sector) => (
+                    <span key={sector} className="border border-[#0b2c22]/25 bg-[#f3f0e8]/70 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.12em]">{sector}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-px overflow-hidden border border-[#0b2c22]/20 bg-[#0b2c22]/20 sm:grid-cols-2">
+                <section className="bg-[#0b2c22] p-7 text-white sm:col-span-2 md:p-9">
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#83d9ad]">Fundamento</p>
+                  <h3 className="mt-8 max-w-xl font-heading text-3xl font-semibold tracking-[-0.035em]">Energia limpa como plataforma para novos negócios.</h3>
+                  <p className="mt-4 max-w-xl text-sm leading-7 text-white/60">A geração renovável sustenta a expansão da infraestrutura, reduz a intensidade de carbono da mobilidade e cria o elo econômico entre as empresas do grupo.</p>
+                </section>
+                {strategicPillars.map((pillar, index) => (
+                  <section key={pillar.title} className={`bg-[#f3f0e8] p-7 md:p-9 ${index === 2 ? "sm:col-span-2" : ""}`}>
+                    <p className="font-heading text-sm font-semibold text-[#168755]">{pillar.index}</p>
+                    <h3 className="mt-8 text-lg font-bold">{pillar.title}</h3>
+                    <p className="mt-3 max-w-xl text-sm leading-6 text-[#0b2c22]/65">{pillar.description}</p>
+                  </section>
                 ))}
-              </ul>
+              </div>
             </div>
           </div>
         </section>

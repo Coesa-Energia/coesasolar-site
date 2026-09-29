@@ -17,4 +17,13 @@ describe("InvestimentosPage", () => {
   it("expõe canonical público", () => {
     expect(metadata.alternates).toEqual({ canonical: "https://coesasolar.com.br/investimentos" })
   })
+
+  it("chancela a tese com as marcas e o racional estratégico", () => {
+    render(<InvestimentosPage />)
+
+    expect(screen.getByRole("img", { name: "CF Gauss" })).toBeInTheDocument()
+    expect(screen.getByRole("img", { name: "MOVA — Movement is Art" })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Energia renovável é a origem da tese." })).toBeInTheDocument()
+    expect(screen.getByText("Inteligência artificial", { selector: "span" })).toBeInTheDocument()
+  })
 })
