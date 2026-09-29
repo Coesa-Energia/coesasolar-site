@@ -404,16 +404,14 @@ describe('REGRESSÃO checklist 25/08/2026: writeSection nunca depende do default
     expect(createMock).toHaveBeenCalledTimes(2);
   });
 
-  it('REGRESSÃO 25/08/2026 (lapidação — achado no motor irmão gaussmob-nextjs): vazio em TODAS as tentativas cai no content_brief, nunca publica H2 sem corpo', async () => {
+  it('REGRESSÃO Sentinel 29/09: vazio em TODAS as tentativas reprova o artigo, nunca publica o content_brief', async () => {
     createMock
       .mockResolvedValueOnce({ choices: [{ message: { content: '' } }] })
       .mockResolvedValueOnce({ choices: [{ message: { content: '' } }] })
       .mockResolvedValueOnce({ choices: [{ message: { content: '' } }] });
 
-    const body = await writeSection('placa solar', { h2: 'X', content_brief: 'Instrução do brief como corpo mínimo.', word_target: 600, image_prompt: 'p' }, 0, 8);
-
-    expect(body).toBe('Instrução do brief como corpo mínimo.');
-    expect(body).not.toBe('');
+    await expect(writeSection('placa solar', { h2: 'X', content_brief: 'Instrução do brief como corpo mínimo.', word_target: 600, image_prompt: 'p' }, 0, 8))
+      .rejects.toThrow(/falhou após 3 tentativas.*respostas vazias/i);
     expect(createMock).toHaveBeenCalledTimes(3);
   });
 
@@ -491,22 +489,19 @@ describe('REGRESSÃO checklist 25/08/2026: writeSection nunca depende do default
     expect(secondCallUser).toMatch(/\b15\b/); // conta real da tentativa anterior
   });
 
-  // REGRESSÃO 18/09/2026 (cs.22): se as 3 tentativas saírem fora da faixa mas NENHUMA vazia,
-  // nunca cai no content_brief (que é garantidamente curto demais — reproduziria o mesmo bug).
-  // Usa a tentativa mais próxima do meio da faixa como último recurso.
-  it('REGRESSÃO 18/09/2026 (cs.22): 3 tentativas fora da faixa (nenhuma vazia) usa a mais próxima do meio, nunca o content_brief', async () => {
+  // REGRESSÃO Sentinel 29/09 (cs.22): aceitar a "mais próxima" ainda publica conteúdo que o
+  // próprio produtor sabe estar fora do contrato. Depois dos retries, o artigo deve falhar.
+  it('REGRESSÃO Sentinel 29/09 (cs.22): 3 tentativas fora da faixa reprovam o artigo', async () => {
     const curtissimo = Array.from({ length: 50 }, () => 'palavra').join(' '); // longe do meio (550)
-    const maisProxima = Array.from({ length: 500 }, () => 'palavra').join(' '); // perto do meio
+    const maisProxima = Array.from({ length: 350 }, () => 'palavra').join(' '); // ainda inválida
     const longuissimo = Array.from({ length: 950 }, () => 'palavra').join(' '); // longe do meio
     createMock
       .mockResolvedValueOnce({ choices: [{ message: { content: curtissimo } }] })
       .mockResolvedValueOnce({ choices: [{ message: { content: maisProxima } }] })
       .mockResolvedValueOnce({ choices: [{ message: { content: longuissimo } }] });
 
-    const body = await writeSection('placa solar', { h2: 'X', content_brief: 'Instrução do brief como corpo mínimo.', word_target: 600, image_prompt: 'p' }, 0, 8);
-
-    expect(body).toBe(maisProxima);
-    expect(body).not.toBe('Instrução do brief como corpo mínimo.');
+    await expect(writeSection('placa solar', { h2: 'X', content_brief: 'Instrução do brief como corpo mínimo.', word_target: 600, image_prompt: 'p' }, 0, 8))
+      .rejects.toThrow(/350 palavras na melhor tentativa.*esperado 400-700/i);
   });
 
   it('REGRESSÃO 18/09/2026: SECTION_WORD_MIN/MAX batem com o contrato do checklist (400-700)', () => {
@@ -605,16 +600,13 @@ describe('REGRESSÃO checklist 25/08/2026: montagem por seções (generateArticl
     expect(article.content.indexOf('## Em resumo')).toBeLessThan(article.content.indexOf('## Perguntas Frequentes'));
   });
 
-  it('REGRESSÃO 10/09/2026: timeout de uma seção usa fallback local e não derruba o artigo inteiro', async () => {
+  it('REGRESSÃO 29/09/2026: seção inválida após os retries aborta o artigo em vez de publicar o content_brief', async () => {
     createMock
       .mockResolvedValueOnce({ choices: [{ message: { content: JSON.stringify(ESTRUTURA_MONTAGEM) } }] })
-      .mockRejectedValueOnce(new Error('Request timed out.'))
-      .mockResolvedValue({ choices: [{ message: { content: VALID_SECTION_BODY } }] });
+      .mockResolvedValue({ choices: [{ message: { content: 'brief curto' } }] });
 
-    const article = await generateArticleWithSections('placa solar');
-
-    expect(article.bodies).toEqual(Array(7).fill(VALID_SECTION_BODY));
-    expect(createMock).toHaveBeenCalledTimes(9);
+    await expect(generateArticleWithSections('placa solar'))
+      .rejects.toThrow(/falhou após 3 tentativas.*esperado 400-700/i);
   });
 
   it('injectSectionImages: slot sem imagem correspondente (upload falhou) é removido, nunca publica placeholder cru', () => {

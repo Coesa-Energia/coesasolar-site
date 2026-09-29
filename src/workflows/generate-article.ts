@@ -21,9 +21,8 @@
  *     precisa de equivalente a reserveArticleSlot/markArticleFailed.
  *   - Sem cron de retry separado: vercel.json dispara esta rota 5x/dia útil;
  *     a idempotência de claimBlogRunToday() JÁ é a estratégia de retry.
- *   - writeSection() já nunca lança (fallback interno pro content_brief) —
- *     não é uma decisão de arquitetura aqui, é o contrato já existente da
- *     função, preservado tal como está.
+ *   - writeSection() retenta três vezes e lança se a seção continuar fora
+ *     de 400–700 palavras; o workflow registra a falha sem publicar briefing.
  *   - Nenhum módulo do pipeline tem side-effect de módulo Node.js no nível
  *     do módulo (grep confirmado: zero AsyncLocalStorage/instanciação
  *     top-level) — diferente do gaussmob, todos os imports abaixo são
