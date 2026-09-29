@@ -142,6 +142,7 @@ export default async function VagaDetalhePage({ params }: PageProps) {
           <p className="mb-8 text-sm text-white/55">Leva cerca de 4 minutos. Você pode preencher tudo manualmente.</p>
           <CandidaturaForm
             vagaSlug={vaga.slug}
+            vagaTitulo={vaga.titulo}
             feedbackDias={vaga.feedback_dias}
             camposExtras={vaga.campos}
             portfolioObrigatorio={vaga.portfolio_obrigatorio}

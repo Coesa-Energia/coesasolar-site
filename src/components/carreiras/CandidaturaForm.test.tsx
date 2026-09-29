@@ -2,8 +2,15 @@ import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { CandidaturaForm } from "./CandidaturaForm"
 
+const push = vi.fn()
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }))
+
 describe("formulário progressivo de candidatura", () => {
-  beforeEach(() => vi.stubGlobal("fetch", vi.fn()))
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn())
+    push.mockClear()
+    delete (window as unknown as { dataLayer?: unknown }).dataLayer
+  })
 
   it("não envia o currículo à IA ao selecionar o arquivo", () => {
     render(<CandidaturaForm vagaSlug="dev" />)
@@ -83,7 +90,7 @@ describe("formulário progressivo de candidatura", () => {
 
   it("celebra a candidatura enviada com destaque e próximo caminho", async () => {
     vi.mocked(fetch).mockResolvedValue({ status: 201 } as Response)
-    render(<CandidaturaForm vagaSlug="dev" feedbackDias={5} />)
+    render(<CandidaturaForm vagaSlug="dev" vagaTitulo="Desenvolvedor" feedbackDias={5} />)
 
     fireEvent.change(screen.getByLabelText(/Currículo/), { target: { files: [new File(["%PDF-1.4"], "cv.pdf", { type: "application/pdf" })] } })
     fireEvent.click(screen.getByRole("checkbox", { name: /Autorizo o uso dos meus dados/ }))
@@ -100,5 +107,7 @@ describe("formulário progressivo de candidatura", () => {
     expect(await screen.findByRole("heading", { name: "Candidatura enviada!" })).toBeInTheDocument()
     expect(screen.getByRole("status")).toHaveClass("bg-gradient-to-br", "motion-safe:animate-fade-in")
     expect(screen.getByRole("link", { name: "Ver outras oportunidades" })).toHaveAttribute("href", "/carreiras")
+    expect((window as unknown as { dataLayer: unknown[] }).dataLayer).toContainEqual({ event: "candidatura_enviada", vaga_slug: "dev", vaga_titulo: "Desenvolvedor" })
+    expect(push).toHaveBeenCalledWith("/carreiras/obrigado?vaga=dev&feedback=5")
   })
 })

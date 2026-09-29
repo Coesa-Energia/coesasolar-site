@@ -3,6 +3,11 @@ import { describe, it, expect, vi } from "vitest"
 import { render, screen, within } from "@testing-library/react"
 import "@testing-library/jest-dom/vitest"
 
+vi.mock("next/navigation", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/navigation")>()),
+  useRouter: () => ({ push: vi.fn() }),
+}))
+
 const vagaBase = {
   slug: "vaga-1",
   titulo: "Analista Comercial",
