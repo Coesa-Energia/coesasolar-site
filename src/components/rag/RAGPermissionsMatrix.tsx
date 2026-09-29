@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,19 +22,14 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useUIConfig } from '@/hooks/useUIConfig';
+import type { DbRow } from '@/types/database';
 
-interface Permission {
-  id: string;
-  agent_id: string;
-  category: string;
-  access_level: string;
-  priority: number;
-}
+type Permission = DbRow<'rag_permissions'>;
 
 interface Agent {
   agent_id: string;
   name: string;
-  avatar_emoji: string;
+  avatar_emoji: string | null;
 }
 
 export function RAGPermissionsMatrix() {
@@ -63,10 +59,10 @@ export function RAGPermissionsMatrix() {
 
       setPermissions(permissionsRes.data || []);
       setAgents(agentsRes.data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao carregar permissões',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -122,10 +118,10 @@ export function RAGPermissionsMatrix() {
 
       setChanges(new Map());
       fetchData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao salvar',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {

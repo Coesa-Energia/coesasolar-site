@@ -28,19 +28,9 @@ import {
   MessageSquare,
   XCircle
 } from 'lucide-react';
+import type { DbRow } from '@/types/database';
 
-interface Notification {
-  id: string;
-  admin_user_id: string | null;
-  title: string;
-  message: string;
-  type: string;
-  entity_type: string | null;
-  entity_id: string | null;
-  is_read: boolean;
-  created_by_nome: string | null;
-  created_at: string;
-}
+type Notification = DbRow<'admin_notifications'>;
 
 export function AdminNotifications() {
   const { user } = useAuth();
@@ -225,7 +215,7 @@ export function AdminNotifications() {
                   onClick={() => !notification.is_read && markAsRead(notification.id)}
                 >
                   <div className="flex gap-2">
-                    {getTypeIcon(notification.type)}
+                    {getTypeIcon(notification.type ?? 'info')}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-medium text-sm truncate">
@@ -246,7 +236,7 @@ export function AdminNotifications() {
                           </Badge>
                         )}
                         <span className="text-xs text-muted-foreground">
-                          {format(new Date(notification.created_at), "dd/MM HH:mm", { locale: ptBR })}
+                          {format(new Date(notification.created_at ?? 0), "dd/MM HH:mm", { locale: ptBR })}
                         </span>
                       </div>
                     </div>

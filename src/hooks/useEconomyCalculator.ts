@@ -210,12 +210,23 @@ export function useEconomyCalculator() {
 
         // Update cache
         cachedConfig = loadedConfig;
-        cachedPlanos = planosResult.data || [];
+        const loadedPlanos: PlanoComercial[] = (planosResult.data || []).map((plano) => ({
+          id: plano.id,
+          nome: plano.nome,
+          desconto_percentual: plano.desconto_percentual,
+          fidelidade_anos: plano.fidelidade_anos ?? 0,
+          consumo_minimo_kwh: plano.consumo_minimo_kwh ?? 0,
+          ativo: plano.ativo ?? false,
+          destaque: plano.destaque ?? false,
+          unlock: plano.unlock ?? false,
+          ordem: plano.ordem ?? 0,
+        }));
+        cachedPlanos = loadedPlanos;
         cachedConcessionarias = loadedConcessionarias;
         cacheTimestamp = now;
 
         setConfig(loadedConfig);
-        setPlanos(planosResult.data || []);
+        setPlanos(loadedPlanos);
         setConcessionarias(loadedConcessionarias);
       } catch (err) {
         console.error('Error loading economy configs:', err);

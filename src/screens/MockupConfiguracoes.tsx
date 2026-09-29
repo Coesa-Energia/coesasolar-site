@@ -165,7 +165,7 @@ const MockupConfiguracoes = () => {
       {/* ══════════════ SIDEBAR ══════════════ */}
       <aside className={`hidden md:flex flex-col transition-all duration-300 liquid-glass-sidebar ${sidebarOpen ? "w-64" : "w-16"}`}>
         <div className="p-4 border-b border-white/[0.06]">
-          <img src={coesaGreen} alt="COESA" className={`transition-all duration-300 ${sidebarOpen ? "h-8" : "h-6 mx-auto"}`} />
+          <img src={coesaGreen.src} alt="COESA" className={`transition-all duration-300 ${sidebarOpen ? "h-8" : "h-6 mx-auto"}`} />
         </div>
         <nav className="flex-1 py-4 px-2 space-y-1">
           {sidebarItems.map((item) => (

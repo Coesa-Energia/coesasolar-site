@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { 
   History, 
@@ -46,11 +47,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUIConfig } from '@/hooks/useUIConfig';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import type { DbRow } from '@/types/database';
+
+type PatternSnapshot = DbRow<'sofia_detection_patterns'>;
 
 interface PatternVersion {
   id: string;
   version_number: number;
-  snapshot: any[];
+  snapshot: PatternSnapshot[];
   changelog: string | null;
   patterns_added: number;
   patterns_removed: number;
@@ -89,15 +93,18 @@ export function PatternVersionHistory({ onVersionRestored }: PatternVersionHisto
         .limit(queryLimitPatternVersions);
 
       if (error) throw error;
-      // Cast snapshot to any[] for type compatibility
       setVersions((data || []).map(v => ({
         ...v,
-        snapshot: (v.snapshot as any[]) || []
+        patterns_added: v.patterns_added ?? 0,
+        patterns_modified: v.patterns_modified ?? 0,
+        patterns_removed: v.patterns_removed ?? 0,
+        snapshot: (Array.isArray(v.snapshot) ? v.snapshot : []) as PatternSnapshot[],
+        total_patterns: v.total_patterns ?? 0,
       })));
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao carregar histórico',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -125,7 +132,7 @@ export function PatternVersionHistory({ onVersionRestored }: PatternVersionHisto
       let patternsModified = 0;
 
       if (versions.length > 0) {
-        const prevSnapshot = versions[0].snapshot as any[];
+        const prevSnapshot = versions[0].snapshot;
         const prevIds = new Set(prevSnapshot.map(p => p.id));
         const currIds = new Set(patterns?.map(p => p.id) || []);
         
@@ -175,10 +182,10 @@ export function PatternVersionHistory({ onVersionRestored }: PatternVersionHisto
 
       await fetchVersions();
       return newVersionNumber;
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao criar versão',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
       return null;
@@ -201,7 +208,7 @@ export function PatternVersionHistory({ onVersionRestored }: PatternVersionHisto
       if (deleteError) throw deleteError;
 
       // Insert patterns from snapshot
-      const snapshot = version.snapshot as any[];
+      const snapshot = version.snapshot;
       if (snapshot && snapshot.length > 0) {
         // Remove id field to let DB generate new ones, but keep original data
         const patternsToInsert = snapshot.map(p => ({
@@ -235,10 +242,10 @@ export function PatternVersionHistory({ onVersionRestored }: PatternVersionHisto
       });
 
       onVersionRestored?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao restaurar versão',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -445,7 +452,7 @@ export function PatternVersionHistory({ onVersionRestored }: PatternVersionHisto
           </DialogHeader>
           <ScrollArea className="h-[400px]">
             <div className="space-y-2">
-              {previewVersion?.snapshot && (previewVersion.snapshot as any[]).map((pattern: any, idx: number) => (
+              {previewVersion?.snapshot.map((pattern, idx) => (
                 <div key={idx} className="p-2 border rounded text-sm">
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">

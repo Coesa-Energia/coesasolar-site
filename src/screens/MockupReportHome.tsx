@@ -42,7 +42,7 @@ const MockupReportHome = () => {
       >
         <div className="p-4 border-b border-white/[0.06]">
           <img
-            src={coesaGreen}
+            src={coesaGreen.src}
             alt="COESA"
             className={`transition-all duration-300 ${sidebarOpen ? "h-8" : "h-6 mx-auto"}`}
           />

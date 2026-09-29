@@ -37,6 +37,15 @@ import {
   BarChart,
   Bar
 } from 'recharts';
+import type { DbRow } from '@/types/database';
+
+type AgentInteraction = DbRow<'ai_agent_interactions'> & {
+  chatbot_conversas: {
+    detected_objection?: string | null;
+    escalated_at: string | null;
+    event_conversion: boolean | null;
+  } | null;
+};
 
 interface AIAgent {
   id: string;
@@ -152,8 +161,8 @@ export function AgentMetrics({ agent }: AgentMetricsProps) {
         .gte('created_at', new Date(Date.now() - previousDays * 24 * 60 * 60 * 1000).toISOString())
         .lt('created_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString());
 
-      const currentData = currentInteractions || [];
-      const previousData = previousInteractions || [];
+      const currentData = (currentInteractions || []) as unknown as AgentInteraction[];
+      const previousData = (previousInteractions || []) as unknown as AgentInteraction[];
 
       setHasData(currentData.length > 0 || previousData.length > 0);
 
@@ -216,7 +225,7 @@ export function AgentMetrics({ agent }: AgentMetricsProps) {
     }
   };
 
-  const calculateMetrics = (data: any[]) => {
+  const calculateMetrics = (data: AgentInteraction[]) => {
     const total = data.length;
     if (total === 0) {
       return {
@@ -261,7 +270,7 @@ export function AgentMetrics({ agent }: AgentMetricsProps) {
     };
   };
 
-  const groupByDay = (data: any[]): DailyMetric[] => {
+  const groupByDay = (data: AgentInteraction[]): DailyMetric[] => {
     const grouped: Record<string, { 
       interactions: number; 
       resolved: number; 
@@ -294,7 +303,7 @@ export function AgentMetrics({ agent }: AgentMetricsProps) {
       });
   };
 
-  const groupByIntent = (data: any[]): IntentMetric[] => {
+  const groupByIntent = (data: AgentInteraction[]): IntentMetric[] => {
     const grouped: Record<string, { total: number; success: number }> = {};
     
     data.forEach(d => {

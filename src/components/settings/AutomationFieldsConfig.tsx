@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -172,9 +173,9 @@ export function AutomationFieldsConfig({ tipo, onFieldsChange }: AutomationField
 
       toast.success(`Configuração de automação para proposta ${tipo} salva!`);
       onFieldsChange?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao salvar configuração:', error);
-      toast.error(`Erro ao salvar: ${error.message}`);
+      toast.error(`Erro ao salvar: ${getErrorMessage(error)}`);
     } finally {
       setSaving(false);
     }

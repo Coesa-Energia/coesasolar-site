@@ -19,23 +19,9 @@ import {
   MessageSquareOff, DollarSign, RefreshCw, Eye, Check, Shield
 } from 'lucide-react';
 import { toast } from 'sonner';
+import type { DbRow } from '@/types/database';
 
-interface GuardrailEvent {
-  id: string;
-  conversa_id: string | null;
-  cliente_telefone: string | null;
-  cliente_nome: string | null;
-  category: string;
-  block_type: string | null;
-  severity: string | null;
-  original_message: string | null;
-  corrected_message: string | null;
-  context: unknown;
-  status: string | null;
-  resolved_at: string | null;
-  resolution_notes: string | null;
-  created_at: string;
-}
+type GuardrailEvent = DbRow<'sofia_guardrail_events'>;
 
 interface CategoryStats {
   category: string;
@@ -307,7 +293,7 @@ export function RecurringErrorsPanel() {
                     return (
                       <TableRow key={event.id}>
                         <TableCell className="text-sm text-muted-foreground">
-                          {format(new Date(event.created_at), "dd/MM HH:mm", { locale: ptBR })}
+                          {format(new Date(event.created_at ?? 0), "dd/MM HH:mm", { locale: ptBR })}
                         </TableCell>
                         <TableCell>
                           <div>
@@ -381,7 +367,7 @@ export function RecurringErrorsPanel() {
           <DialogHeader>
             <DialogTitle>Detalhes do Evento</DialogTitle>
             <DialogDescription>
-              {selectedEvent && format(new Date(selectedEvent.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+              {selectedEvent && format(new Date(selectedEvent.created_at ?? 0), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
             </DialogDescription>
           </DialogHeader>
           {selectedEvent && (
@@ -415,7 +401,7 @@ export function RecurringErrorsPanel() {
                 </div>
               </div>
               
-              {selectedEvent.context && Object.keys(selectedEvent.context).length > 0 && (
+              {selectedEvent.context && typeof selectedEvent.context === 'object' && !Array.isArray(selectedEvent.context) && Object.keys(selectedEvent.context).length > 0 && (
                 <div>
                   <p className="text-sm font-medium mb-1">Contexto</p>
                   <pre className="p-3 bg-muted rounded-md text-xs overflow-auto max-h-32">

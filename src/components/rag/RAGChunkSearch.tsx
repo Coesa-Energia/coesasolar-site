@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState } from 'react';
 import { useUIConfig } from '@/hooks/useUIConfig';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,7 +71,7 @@ export function RAGChunkSearch() {
 
       if (error) throw error;
 
-      const formattedResults: ChunkResult[] = (data || []).map((row: any) => ({
+      const formattedResults: ChunkResult[] = (data || []).map((row) => ({
         id: row.id,
         content: row.content,
         chunk_index: row.chunk_index,
@@ -88,11 +89,11 @@ export function RAGChunkSearch() {
           description: `Nenhum chunk contém "${searchTerm}"`
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error searching chunks:', error);
       toast({
         title: 'Erro na busca',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -134,11 +135,11 @@ export function RAGChunkSearch() {
         title: 'Chunk excluído',
         description: `Chunk #${chunkToDelete.chunk_index} de "${chunkToDelete.file_name}" foi removido`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting chunk:', error);
       toast({
         title: 'Erro ao excluir',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {

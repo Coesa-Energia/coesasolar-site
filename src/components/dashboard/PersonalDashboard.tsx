@@ -68,7 +68,11 @@ export function PersonalDashboard() {
           .eq('year', currentYear)
           .single();
 
-        setGoals(goalsData);
+        setGoals(goalsData && {
+          propostas_meta: goalsData.propostas_meta ?? 0,
+          valor_meta: goalsData.valor_meta ?? 0,
+          conversao_meta: goalsData.conversao_meta ?? 0,
+        });
 
         // Get proposals for current month
         const monthStart = startOfMonth(new Date());
@@ -94,6 +98,7 @@ export function PersonalDashboard() {
         // Calculate ranking
         const userScores = new Map<string, number>();
         propostas?.forEach(p => {
+          if (!p.user_id) return;
           const current = userScores.get(p.user_id) || 0;
           userScores.set(p.user_id, current + (p.economia_acumulada || 0));
         });

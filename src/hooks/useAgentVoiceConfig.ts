@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import type { Json } from '@/integrations/supabase/types';
+import type { DbRow } from '@/types/database';
 
 export interface VoiceSettings {
   language: string;
@@ -26,7 +28,7 @@ export interface VoiceModeConfig {
   from_number: string | null;
   webhook_url: string | null;
   kb_mode: 'shared' | 'custom';
-  custom_kb_sources: any[];
+  custom_kb_sources: Json[];
   settings: VoiceSettings;
   campaign_settings?: CampaignSettings;
   secrets: {
@@ -39,17 +41,7 @@ export interface AgentVoiceConfig {
   outbound: VoiceModeConfig;
 }
 
-export interface AgentSecret {
-  id: string;
-  agent_id: string;
-  secret_name: string;
-  secret_key: string;
-  mode: 'inbound' | 'outbound' | 'shared';
-  description: string | null;
-  is_configured: boolean;
-  created_at: string;
-  updated_at: string;
-}
+export type AgentSecret = DbRow<'agent_secrets'>;
 
 const DEFAULT_INBOUND_CONFIG: VoiceModeConfig = {
   enabled: false,
@@ -167,7 +159,7 @@ export function useAgentVoiceConfig(agentDbId: string | null) {
 
       const { error } = await supabase
         .from('ai_agents')
-        .update({ voice_config: newConfig as unknown as any })
+        .update({ voice_config: newConfig as unknown as Json })
         .eq('id', agentDbId);
 
       if (error) throw error;
@@ -175,7 +167,7 @@ export function useAgentVoiceConfig(agentDbId: string | null) {
       setConfig(newConfig);
       toast.success(`Configurações de ${mode === 'inbound' ? 'entrada' : 'saída'} salvas`);
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating voice config:', error);
       toast.error('Erro ao salvar configurações');
       return false;
@@ -226,7 +218,7 @@ export function useAgentVoiceConfig(agentDbId: string | null) {
       await fetchConfig();
       toast.success('Secret adicionada');
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error adding secret:', error);
       toast.error('Erro ao adicionar secret');
       return false;
@@ -245,7 +237,7 @@ export function useAgentVoiceConfig(agentDbId: string | null) {
       setSecrets(prev => prev.filter(s => s.id !== secretId));
       toast.success('Secret removida');
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error removing secret:', error);
       toast.error('Erro ao remover secret');
       return false;
@@ -265,7 +257,7 @@ export function useAgentVoiceConfig(agentDbId: string | null) {
         s.id === secretId ? { ...s, is_configured: configured } : s
       ));
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating secret:', error);
       return false;
     }

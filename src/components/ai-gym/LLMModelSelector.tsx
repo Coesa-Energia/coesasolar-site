@@ -609,7 +609,7 @@ export function LLMModelSelector({
                   {selectedProviderTemplate && 'pricingHint' in selectedProviderTemplate && (
                     <div className="p-3 bg-muted/30 rounded-lg border border-dashed">
                       <p className="text-xs text-muted-foreground">
-                        <strong>💰 Preços aproximados:</strong> {(selectedProviderTemplate as any).pricingHint}
+                        <strong>💰 Preços aproximados:</strong> {String(selectedProviderTemplate.pricingHint)}
                       </p>
                     </div>
                   )}

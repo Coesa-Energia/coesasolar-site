@@ -47,3 +47,7 @@ export function resolveCtaVariant(
   }
   return hash % variants.length;
 }
+
+export function getCurrentWeekIndex(now = Date.now()): number {
+  return Math.floor(now / (7 * 24 * 60 * 60 * 1000));
+}

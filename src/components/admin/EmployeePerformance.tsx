@@ -79,7 +79,7 @@ export function EmployeePerformance() {
       });
 
       propostas?.forEach(proposta => {
-        const stat = statsMap.get(proposta.user_id);
+        const stat = proposta.user_id ? statsMap.get(proposta.user_id) : undefined;
         if (stat) {
           stat.total_propostas++;
           stat.valor_total += proposta.economia_acumulada || 0;

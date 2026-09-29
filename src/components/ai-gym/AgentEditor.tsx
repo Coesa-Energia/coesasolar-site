@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,29 +46,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import JSZip from 'jszip';
-
-interface AIAgent {
-  id: string;
-  agent_id: string;
-  name: string;
-  role: string;
-  description: string;
-  avatar_emoji: string;
-  channels: string[];
-  status: string;
-  version: string;
-  persona: any;
-  guardrails: any;
-  tools_config: any;
-  intents: any;
-  kb_sources: any;
-  collection_rules: any;
-  metrics: any;
-  tests: any;
-  created_at: string;
-  updated_at: string;
-  published_at: string | null;
-}
+import type { AIAgent } from '@/types/ai-agent';
+import type { Json } from '@/integrations/supabase/types';
 
 interface AgentEditorProps {
   agent: AIAgent;
@@ -99,14 +79,14 @@ export function AgentEditor({ agent, onBack, onDownload, onRefresh }: AgentEdito
       setKbSaving(true);
       const { error } = await supabase
         .from('ai_agents')
-        .update({ kb_sources: sources as any })
+        .update({ kb_sources: sources as Json })
         .eq('id', agent.id);
 
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao salvar KB',
-        description: error.message || 'Não foi possível salvar as mudanças da base de conhecimento.',
+        description: getErrorMessage(error) || 'Não foi possível salvar as mudanças da base de conhecimento.',
         variant: 'destructive',
       });
     } finally {
@@ -124,11 +104,11 @@ export function AgentEditor({ agent, onBack, onDownload, onRefresh }: AgentEdito
           description: editedAgent.description,
           persona: editedAgent.persona,
           guardrails: editedAgent.guardrails,
-          tools_config: editedAgent.tools_config,
+          tools_config: editedAgent.tools_config as unknown as Json,
           intents: editedAgent.intents,
-          kb_sources: editedAgent.kb_sources,
-          collection_rules: editedAgent.collection_rules,
-          tests: editedAgent.tests
+          kb_sources: editedAgent.kb_sources as unknown as Json,
+          collection_rules: editedAgent.collection_rules as unknown as Json,
+          tests: editedAgent.tests as unknown as Json
         })
         .eq('id', agent.id);
 
@@ -138,10 +118,10 @@ export function AgentEditor({ agent, onBack, onDownload, onRefresh }: AgentEdito
         title: 'Salvo com sucesso',
         description: `Configurações de ${agent.name} atualizadas.`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao salvar',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -226,28 +206,28 @@ export function AgentEditor({ agent, onBack, onDownload, onRefresh }: AgentEdito
         title: 'Download concluído!',
         description: `Pacote completo de ${agent.name} baixado.`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error downloading complete package:', error);
       toast({
         title: 'Erro no download',
-        description: error.message || 'Não foi possível gerar o pacote completo.',
+        description: getErrorMessage(error) || 'Não foi possível gerar o pacote completo.',
         variant: 'destructive'
       });
     }
   };
 
-  const handleTestsUpdate = (tests: any[]) => {
+  const handleTestsUpdate = (tests: unknown[]) => {
     setEditedAgent(prev => ({ ...prev, tests }));
   };
 
-  const updatePersona = (key: string, value: any) => {
+  const updatePersona = (key: string, value: Json) => {
     setEditedAgent(prev => ({
       ...prev,
       persona: { ...prev.persona, [key]: value }
     }));
   };
 
-  const updateGuardrails = (key: string, value: any) => {
+  const updateGuardrails = (key: string, value: Json) => {
     setEditedAgent(prev => ({
       ...prev,
       guardrails: { ...prev.guardrails, [key]: value }
@@ -521,7 +501,7 @@ export function AgentEditor({ agent, onBack, onDownload, onRefresh }: AgentEdito
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {(editedAgent.intents || []).map((intent: any, idx: number) => (
+                {(editedAgent.intents || []).map((intent, idx) => (
                   <div key={idx} className="border rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <GitBranch className="h-4 w-4 text-primary" />

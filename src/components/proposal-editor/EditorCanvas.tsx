@@ -24,7 +24,7 @@ export function EditorCanvas({
   onUpdateElement,
   onDeleteElement,
 }: EditorCanvasProps) {
-  const canvasRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
 
   const { setNodeRef, isOver } = useDroppable({
     id: 'canvas-droppable',

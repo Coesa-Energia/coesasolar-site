@@ -118,7 +118,7 @@ export function PerformanceCharts() {
       setMonthlyData(monthly);
 
       // Calculate employee monthly data - limit from config
-      const uniqueEmployees = Array.from(new Set(propostas?.map(p => p.user_id) || []));
+      const uniqueEmployees = Array.from(new Set(propostas?.map(p => p.user_id).filter((id): id is string => id !== null) || []));
       const employeeList = uniqueEmployees.map(id => ({
         id,
         nome: employeeMap.get(id) || 'Sem nome',

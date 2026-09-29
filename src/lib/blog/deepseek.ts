@@ -478,8 +478,8 @@ Alvo: ${section.word_target} palavras (não conte, escreva naturalmente até cob
 
   // ACHADO 25/08/2026 (teste E2E real): 1 de 8 seções voltou vazia (mesma armadilha de
   // reasoning_content do deepseek-v4-flash, ver reference_deepseek_v4_reasoning_gotchas.md) —
-  // sem retry, essa seção publicava com H2 e nenhum corpo. Nunca lança — retorna o
-  // content_brief no pior caso, o pipeline segue publicável (mesmo contrato de antes).
+  // sem retry, essa seção publicava com H2 e nenhum corpo. Depois dos retries, lança para
+  // impedir que um content_brief curto seja persistido como seção.
   //
   // REGRESSÃO 14/09/2026 (achado real em produção): as 2 tentativas antigas (1x PRIMARY, 1x
   // FALLBACK) vieram AMBAS vazias pra mesma seção — zero exceção nos logs, HTTP 200 nas duas,
@@ -491,9 +491,8 @@ Alvo: ${section.word_target} palavras (não conte, escreva naturalmente até cob
   const WRITE_SECTION_MODELS_BY_ATTEMPT = [PRIMARY_STRUCTURE_MODEL, FALLBACK_STRUCTURE_MODEL, PRIMARY_STRUCTURE_MODEL] as const;
   // ACHADO 18/09/2026 (cs.22): "voltou vazia" não é o único jeito de uma seção sair errada — o
   // modelo pode escrever um texto não-vazio, mas curto/longo demais pro contrato de 400-700
-  // (word_target é instrução, "escreva naturalmente", nunca contado). fora_da_faixa guarda a
-  // MELHOR tentativa não-vazia (mais perto do meio da faixa) só como fallback de último recurso
-  // — o caminho normal, com texto dentro da faixa, sempre vence.
+  // (word_target é instrução, "escreva naturalmente", nunca contado). Guardamos a melhor
+  // contagem apenas para tornar o erro terminal diagnosticável.
   let bestOutOfRange: { text: string; words: number } | null = null;
   let lastWordCount: number | null = null;
   for (let attempt = 1; attempt <= WRITE_SECTION_MODELS_BY_ATTEMPT.length; attempt++) {
@@ -528,24 +527,13 @@ Alvo: ${section.word_target} palavras (não conte, escreva naturalmente até cob
     if (attempt === WRITE_SECTION_MODELS_BY_ATTEMPT.length) break;
     console.warn(`[deepseek] Retentando seção "${section.h2}" (tentativa ${attempt + 1}, modelo ${WRITE_SECTION_MODELS_BY_ATTEMPT[attempt]})...`);
   }
-  // ACHADO na lapidação (mesmo dia, motor irmão gaussmob-nextjs): sem fallback textual, uma
-  // seção que segue vazia esgota as tentativas e publica um H2 seguido de NADA — o mesmo
-  // defeito real que o retry acima corrige na maioria dos casos, só que residual. Mesmo
-  // padrão já aplicado em generateSection do gaussmob-nextjs (article-generator.ts): cai no
-  // content_brief em vez de string vazia — pior que um resumo do brief, nunca é publicar em branco.
-  //
-  // ACHADO 18/09/2026 (cs.22): mas content_brief (uma instrução de 1 linha) É garantidamente
-  // fora de 400-700 também — publicá-lo aqui reproduziria o MESMO defeito que este fix existe
-  // pra fechar. Só cai nele se as 3 tentativas voltaram literalmente vazias (nunca aconteceu
-  // texto nenhum). Se pelo menos uma tentativa produziu texto real, mesmo fora da faixa, usa a
-  // mais próxima do meio — pior que publicar dentro do contrato, mas nunca pior que o que
-  // já publicava antes deste fix (que aceitava qualquer texto não-vazio sem checar nada).
-  if (bestOutOfRange) {
-    console.warn(`[deepseek] Seção "${section.h2}": nenhuma tentativa ficou dentro de ${SECTION_WORD_MIN}-${SECTION_WORD_MAX} — publicando a mais próxima (${bestOutOfRange.words} palavras).`);
-    return bestOutOfRange.text;
-  }
-  console.warn(`[deepseek] Seção "${section.h2}" voltou vazia em todas as ${WRITE_SECTION_MODELS_BY_ATTEMPT.length} tentativas — publicando o content_brief como corpo.`);
-  return section.content_brief;
+  // REGRESSÃO Sentinel 29/09/2026 (cs.22): fallback para content_brief ou para a tentativa
+  // "mais próxima" ainda publicava uma seção sabidamente fora de 400-700. Esgotou os retries,
+  // falha o artigo; o cron pode tentar novamente sem persistir conteúdo inválido.
+  const observed = bestOutOfRange ? `${bestOutOfRange.words} palavras na melhor tentativa` : "todas as respostas vazias";
+  throw new Error(
+    `Seção "${section.h2}" falhou após ${WRITE_SECTION_MODELS_BY_ATTEMPT.length} tentativas: ${observed}; esperado ${SECTION_WORD_MIN}-${SECTION_WORD_MAX}`,
+  );
 }
 
 // ---- Montagem: estrutura + seções + FAQ + slots de imagem -> ArticleContent ----
@@ -648,10 +636,7 @@ export async function generateArticleWithSections(
   const tSections = Date.now();
   const bodies = await Promise.all(
     structure.sections.map((section, index) =>
-      writeSection(keyword, section, index, structure.sections.length).catch((err) => {
-        console.warn(`[deepseek] Seção "${section.h2}" falhou após os retries; usando o content_brief como corpo mínimo.`, err);
-        return section.content_brief;
-      })
+      writeSection(keyword, section, index, structure.sections.length)
     )
   );
   console.warn(`[deepseek] ${bodies.length} seções paralelas levaram ${Math.round((Date.now() - tSections) / 1000)}s`);

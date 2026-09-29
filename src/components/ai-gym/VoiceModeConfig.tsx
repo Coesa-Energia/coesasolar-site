@@ -8,12 +8,13 @@ import { useAgentVoiceConfig } from '@/hooks/useAgentVoiceConfig';
 import { VoiceInboundConfig } from './VoiceInboundConfig';
 import { VoiceOutboundConfig } from './VoiceOutboundConfig';
 import { AgentSecretsManager } from './AgentSecretsManager';
+import type { KBSource } from './KnowledgeBaseManager';
 
 interface VoiceModeConfigProps {
   agentId: string;
   agentDbId: string;
   agentName: string;
-  sharedKbSources?: any[];
+  sharedKbSources?: KBSource[] | null;
 }
 
 export function VoiceModeConfig({ agentId, agentDbId, agentName, sharedKbSources }: VoiceModeConfigProps) {

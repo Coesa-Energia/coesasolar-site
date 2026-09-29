@@ -241,7 +241,7 @@ export function PropostaAssinantePDF({ data, animated = true }: PropostaAssinant
                 className="w-10 h-10 sm:w-14 sm:h-14 bg-white rounded-xl p-1.5 sm:p-2 shadow-lg flex-shrink-0"
                 whileHover={{ scale: 1.05, rotate: 5 }}
               >
-                <img src={coesaLogo} alt="COESA" className="w-full h-full object-contain" />
+                <img src={coesaLogo.src} alt="COESA" className="w-full h-full object-contain" />
               </motion.div>
               <div>
                 <h1 className="text-lg sm:text-2xl font-bold tracking-tight" style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -766,7 +766,7 @@ export function PropostaAssinantePDF({ data, animated = true }: PropostaAssinant
           <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white rounded-lg p-1.5 shadow-lg">
-                <img src={coesaLogo} alt="COESA" className="w-full h-full object-contain" />
+                <img src={coesaLogo.src} alt="COESA" className="w-full h-full object-contain" />
               </div>
               <div>
                 <h1 className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -861,7 +861,7 @@ export function PropostaAssinantePDF({ data, animated = true }: PropostaAssinant
               whileHover={{ x: 5 }}
             >
               <div className="w-8 h-8 bg-white rounded-lg p-1">
-                <img src={coesaLogo} alt="COESA" className="w-full h-full object-contain" />
+                <img src={coesaLogo.src} alt="COESA" className="w-full h-full object-contain" />
               </div>
               <div>
                 <p className="text-sm font-semibold">{configs.empresa_nome}</p>
@@ -960,7 +960,7 @@ function StaticPDF({ data, vantagens, timeline, periodos, maxValue, today, valid
           <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-white rounded-xl p-2 shadow-lg">
-                <img src={coesaLogo} alt="COESA" className="w-full h-full object-contain" />
+                <img src={coesaLogo.src} alt="COESA" className="w-full h-full object-contain" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "'Montserrat', sans-serif" }}>COESA Energia</h1>
@@ -1334,7 +1334,7 @@ function StaticPDF({ data, vantagens, timeline, periodos, maxValue, today, valid
           <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white rounded-lg p-1.5 shadow-lg">
-                <img src={coesaLogo} alt="COESA" className="w-full h-full object-contain" />
+                <img src={coesaLogo.src} alt="COESA" className="w-full h-full object-contain" />
               </div>
               <div>
                 <h1 className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -1379,7 +1379,7 @@ function StaticPDF({ data, vantagens, timeline, periodos, maxValue, today, valid
         <footer className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-white rounded-lg p-1"><img src={coesaLogo} alt="COESA" className="w-full h-full object-contain" /></div>
+              <div className="w-8 h-8 bg-white rounded-lg p-1"><img src={coesaLogo.src} alt="COESA" className="w-full h-full object-contain" /></div>
               <div>
                 <p className="text-sm font-semibold">{configs.empresa_nome}</p>
                 <p className="text-xs text-gray-400">{configs.empresa_slogan}</p>

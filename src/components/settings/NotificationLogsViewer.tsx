@@ -9,15 +9,9 @@ import { Loader2, History, RefreshCw, CheckCircle, XCircle, ChevronDown, Chevron
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import type { DbRow } from '@/types/database';
 
-interface ActivityLog {
-  id: string;
-  action: string;
-  entity_type: string;
-  entity_name: string | null;
-  details: unknown;
-  created_at: string;
-}
+type ActivityLog = DbRow<'activity_logs'>;
 
 const parseDetails = (details: unknown): Record<string, unknown> | null => {
   if (!details) return null;
@@ -163,10 +157,10 @@ export const NotificationLogsViewer = () => {
                       <TableCell>
                         <div className="flex flex-col">
                           <span className="font-medium">
-                            {format(new Date(log.created_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                            {format(new Date(log.created_at ?? 0), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {formatDistanceToNow(new Date(log.created_at), { addSuffix: true, locale: ptBR })}
+                            {formatDistanceToNow(new Date(log.created_at ?? 0), { addSuffix: true, locale: ptBR })}
                           </span>
                         </div>
                       </TableCell>

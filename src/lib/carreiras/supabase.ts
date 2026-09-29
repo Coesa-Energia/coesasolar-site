@@ -42,6 +42,21 @@ export interface VagaPublica {
 export function normalizeVaga(row: unknown): VagaPublica {
   const r = row as Record<string, unknown>;
   const arr = (v: unknown): string[] => (Array.isArray(v) ? (v as string[]) : []);
+  const tipos = new Set<CampoExtraPublico['tipo']>(['texto_curto', 'texto_longo', 'selecao', 'sim_nao', 'anexo']);
+  const campos = Array.isArray(r.rh_vaga_campos)
+    ? r.rh_vaga_campos.flatMap((value): CampoExtraPublico[] => {
+        if (!value || typeof value !== 'object' || Array.isArray(value)) return [];
+        const campo = value as Record<string, unknown>;
+        if (typeof campo.id !== 'string' || typeof campo.label !== 'string' || typeof campo.tipo !== 'string' || !tipos.has(campo.tipo as CampoExtraPublico['tipo'])) return [];
+        return [{
+          id: campo.id,
+          tipo: campo.tipo as CampoExtraPublico['tipo'],
+          label: campo.label,
+          obrigatorio: campo.obrigatorio === true,
+          opcoes: arr(campo.opcoes),
+        }];
+      })
+    : [];
   return {
     slug: r.slug as string,
     titulo: r.titulo as string,
@@ -60,11 +75,7 @@ export function normalizeVaga(row: unknown): VagaPublica {
     portfolio_obrigatorio: (r.portfolio_obrigatorio as boolean) ?? false,
     feedback_dias: (r.feedback_dias as number) ?? 0,
     publicado_em: (r.publicado_em as string | null) ?? null,
-    campos: Array.isArray((r as any).rh_vaga_campos)
-      ? (r as any).rh_vaga_campos.map((c: any) => ({
-          id: c.id, tipo: c.tipo, label: c.label, obrigatorio: c.obrigatorio, opcoes: Array.isArray(c.opcoes) ? c.opcoes : [],
-        }))
-      : [],
+    campos,
   };
 }
 

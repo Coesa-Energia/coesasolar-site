@@ -185,7 +185,7 @@ export function TemplatePreview({
           </div>
         );
 
-      case 'dynamic-field':
+      case 'dynamic-field': {
         const resolvedContent = replacePlaceholders(element.content);
         return (
           <div
@@ -204,6 +204,7 @@ export function TemplatePreview({
             {resolvedContent}
           </div>
         );
+      }
 
       case 'shape':
         return (
@@ -236,7 +237,7 @@ export function TemplatePreview({
           />
         );
 
-      case 'qr-code':
+      case 'qr-code': {
         const qrUrl = replacePlaceholders(element.content);
         return (
           <div
@@ -258,6 +259,7 @@ export function TemplatePreview({
             />
           </div>
         );
+      }
 
       // Renderiza a seção de comparação de planos dinamicamente
       case 'plans-comparison':

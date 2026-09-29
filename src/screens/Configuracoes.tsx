@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -273,7 +274,7 @@ export default function Configuracoes() {
       
       if (error) {
         console.error('Erro ao carregar concessionárias:', error);
-        toast.error(`Erro ao carregar concessionárias: ${error.message}`);
+        toast.error(`Erro ao carregar concessionárias: ${getErrorMessage(error)}`);
         return;
       }
       
@@ -411,7 +412,7 @@ export default function Configuracoes() {
       
       if (error) {
         console.error('Erro na chamada:', error);
-        throw new Error(error.message || 'Erro ao chamar função de sincronização');
+        throw new Error(getErrorMessage(error) || 'Erro ao chamar função de sincronização');
       }
       
       if (!result?.success) {
@@ -422,9 +423,9 @@ export default function Configuracoes() {
       
       // Reload concessionárias
       await loadConcessionarias();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao sincronizar ANEEL:', error);
-      toast.error(`Erro: ${error.message || 'Falha na sincronização'}`);
+      toast.error(`Erro: ${getErrorMessage(error) || 'Falha na sincronização'}`);
     } finally {
       setSyncingAneel(false);
     }
@@ -442,7 +443,7 @@ export default function Configuracoes() {
       
       if (error) {
         console.error('Erro na chamada:', error);
-        throw new Error(error.message || 'Erro ao chamar função de sincronização');
+        throw new Error(getErrorMessage(error) || 'Erro ao chamar função de sincronização');
       }
       
       if (!result?.success) {
@@ -454,9 +455,9 @@ export default function Configuracoes() {
       
       // Reload bandeiras
       await loadBandeiras();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao sincronizar bandeiras:', error);
-      toast.error(`Erro: ${error.message || 'Falha na sincronização'}`);
+      toast.error(`Erro: ${getErrorMessage(error) || 'Falha na sincronização'}`);
     } finally {
       setSyncingBandeiras(false);
     }
@@ -1908,7 +1909,7 @@ export default function Configuracoes() {
                             
                             if (error) throw error;
                             
-                            await updateConfigs({ public_cache_bust: newVersion } as any);
+                            await updateConfigs({ public_cache_bust: newVersion });
                             toast.success('Nova versão gerada! Novos links usarão v=' + newVersion.slice(-6));
                           } catch (err) {
                             console.error('Erro ao atualizar cache bust:', err);

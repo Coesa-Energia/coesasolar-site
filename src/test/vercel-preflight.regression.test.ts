@@ -5,14 +5,16 @@ import { describe, expect, it } from "vitest";
 const read = (path: string) => readFileSync(join(process.cwd(), path), "utf8");
 
 describe("Vercel preflight contract", () => {
-  it("keeps local hook and CI on the deploy gate", () => {
+  it("keeps local hook and CI on the build-free gate", () => {
     const pkg = JSON.parse(read("package.json"));
     const workflow = read(".github/workflows/ci.yml");
 
     expect(pkg.engines.node).toBe("24.x");
-    expect(pkg.scripts.preflight).toBe("npm test && npm run build");
-    expect(read(".githooks/pre-push")).toContain("npm run preflight");
-    expect(workflow).toContain("run: npm run preflight");
+    expect(pkg.scripts["preflight:ci"]).toBe("npm run lint && npm run typecheck && npm test");
+    expect(pkg.scripts.preflight).toBe("npm run preflight:ci && npm run build");
+    expect(read(".githooks/pre-push")).toContain("mac-gate npm run preflight:ci");
+    expect(workflow).toContain("run: npm run preflight:ci");
+    expect(workflow).not.toContain("npm run build");
     expect(workflow).not.toContain("continue-on-error");
     expect(
       [...workflow.matchAll(/uses:\s+([^\s]+)/g)].every((match) =>

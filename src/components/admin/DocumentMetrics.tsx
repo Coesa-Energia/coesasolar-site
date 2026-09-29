@@ -95,7 +95,7 @@ export function DocumentMetrics() {
       // Calculate source stats
       const sources: SourceStats = { whatsapp: 0, page: 0, mixed: 0, unknown: 0 };
       conversas?.forEach(conv => {
-        const source = (conv as any).docs_source as string | null;
+        const source = conv.docs_source;
         const arquivos = conv.arquivos_anexados as string[] | null;
         const hasArquivos = arquivos && arquivos.length > 0;
         
@@ -149,8 +149,8 @@ export function DocumentMetrics() {
         if (sol.proposta_inicial_id) {
           const proposta = propostaMap.get(sol.proposta_inicial_id);
           if (proposta) {
-            const propostaTime = new Date(proposta.created_at).getTime();
-            const docTime = new Date(sol.created_at).getTime();
+            const propostaTime = new Date(proposta.created_at ?? 0).getTime();
+            const docTime = new Date(sol.created_at ?? 0).getTime();
             const diffMinutes = (docTime - propostaTime) / (1000 * 60);
             
             if (diffMinutes > 0 && diffMinutes < 10080) { // Max 7 days

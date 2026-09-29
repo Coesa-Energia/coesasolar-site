@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { AIAgent } from '@/types/ai-agent';
 
 interface TestCase {
   id: string;
@@ -53,22 +54,6 @@ interface TestResult {
   detectedIntent?: string;
   errors: string[];
   score: number;
-}
-
-interface AIAgent {
-  id: string;
-  agent_id: string;
-  name: string;
-  role: string;
-  description: string;
-  avatar_emoji: string;
-  persona: any;
-  guardrails: any;
-  tools_config: any;
-  intents: any;
-  kb_sources: any;
-  collection_rules: any;
-  tests: any;
 }
 
 interface AgentTestRunnerProps {

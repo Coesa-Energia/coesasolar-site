@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -88,10 +89,10 @@ export function CreateUserDialog({ open, onOpenChange, onSuccess }: CreateUserDi
       form.reset();
       onSuccess();
       onOpenChange(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         title: 'Erro ao criar usuário',
-        description: err.message || 'Tente novamente.',
+        description: getErrorMessage(err) || 'Tente novamente.',
         variant: 'destructive',
       });
     } finally {

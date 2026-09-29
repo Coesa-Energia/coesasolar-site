@@ -27,7 +27,7 @@ export function CoesaLogo({ className, variant = 'green', size = 'md' }: CoesaLo
   
   return (
     <img 
-      src={logoSrc} 
+      src={logoSrc.src}
       alt="COESA Energia Inteligente" 
       className={cn(sizeClasses[size], 'w-auto object-contain', className)}
     />

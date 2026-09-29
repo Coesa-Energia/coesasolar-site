@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useRef } from 'react';
 import {
   Dialog,
@@ -103,11 +104,11 @@ export function RAGUploadDialog({ onUploadComplete }: Props) {
 
       updateUploadStatus(index, { status: 'done', progress: 100 });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       updateUploadStatus(index, { 
         status: 'error', 
         progress: 0,
-        error: error.message 
+        error: getErrorMessage(error)
       });
     }
   };

@@ -1,3 +1,4 @@
+import { getErrorCode, getErrorMessage } from '@/lib/errors';
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -50,6 +51,14 @@ interface OneDriveItem {
   childCount?: number;
   webUrl?: string;
   learningType?: 'success' | 'failure' | 'neutral';
+}
+
+interface OneDriveApiItem {
+  childCount?: number;
+  id: string;
+  lastModified?: string;
+  name: string;
+  size?: number;
 }
 
 interface BreadcrumbItem {
@@ -107,7 +116,7 @@ const formatFileSize = (bytes?: number) => {
 };
 
 // Caracteres inválidos para nomes de pasta no OneDrive
-const INVALID_CHARS = /[\/\\:*?"<>|]/;
+const INVALID_CHARS = /[/\\:*?"<>|]/;
 const INVALID_NAMES = ['CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 
   'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 
   'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'];
@@ -212,7 +221,7 @@ export function RAGOneDriveBrowser({ onSyncFolder }: Props) {
           console.error('Failed to parse learning_folders_config');
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading OneDrive config:', error);
     }
   };
@@ -242,7 +251,7 @@ export function RAGOneDriveBrowser({ onSyncFolder }: Props) {
     try {
       setLoading(true);
       
-      const body: any = {
+      const body: { drive_id: string; folder_path?: string } = {
         drive_id: currentDriveId
       };
       if (folderPath) {
@@ -259,8 +268,9 @@ export function RAGOneDriveBrowser({ onSyncFolder }: Props) {
       const allItems: OneDriveItem[] = [];
       
       // Map folders
-      if (data?.folders) {
-        data.folders.forEach((item: any) => {
+      const response = data as { files?: OneDriveApiItem[]; folders?: OneDriveApiItem[] } | null;
+      if (response?.folders) {
+        response.folders.forEach((item) => {
           allItems.push({
             id: item.id,
             name: item.name,
@@ -273,8 +283,8 @@ export function RAGOneDriveBrowser({ onSyncFolder }: Props) {
       }
       
       // Map files
-      if (data?.files) {
-        data.files.forEach((item: any) => {
+      if (response?.files) {
+        response.files.forEach((item) => {
           allItems.push({
             id: item.id,
             name: item.name,
@@ -294,10 +304,10 @@ export function RAGOneDriveBrowser({ onSyncFolder }: Props) {
       setItems(allItems);
       setCurrentPath(folderPath);
       updateBreadcrumbs(folderPath);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao carregar pasta',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -388,11 +398,11 @@ export function RAGOneDriveBrowser({ onSyncFolder }: Props) {
       } else {
         throw new Error(data?.error || 'Erro ao criar pasta');
       }
-    } catch (error: any) {
-      const errorMessage = error.message || 'Erro ao criar pasta';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error) || 'Erro ao criar pasta';
       
       // Verificar se é erro de pasta já existente
-      if (errorMessage.includes('Já existe') || error.error_code === 'FOLDER_EXISTS') {
+      if (errorMessage.includes('Já existe') || getErrorCode(error) === 'FOLDER_EXISTS') {
         setFolderNameError('Já existe uma pasta com este nome');
       } else {
         toast({

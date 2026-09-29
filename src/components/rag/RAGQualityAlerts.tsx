@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { useUIConfig } from '@/hooks/useUIConfig';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -79,10 +80,10 @@ export function RAGQualityAlerts({ onAlertResolved }: Props) {
       });
       
       await fetchAlerts();
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         title: 'Erro na verificação',
-        description: err.message,
+        description: getErrorMessage(err),
         variant: 'destructive',
       });
     } finally {
@@ -110,10 +111,10 @@ export function RAGQualityAlerts({ onAlertResolved }: Props) {
       
       toast({ title: 'Alerta resolvido' });
       onAlertResolved?.();
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         title: 'Erro ao resolver',
-        description: err.message,
+        description: getErrorMessage(err),
         variant: 'destructive',
       });
     }

@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,20 @@ interface ComparisonTest {
   passed: boolean;
   failure_reason: string | null;
   created_at: string;
+}
+
+interface RawComparisonTest extends Partial<ComparisonTest> {
+  failures?: string[];
+  input?: string;
+  metrics?: {
+    complianceScore?: number;
+    hasCalculation?: boolean;
+    improvement?: number | string;
+    skillsBaseline?: number;
+    wordCount?: number;
+  };
+  response?: string;
+  scenario?: string;
 }
 
 interface TestSummary {
@@ -88,10 +103,10 @@ export function AgentsMdComparisonDashboard() {
       }
       
       // If edge function returns results from database
-      const typedData = (response?.results || []) as unknown as ComparisonTest[];
-      setTests(typedData.map((r: any) => ({
+      const typedData = (response?.results || []) as RawComparisonTest[];
+      setTests(typedData.map((r) => ({
         id: r.id || crypto.randomUUID(),
-        test_scenario: r.scenario || r.test_scenario,
+        test_scenario: r.scenario || r.test_scenario || 'cenario_desconhecido',
         input_message: r.input || '',
         actual_response: r.response || '',
         word_count: r.metrics?.wordCount || 0,
@@ -100,7 +115,7 @@ export function AgentsMdComparisonDashboard() {
         emoji_count: 0,
         tone_score: r.metrics?.complianceScore || 0,
         skills_baseline_word_count: r.metrics?.skillsBaseline || 0,
-        improvement_percentage: parseFloat(r.metrics?.improvement?.replace('%', '') || '0'),
+        improvement_percentage: Number.parseFloat(String(r.metrics?.improvement ?? '0').replace('%', '')),
         passed: r.passed || false,
         failure_reason: r.failures?.join('; ') || null,
         created_at: new Date().toISOString(),
@@ -117,11 +132,11 @@ export function AgentsMdComparisonDashboard() {
           avgImprovementVsSkills: response.summary.avgImprovementVsSkills,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching tests:', error);
       toast({
         title: 'Erro ao carregar testes',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive',
       });
     } finally {
@@ -145,11 +160,11 @@ export function AgentsMdComparisonDashboard() {
 
       // Recarregar resultados
       await fetchTests();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error running tests:', error);
       toast({
         title: 'Erro ao executar testes',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive',
       });
     } finally {

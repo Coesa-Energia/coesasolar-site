@@ -10,6 +10,7 @@ import { trackDocumentSubmissionFromPage } from '@/lib/docs-tracking-utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { motion, AnimatePresence } from 'framer-motion';
 import { validateImageQuality, isImageFile, ImageQualityResult, ImageQualityIssue } from '@/lib/image-quality-validator';
+import type { Json } from '@/integrations/supabase/types';
 import { compressImageFile } from '@/lib/image-compressor';
 import { useTitularidadeValidation, TitularidadeResult } from '@/hooks/useTitularidadeValidation';
 import { FraudAlert, PJWarningAlert } from '@/components/FraudAlert';
@@ -344,7 +345,7 @@ export function DocumentUploadWithAI({ propostaId, onExtractionComplete, onManua
             cpf_identificacao: validacao.cpf_identificacao,
             cpf_cnpj_conta: validacao.cpf_cnpj_conta,
             tipo_alerta: 'cpf_diferente',
-            dados_extraidos: result.dados as any,
+            dados_extraidos: result.dados as unknown as Json,
             user_agent: navigator.userAgent
           });
           

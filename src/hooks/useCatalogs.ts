@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 /**
  * useCatalogs - Hook para gerenciamento de catálogos do agente
  * 
@@ -93,8 +94,8 @@ export function useCatalogs({ agentId, autoLoad = true }: UseCatalogsOptions): U
 
       setCatalogs(loadedCatalogs);
       setOriginalCatalogs(loadedCatalogs);
-    } catch (err: any) {
-      const message = err.message || 'Erro ao carregar catálogos';
+    } catch (err: unknown) {
+      const message = getErrorMessage(err) || 'Erro ao carregar catálogos';
       setError(message);
       console.error('useCatalogs.loadCatalogs error:', err);
     } finally {
@@ -146,8 +147,8 @@ export function useCatalogs({ agentId, autoLoad = true }: UseCatalogsOptions): U
       });
 
       return true;
-    } catch (err: any) {
-      const message = err.message || 'Erro ao salvar catálogos';
+    } catch (err: unknown) {
+      const message = getErrorMessage(err) || 'Erro ao salvar catálogos';
       setError(message);
       toast({
         title: 'Erro ao salvar',

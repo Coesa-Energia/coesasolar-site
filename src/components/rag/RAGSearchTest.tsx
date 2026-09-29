@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { useUIConfig } from '@/hooks/useUIConfig';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -75,10 +76,11 @@ function NearMissAlert({ query, minSimilarity, agentId }: { query: string; minSi
             min_similarity: Math.max(0.1, minSimilarity - 0.15),
           }
         });
-        if (data?.results?.length > 0) {
-          const nearResults = data.results.filter((r: any) => r.similarity < minSimilarity && r.similarity >= minSimilarity - 0.15);
+        const results = (data as SearchResponse | null)?.results ?? [];
+        if (results.length > 0) {
+          const nearResults = results.filter((result) => result.similarity < minSimilarity && result.similarity >= minSimilarity - 0.15);
           if (nearResults.length > 0) {
-            setNearMissResults(nearResults.map((r: any) => ({ similarity: r.similarity, file_name: r.file_name })));
+            setNearMissResults(nearResults.map((result) => ({ similarity: result.similarity, file_name: result.file_name })));
           }
         }
       } catch (e) {
@@ -160,10 +162,10 @@ export function RAGSearchTest() {
           description: 'Dica: se fizer sentido, reduza a similaridade mínima (ex: 20%) para explorar resultados mais fracos.',
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro na busca',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {

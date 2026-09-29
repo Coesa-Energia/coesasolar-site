@@ -36,12 +36,15 @@ export function useProposalHeartbeat(proposalId: string | undefined, viewId: str
     if (useKeepalive) {
       // keepalive fetch survives page close, unlike sendBeacon it allows custom headers
       try {
-        const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/public-proposal`;
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+        if (!supabaseUrl || !publishableKey) return;
+        const url = `${supabaseUrl}/functions/v1/public-proposal`;
         fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'apikey': process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+            apikey: publishableKey,
           },
           body: JSON.stringify(body),
           keepalive: true,

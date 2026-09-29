@@ -4,17 +4,19 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, AlertCircle } from 'lucide-react';
 
+export interface CollectionRules {
+  stages?: Array<{
+    day: number;
+    stage: string;
+    tone: string;
+    action: string;
+  }>;
+  exceptions?: Record<string, string>;
+}
+
 interface CollectionRulesEditorProps {
-  rules: {
-    stages?: Array<{
-      day: number;
-      stage: string;
-      tone: string;
-      action: string;
-    }>;
-    exceptions?: Record<string, string>;
-  } | null;
-  onChange: (rules: any) => void;
+  rules: CollectionRules | null;
+  onChange: (rules: CollectionRules) => void;
 }
 
 export function CollectionRulesEditor({ rules, onChange }: CollectionRulesEditorProps) {

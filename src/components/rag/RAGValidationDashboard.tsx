@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -178,10 +179,10 @@ export function RAGValidationDashboard() {
       };
       setQueryHistory(prev => [historyItem, ...prev.slice(0, 19)]);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro na busca',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {

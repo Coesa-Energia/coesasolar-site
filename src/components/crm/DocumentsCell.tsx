@@ -74,7 +74,7 @@ export function DocumentsCell({ telefone, bitrixLeadId, propostaId }: DocumentsC
         normalizedPhone,
         `55${normalizedPhone}`,
         normalizedPhone.startsWith('55') ? normalizedPhone.slice(2) : null,
-      ].filter(Boolean) : [];
+      ].filter((phone): phone is string => phone !== null) : [];
 
       // 1. Try chatbot_conversas
       if (bitrixLeadId || phoneVariants.length > 0) {

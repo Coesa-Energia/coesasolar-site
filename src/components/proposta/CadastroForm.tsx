@@ -67,7 +67,9 @@ export function CadastroForm({
           if (address.localidade) setCidade(address.localidade);
           if (address.uf) setUf(address.uf);
         }
-      } catch {}
+      } catch {
+        // CEP is optional; keep the manually entered address.
+      }
       setCepLoading(false);
     }
   };
@@ -137,7 +139,9 @@ export function CadastroForm({
         await supabase.functions.invoke('bitrix24-sync', {
           body: { action: 'update_status', proposalId: propostaId, status: 'aceita' },
         });
-      } catch {}
+      } catch {
+        // The proposal remains saved even if the optional CRM sync fails.
+      }
 
       toast.success('Dados enviados com sucesso! Em breve você receberá o contrato.');
       onSuccess();

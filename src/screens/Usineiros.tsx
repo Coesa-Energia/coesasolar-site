@@ -875,7 +875,7 @@ export default function Usineiros() {
                   <Input
                     type="number"
                     step="0.1"
-                    value={ipca}
+                    value={ipca ?? ''}
                     onChange={(e) => setIpca(Number(e.target.value))}
                     className="bg-coesa-yellow/10 border-coesa-yellow/30"
                   />
@@ -885,7 +885,7 @@ export default function Usineiros() {
                   <Input
                     type="number"
                     step="0.25"
-                    value={cdi}
+                    value={cdi ?? ''}
                     onChange={(e) => setCdi(Number(e.target.value))}
                     className="bg-coesa-yellow/10 border-coesa-yellow/30"
                   />
@@ -895,7 +895,7 @@ export default function Usineiros() {
                   <Input
                     type="number"
                     step="0.5"
-                    value={inflacaoEnergetica}
+                    value={inflacaoEnergetica ?? ''}
                     onChange={(e) => setInflacaoEnergetica(Number(e.target.value))}
                     className="bg-coesa-yellow/10 border-coesa-yellow/30"
                   />

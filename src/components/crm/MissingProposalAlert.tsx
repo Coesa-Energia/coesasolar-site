@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -65,9 +66,9 @@ export function MissingProposalAlert({ leads, onReprocessed }: MissingProposalAl
       } else {
         toast.warning('Reprocessamento concluído mas sem proposta gerada. Verifique os dados do lead.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Erro ao reprocessar:', err);
-      toast.error(err.message || 'Erro ao reprocessar lead');
+      toast.error(getErrorMessage(err) || 'Erro ao reprocessar lead');
     } finally {
       setReprocessing(prev => ({ ...prev, [lead.id]: false }));
     }

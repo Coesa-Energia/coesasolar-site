@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,22 +40,9 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import type { DbRow } from '@/types/database';
 
-interface RAGUsageLog {
-  id: string;
-  agent_id: string;
-  query_text: string;
-  results_count: number;
-  top_similarity: number;
-  avg_similarity: number | null;
-  documents_accessed: string[];
-  categories_accessed: string[];
-  response_time_ms: number;
-  client_phone: string | null;
-  funnel_stage: string | null;
-  chunks_used: any;
-  created_at: string;
-}
+type RAGUsageLog = DbRow<'rag_usage_logs'>;
 
 interface ImpactStats {
   totalQueries: number;
@@ -164,11 +152,11 @@ export function RAGImpactAnalytics() {
       } else {
         setStats(null);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching RAG analytics:', error);
       toast({
         title: 'Erro ao carregar analytics',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -441,7 +429,7 @@ export function RAGImpactAnalytics() {
                             ))}
                             {(log.categories_accessed || []).length > 2 && (
                               <Badge variant="outline" className="text-xs">
-                                +{log.categories_accessed.length - 2}
+                                +{(log.categories_accessed?.length ?? 0) - 2}
                               </Badge>
                             )}
                           </div>

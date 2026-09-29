@@ -156,7 +156,10 @@ export function ChatbotAnalytics() {
         if (!mensagensByConversa[msg.conversa_id]) {
           mensagensByConversa[msg.conversa_id] = [];
         }
-        mensagensByConversa[msg.conversa_id].push(msg);
+        mensagensByConversa[msg.conversa_id].push({
+          ...msg,
+          is_quick_reply: msg.is_quick_reply ?? false,
+        });
       });
 
       // Calculate question frequency (only user messages)
@@ -237,7 +240,11 @@ export function ChatbotAnalytics() {
       const premiumCount = conversasData?.filter(c => c.sofia_mode === 'closer_premium').length || 0;
       const premiumModeRate = totalConversas > 0 ? (premiumCount / totalConversas) * 100 : 0;
 
-      setConversas(conversasData || []);
+      setConversas((conversasData || []).map((conversa) => ({
+        ...conversa,
+        needs_human_fallback: conversa.needs_human_fallback ?? false,
+        total_messages: conversa.total_messages ?? 0,
+      })));
       setMensagens(mensagensByConversa);
       setQuestionFrequency(sortedQuestions);
       setObjectionStats(objections);

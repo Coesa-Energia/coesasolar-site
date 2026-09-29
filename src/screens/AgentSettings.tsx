@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { 
@@ -96,31 +97,8 @@ import { AgentRAGMetrics } from '@/components/ai-gym/AgentRAGMetrics';
 import { AgentDetectionPatterns } from '@/components/ai-gym/AgentDetectionPatterns';
 import { PromptModulesEditor } from '@/components/ai-gym/PromptModulesEditor';
 import { AgentCatalogsEditor } from '@/components/ai-gym/AgentCatalogsEditor';
-
-interface AIAgent {
-  id: string;
-  agent_id: string;
-  name: string;
-  role: string;
-  status: string;
-  avatar_emoji: string | null;
-  description: string | null;
-  version: string;
-  channels: string[];
-  persona: any;
-  guardrails: any;
-  tools_config: any;
-  intents: any;
-  kb_sources: any;
-  collection_rules: any;
-  triage_config: any;
-  metrics: any;
-  tests: any;
-  created_at: string;
-  updated_at: string;
-  published_at: string | null;
-  bitrix24_user_id: string | null;
-}
+import { normalizeAIAgent, type AIAgent } from '@/types/ai-agent';
+import type { Json } from '@/integrations/supabase/types';
 
 const agentConfig: Record<string, { 
   color: string; 
@@ -179,13 +157,9 @@ export default function AgentSettings() {
         .single();
 
       if (error) throw error;
-      // Normalize the data to include triage_config
-      const normalizedData = {
-        ...data,
-        triage_config: (data as any).triage_config || null,
-      };
-      setAgent(normalizedData as AIAgent);
-      setEditedAgent(normalizedData as AIAgent);
+      const normalizedData = normalizeAIAgent(data);
+      setAgent(normalizedData);
+      setEditedAgent(normalizedData);
     } catch (error) {
       console.error('Erro ao buscar agente:', error);
     } finally {
@@ -251,14 +225,14 @@ export default function AgentSettings() {
       setKbSaving(true);
       const { error } = await supabase
         .from('ai_agents')
-        .update({ kb_sources: sources as any })
+        .update({ kb_sources: sources as Json })
         .eq('id', agent.id);
 
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao salvar KB',
-        description: error.message || 'Não foi possível salvar as mudanças da base de conhecimento.',
+        description: getErrorMessage(error) || 'Não foi possível salvar as mudanças da base de conhecimento.',
         variant: 'destructive',
       });
     } finally {
@@ -278,11 +252,11 @@ export default function AgentSettings() {
           description: editedAgent.description,
           persona: editedAgent.persona,
           guardrails: editedAgent.guardrails,
-          tools_config: editedAgent.tools_config,
+          tools_config: editedAgent.tools_config as unknown as Json,
           intents: editedAgent.intents,
-          kb_sources: editedAgent.kb_sources,
-          collection_rules: editedAgent.collection_rules,
-          tests: editedAgent.tests,
+          kb_sources: editedAgent.kb_sources as unknown as Json,
+          collection_rules: editedAgent.collection_rules as unknown as Json,
+          tests: editedAgent.tests as unknown as Json,
           bitrix24_user_id: editedAgent.bitrix24_user_id
         })
         .eq('id', agent.id);
@@ -295,10 +269,10 @@ export default function AgentSettings() {
       });
       
       setAgent(editedAgent);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao salvar',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -342,10 +316,10 @@ export default function AgentSettings() {
         title: 'Download concluído',
         description: `Cérebro de ${agent.name} v${agent.version} exportado com sucesso.`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro no download',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     }
@@ -423,22 +397,22 @@ export default function AgentSettings() {
         title: 'Download concluído!',
         description: `Pacote completo de ${agent.name} baixado.`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error downloading complete package:', error);
       toast({
         title: 'Erro no download',
-        description: error.message || 'Não foi possível gerar o pacote completo.',
+        description: getErrorMessage(error) || 'Não foi possível gerar o pacote completo.',
         variant: 'destructive'
       });
     }
   };
 
-  const handleTestsUpdate = (tests: any[]) => {
+  const handleTestsUpdate = (tests: unknown[]) => {
     if (!editedAgent) return;
     setEditedAgent(prev => prev ? { ...prev, tests } : null);
   };
 
-  const updatePersona = (key: string, value: any) => {
+  const updatePersona = (key: string, value: Json) => {
     if (!editedAgent) return;
     setEditedAgent(prev => prev ? {
       ...prev,
@@ -446,7 +420,7 @@ export default function AgentSettings() {
     } : null);
   };
 
-  const updateGuardrails = (key: string, value: any) => {
+  const updateGuardrails = (key: string, value: Json) => {
     if (!editedAgent) return;
     setEditedAgent(prev => prev ? {
       ...prev,
