@@ -9,12 +9,12 @@ const SITE_URL = "https://coesasolar.com.br"
 export const metadata: Metadata = {
   title: "Investimentos | Coesa Energia",
   description:
-    "Coesa Energia anuncia investimento de R$ 2 milhões na CF Gauss para acelerar a MOVA e novas soluções tecnológicas.",
+    "Coesa Energia conclui aporte de R$ 2 milhões na CF Gauss para acelerar a MOVA e novas soluções tecnológicas.",
   alternates: { canonical: `${SITE_URL}/investimentos` },
   openGraph: {
     type: "article",
     url: `${SITE_URL}/investimentos`,
-    title: "Coesa anuncia investimento de R$ 2 milhões na CF Gauss e na MOVA",
+    title: "Coesa conclui aporte de R$ 2 milhões na CF Gauss para acelerar a MOVA",
     description:
       "Rodada pre-seed estruturada via mútuo conversível para mobilidade elétrica, tecnologia e expansão comercial.",
     images: [`${SITE_URL}/og-image.png`],
@@ -62,13 +62,13 @@ const facts = [
   ["Empresa investida", "CF GAUSS SERVICOS LTDA"],
   ["CNPJ da investida", "33.672.634/0001-40"],
   ["Instrumento", "Rodada pre-seed via mútuo conversível"],
-  ["Status", "Aporte anunciado — desembolso conforme instrumento contratual"],
+  ["Status", "Aporte integralmente transferido e recebido"],
 ] as const
 
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "NewsArticle",
-  headline: "Coesa Energia anuncia investimento de R$ 2 milhões na CF Gauss para acelerar a MOVA",
+  headline: "Coesa Energia conclui aporte de R$ 2 milhões na CF Gauss para acelerar a MOVA",
   datePublished: "2026-09-29",
   dateModified: "2026-09-29",
   mainEntityOfPage: `${SITE_URL}/investimentos`,
@@ -117,7 +117,7 @@ export default function InvestimentosPage() {
                 <span className="text-[#0b2c22]/55">Anúncio institucional · 29 de setembro de 2026</span>
               </div>
               <h1 className="max-w-4xl font-heading text-[2.55rem] font-semibold leading-[0.98] tracking-[-0.045em] sm:text-6xl lg:text-[4.8rem]">
-                Coesa anuncia investimento de <span className="text-[#168755]">R$ 2 milhões</span> na CF Gauss para acelerar a MOVA.
+                Coesa conclui aporte de <span className="text-[#168755]">R$ 2 milhões</span> na CF Gauss para acelerar a MOVA.
               </h1>
               <p className="mt-8 max-w-2xl text-lg leading-8 text-[#0b2c22]/70 md:text-xl">
                 Capital para mobilidade elétrica, desenvolvimento tecnológico e expansão comercial — em uma rodada pre-seed estruturada via mútuo conversível.
@@ -126,11 +126,11 @@ export default function InvestimentosPage() {
 
             <aside className="relative flex min-h-[320px] flex-col justify-between bg-[#d6ff48] px-5 py-10 md:px-8 lg:bg-transparent lg:py-20">
               <p className="max-w-xs text-sm font-semibold leading-6 text-[#0b2c22]/70">
-                Duas empresas do mesmo grupo, unindo energia, mobilidade e tecnologia para construir operações de maior escala.
+                Coesa Energia e CF Gauss, empresas do mesmo grupo econômico, unindo energia, mobilidade e tecnologia para construir operações de maior escala.
               </p>
               <div>
                 <p className="font-heading text-[5.5rem] font-semibold leading-none tracking-[-0.08em] md:text-[7rem]">2MM</p>
-                <p className="mt-2 border-t border-[#0b2c22]/25 pt-3 text-xs font-bold uppercase tracking-[0.18em]">Capital comprometido</p>
+                <p className="mt-2 border-t border-[#0b2c22]/25 pt-3 text-xs font-bold uppercase tracking-[0.18em]">Capital recebido</p>
               </div>
             </aside>
           </div>
@@ -183,7 +183,7 @@ export default function InvestimentosPage() {
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#83d9ad]">Transparência</p>
               <h2 className="mt-4 max-w-md font-heading text-3xl font-semibold leading-tight tracking-[-0.03em] md:text-4xl">Dados objetivos da rodada.</h2>
               <p className="mt-6 max-w-md text-sm leading-7 text-white/55">
-                Este anúncio registra o compromisso de investimento. Não representa declaração de que o valor integral já foi transferido ou recebido.
+                O aporte de R$ 2 milhões foi integralmente transferido pela Coesa Energia e recebido pela CF Gauss, conforme o instrumento contratual.
               </p>
             </div>
             <dl className="border-t border-white/20">
