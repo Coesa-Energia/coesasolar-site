@@ -9,6 +9,11 @@ describe("HomeNavbar", () => {
     expect(link).toHaveAttribute("href", "/carreiras")
   })
 
+  it("tem o link Investimentos apontando para /investimentos", () => {
+    render(<HomeNavbar />)
+    expect(screen.getByRole("link", { name: "Investimentos" })).toHaveAttribute("href", "/investimentos")
+  })
+
   it("exibe a logomarca ampliada sem distorcer a proporção", () => {
     render(<HomeNavbar />)
     const logo = screen.getByRole("img", { name: "COESA" })

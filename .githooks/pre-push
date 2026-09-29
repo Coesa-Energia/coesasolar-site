@@ -7,4 +7,4 @@ if [ "$branch" = "main" ] && [ "${PUSH_MAIN:-}" != "1" ]; then
   exit 1
 fi
 
-mac-gate npm run preflight:ci
+~/.local/bin/mac-gate npm run preflight:ci

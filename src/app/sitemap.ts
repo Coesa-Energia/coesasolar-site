@@ -13,6 +13,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = AUTOBLOG_PROFILE.brand.siteUrl;
   const entries: MetadataRoute.Sitemap = [
     {
+      url: `${siteUrl}/investimentos`,
+      lastModified: new Date('2026-09-29'),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
       url: `${siteUrl}/blog`,
       lastModified: new Date(),
       changeFrequency: 'daily',
