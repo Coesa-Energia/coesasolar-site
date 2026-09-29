@@ -31,19 +31,9 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useUIConfig } from '@/hooks/useUIConfig';
+import type { DbRow } from '@/types/database';
 
-interface ActivityLogEntry {
-  id: string;
-  user_id: string | null;
-  user_email: string | null;
-  user_nome: string | null;
-  action: string;
-  entity_type: string;
-  entity_id: string | null;
-  entity_name: string | null;
-  details: unknown;
-  created_at: string;
-}
+type ActivityLogEntry = DbRow<'activity_logs'>;
 
 const actionLabels: Record<string, { label: string; icon: typeof Plus; color: string }> = {
   create: { label: 'Criou', icon: Plus, color: 'bg-green-500' },
@@ -182,7 +172,7 @@ export function ActivityLog({ limit = 50, showFilters = true }: ActivityLogProps
                 return (
                   <TableRow key={log.id}>
                     <TableCell className="text-sm text-muted-foreground">
-                      {format(new Date(log.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      {format(new Date(log.created_at ?? 0), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                     </TableCell>
                     <TableCell>
                       <div>

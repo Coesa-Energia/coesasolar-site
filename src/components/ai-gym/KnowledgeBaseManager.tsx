@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -224,10 +225,10 @@ export function KnowledgeBaseManager({ sources, onChange, agentName }: Knowledge
           idx === i ? { ...p, status: 'done', progress: 100 } : p
         ));
 
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error(`Error processing ${file.name}:`, error);
         setUploadProgress(prev => prev.map((p, idx) => 
-          idx === i ? { ...p, status: 'error', progress: 0, error: error.message } : p
+          idx === i ? { ...p, status: 'error', progress: 0, error: getErrorMessage(error) } : p
         ));
       }
     }

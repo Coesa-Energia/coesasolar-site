@@ -129,8 +129,8 @@ export function AgentFlowsInsights({ agentId }: AgentFlowsInsightsProps) {
 
       const withName = conversations.filter(c => c.cliente_nome).length;
       const withData = conversations.filter(c => {
-        const dados = c.dados_coletados as any;
-        return dados?.consumo || dados?.distribuidora;
+        if (!c.dados_coletados || typeof c.dados_coletados !== 'object' || Array.isArray(c.dados_coletados)) return false;
+        return Boolean(c.dados_coletados.consumo || c.dados_coletados.distribuidora);
       }).length;
       const withSimulation = conversations.filter(c => c.has_simulation).length;
       const withProposal = conversations.filter(c => c.event_proposal_sent).length;

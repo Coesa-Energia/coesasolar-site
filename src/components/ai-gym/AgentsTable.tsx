@@ -43,30 +43,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-interface AIAgent {
-  id: string;
-  agent_id: string;
-  name: string;
-  role: string;
-  description: string;
-  avatar_emoji: string;
-  channels: string[];
-  status: string;
-  version: string;
-  persona: any;
-  guardrails: any;
-  tools_config: any;
-  intents: any;
-  kb_sources: any;
-  collection_rules: any;
-  metrics: any;
-  tests: any;
-  created_at: string;
-  updated_at: string;
-  published_at: string | null;
-  agent_type?: string;
-}
+import type { AIAgent } from '@/types/ai-agent';
 
 interface AgentsTableProps {
   agents: AIAgent[];

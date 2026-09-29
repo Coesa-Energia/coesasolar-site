@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState } from 'react';
 import { useUIConfig } from '@/hooks/useUIConfig';
 import { Button } from '@/components/ui/button';
@@ -162,11 +163,11 @@ export function CreateAgentDialog({ onAgentCreated }: CreateAgentDialogProps) {
       resetForm();
       setOpen(false);
       onAgentCreated();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating agent:', error);
       toast({
         title: 'Erro ao criar agente',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {

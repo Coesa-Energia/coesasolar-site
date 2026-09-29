@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { RefreshCw, Phone, PhoneOff, Clock, CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ManualCallTrigger } from './ManualCallTrigger';
+import type { Json } from '@/integrations/supabase/types';
 
 interface QueueItem {
   id: string;
@@ -23,7 +24,7 @@ interface QueueItem {
   campaign_id: string | null;
   created_at: string;
   retell_call_id: string | null;
-  lead_context: any;
+  lead_context: Json;
 }
 
 const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {

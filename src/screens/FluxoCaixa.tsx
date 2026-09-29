@@ -8,14 +8,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { formatCurrency, formatNumber, calcularPropostaUsineiro, UsineiroInput } from '@/lib/calculations';
 import { TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
+import type { DbRow } from '@/types/database';
 
-interface PropostaUsineiro {
-  id: string;
-  nome_projeto: string;
-  potencia_mwp: number;
-  capex_total: number;
-  created_at: string;
-}
+type PropostaUsineiro = Pick<DbRow<'propostas_usineiros'>,
+  'id' | 'nome_projeto' | 'potencia_mwp' | 'capex_total' | 'created_at'>;
 
 export default function FluxoCaixa() {
   const { user } = useAuth();
@@ -108,7 +104,7 @@ export default function FluxoCaixa() {
               <SelectContent>
                 {propostas.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
-                    {p.nome_projeto} ({formatNumber(p.potencia_mwp, 1)} MWp)
+                    {p.nome_projeto} ({formatNumber(p.potencia_mwp ?? 0, 1)} MWp)
                   </SelectItem>
                 ))}
               </SelectContent>

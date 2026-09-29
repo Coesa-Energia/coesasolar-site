@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { getErrorMessage } from '@/lib/errors';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +15,7 @@ import { Loader2, CheckCircle2, FileText, Building2, User, Zap, ArrowLeft, Spark
 import { formatCpfCnpj, isValidCpfCnpj, getDocumentType } from '@/lib/cpf-cnpj-utils';
 import { formatCEP, isCEPComplete, fetchAddressByCEP } from '@/lib/cep-utils';
 import { DocumentUploadWithAI } from '@/components/DocumentUploadWithAI';
-import { DocumentUploadPJ } from '@/components/DocumentUploadPJ';
+import { DocumentUploadPJ, type DocumentUploadPJData } from '@/components/DocumentUploadPJ';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CoesaLogo } from '@/components/CoesaLogo';
 import { cn } from '@/lib/utils';
@@ -504,57 +506,7 @@ export default function SolicitarPropostaDefinitiva() {
   };
 
   // Handle PJ extraction complete (from DocumentUploadPJ)
-  const handlePJExtractionComplete = useCallback(async (data: {
-    empresa: {
-      razao_social: string | null;
-      cnpj: string | null;
-      nire: string | null;
-      inscricao_estadual: string | null;
-      natureza_juridica: string | null;
-      objeto_social: string | null;
-      data_constituicao: string | null;
-      sede_logradouro: string | null;
-      sede_numero: string | null;
-      sede_complemento: string | null;
-      sede_bairro: string | null;
-      sede_cidade: string | null;
-      sede_uf: string | null;
-      sede_cep: string | null;
-      quadro_societario: any[];
-      admin_nome_completo: string | null;
-      admin_cpf: string | null;
-      admin_rg: string | null;
-      admin_rg_orgao: string | null;
-      admin_data_nascimento: string | null;
-      admin_estado_civil: string | null;
-      admin_profissao: string | null;
-      admin_nacionalidade: string | null;
-      admin_endereco: string | null;
-      admin_cidade: string | null;
-      admin_uf: string | null;
-      admin_cep: string | null;
-    };
-    contaLuz: {
-      numero_uc: string | null;
-      cpf_cnpj_titular: string | null;
-      endereco: string | null;
-      cep: string | null;
-      cidade: string | null;
-      uf: string | null;
-      tipo_instalacao: string | null;
-      concessionaria: string | null;
-      consumo_media_anual: number | null;
-      consumo_media_trimestral: number | null;
-      consumo_ultimo_mes: number | null;
-      cip_valor: number | null;
-    };
-    adminValidado: boolean;
-    documentUrls: {
-      contratoSocial: string;
-      identificacaoAdmin: string;
-      contaLuz: string;
-    };
-  }) => {
+  const handlePJExtractionComplete = useCallback(async (data: DocumentUploadPJData) => {
     const newExtractedFields = new Set<string>();
 
     // Set tipo_pessoa to PJ
@@ -676,7 +628,7 @@ export default function SolicitarPropostaDefinitiva() {
           sede_cidade: data.empresa.sede_cidade,
           sede_uf: data.empresa.sede_uf,
           sede_cep: data.empresa.sede_cep,
-          quadro_societario: data.empresa.quadro_societario || [],
+          quadro_societario: (data.empresa.quadro_societario || []) as unknown as Json,
           admin_nome_completo: data.empresa.admin_nome_completo || 'Não informado',
           admin_cpf: data.empresa.admin_cpf || '',
           admin_rg: data.empresa.admin_rg,
@@ -714,7 +666,7 @@ export default function SolicitarPropostaDefinitiva() {
   const handleFraudDetected = useCallback((data: { 
     cpfIdentificacao: string | null; 
     cpfCnpjConta: string | null; 
-    dadosExtraidos: any;
+    dadosExtraidos: unknown;
   }) => {
     setFraudDetected(true);
     setFraudData({
@@ -890,8 +842,8 @@ export default function SolicitarPropostaDefinitiva() {
 
         setSubmitting(false);
         setSubmitted(true);
-      } catch (timeoutOrNetworkError: any) {
-        console.error('[SolicitarPropostaDefinitiva] Timeout ou erro de rede na chamada ao backend:', timeoutOrNetworkError?.message);
+      } catch (timeoutOrNetworkError: unknown) {
+        console.error('[SolicitarPropostaDefinitiva] Timeout ou erro de rede na chamada ao backend:', getErrorMessage(timeoutOrNetworkError));
         // Dados já foram salvos localmente (passo 1). Mostrar tela de sucesso mesmo assim.
         setSubmitting(false);
         setSubmitted(true);

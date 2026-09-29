@@ -73,7 +73,7 @@ export function EscalatedConversations() {
         .single();
       
       if (data) {
-        setUserProfile(data);
+        setUserProfile({ ...data, nome: data.nome ?? 'Atendente' });
       }
     };
     

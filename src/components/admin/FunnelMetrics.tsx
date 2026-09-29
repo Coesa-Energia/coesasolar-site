@@ -131,7 +131,19 @@ export function FunnelMetrics() {
       if (weeklyRes.error) throw weeklyRes.error;
       if (stageRes.error) throw stageRes.error;
 
-      setConversionRates(conversionRes.data);
+      setConversionRates(conversionRes.data && {
+        total_leads: conversionRes.data.total_leads ?? 0,
+        com_proposta_inicial: conversionRes.data.com_proposta_inicial ?? 0,
+        com_proposta: conversionRes.data.com_proposta ?? 0,
+        docs_completos: conversionRes.data.docs_completos ?? 0,
+        contrato_enviado: conversionRes.data.contrato_enviado ?? 0,
+        contrato_assinado: conversionRes.data.contrato_assinado ?? 0,
+        taxa_lead_to_proposta: conversionRes.data.taxa_lead_to_proposta ?? 0,
+        taxa_proposta_to_docs: conversionRes.data.taxa_proposta_to_docs ?? 0,
+        taxa_docs_to_contrato: conversionRes.data.taxa_docs_to_contrato ?? 0,
+        taxa_contrato_to_assinado: conversionRes.data.taxa_contrato_to_assinado ?? 0,
+        taxa_conversao_total: conversionRes.data.taxa_conversao_total ?? 0,
+      });
       
       // Transform stage duration data from rows to object
       const durationRows = (durationRes.data || []) as StageDurationRow[];
@@ -147,7 +159,12 @@ export function FunnelMetrics() {
       transformedDuration.avg_days_total_conversion = totalHours > 0 ? totalHours / 24 : null;
       setStageDuration(transformedDuration);
       
-      setDropoffData(dropoffRes.data || []);
+      setDropoffData((dropoffRes.data || []).map((row) => ({
+        dropoff_stage: row.dropoff_stage ?? 'SEM_STAGE',
+        quantidade: row.quantidade ?? 0,
+        percentual: row.percentual ?? 0,
+        avg_dias_no_stage: row.avg_dias_no_stage,
+      })));
       
       // Transform weekly data from rows to expected format
       const weeklyRows = (weeklyRes.data || []) as WeeklyDataRow[];

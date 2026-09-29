@@ -18,7 +18,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-
 interface Recipient {
   id: string;
   nome: string;
@@ -60,7 +59,14 @@ export function NotificationRecipientsManager() {
         .order('nome');
 
       if (error) throw error;
-      setRecipients(data || []);
+      setRecipients((data || []).map((recipient) => ({
+        ...recipient,
+        created_at: recipient.created_at ?? '',
+        is_active: recipient.is_active ?? false,
+        notification_types: recipient.notification_types ?? [],
+        notify_via: recipient.notify_via ?? [],
+        updated_at: recipient.updated_at ?? '',
+      })));
     } catch (error) {
       console.error('Erro ao carregar destinatários:', error);
       toast.error('Erro ao carregar destinatários');

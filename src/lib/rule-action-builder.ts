@@ -9,7 +9,7 @@
 
 import type { CatalogItem, CatalogMap } from '@/types/catalog';
 import type { RuleAction, RuleActionKind } from '@/types/rule-action';
-import { createEmptyAction, RULE_ACTION_META } from '@/types/rule-action';
+import { createEmptyAction, isActionComplete, RULE_ACTION_META } from '@/types/rule-action';
 import { mapCatalogItemToAction } from '@/lib/catalog-mapper';
 
 // ============================================================================
@@ -140,7 +140,6 @@ export function reorderActions(
  * Verifica se todas as ações de uma lista estão completas
  */
 export function areAllActionsComplete(actions: RuleAction[]): boolean {
-  const { isActionComplete } = require('@/types/rule-action');
   return actions.every(isActionComplete);
 }
 
@@ -148,7 +147,6 @@ export function areAllActionsComplete(actions: RuleAction[]): boolean {
  * Retorna ações incompletas de uma lista
  */
 export function getIncompleteActions(actions: RuleAction[]): RuleAction[] {
-  const { isActionComplete } = require('@/types/rule-action');
   return actions.filter(action => !isActionComplete(action));
 }
 

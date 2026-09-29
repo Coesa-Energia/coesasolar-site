@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -79,7 +80,7 @@ export function RAGSyncMonitor() {
     try {
       // Fetch queue stats
       const { data: statsData, error: statsError } = await supabase
-        .rpc('get_rag_sync_queue_stats', { p_sync_log_id: null });
+        .rpc('get_rag_sync_queue_stats', { p_sync_log_id: undefined });
       
       if (statsError) throw statsError;
       if (statsData && statsData.length > 0) {
@@ -127,7 +128,7 @@ export function RAGSyncMonitor() {
         setRecentItems(itemsData as QueueItem[]);
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching sync data:', error);
     } finally {
       setLoading(false);
@@ -178,10 +179,10 @@ export function RAGSyncMonitor() {
       });
 
       fetchData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro na descoberta',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -209,10 +210,10 @@ export function RAGSyncMonitor() {
       });
 
       fetchData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro no processamento',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {

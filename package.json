@@ -10,8 +10,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "preflight": "npm test && npm run build",
+    "preflight:ci": "npm run lint && npm run typecheck && npm test",
+    "preflight": "npm run preflight:ci && npm run build",
     "hooks:install": "sh scripts/install-hooks.sh",
     "prepare": "npm run hooks:install"
   },

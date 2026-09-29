@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -190,11 +191,11 @@ export function RAGHealthCheck() {
         similarityDistribution,
         recentLogs,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching RAG health stats:', error);
       toast({
         title: 'Erro ao carregar estatísticas',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive',
       });
     } finally {

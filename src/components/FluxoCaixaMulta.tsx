@@ -47,7 +47,11 @@ export function FluxoCaixaMulta({
     ? (((fluxoCaixa[fluxoCaixa.length - 1]?.economiaAcumulada || 0) - multaRescisoria) / multaRescisoria * 100).toFixed(0)
     : 100;
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: {
+    active?: boolean;
+    label?: string;
+    payload?: Array<{ payload: typeof chartData[number] }>;
+  }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (

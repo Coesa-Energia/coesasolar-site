@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/AppLayout';
@@ -53,29 +54,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-interface AIAgent {
-  id: string;
-  agent_id: string;
-  name: string;
-  role: string;
-  description: string;
-  avatar_emoji: string;
-  channels: string[];
-  status: string;
-  version: string;
-  persona: any;
-  guardrails: any;
-  tools_config: any;
-  intents: any;
-  kb_sources: any;
-  collection_rules: any;
-  metrics: any;
-  tests: any;
-  created_at: string;
-  updated_at: string;
-  published_at: string | null;
-}
+import { normalizeAIAgent, type AIAgent } from '@/types/ai-agent';
 
 // Helper to determine agent type based on channels
 const getAgentType = (agent: AIAgent): 'text' | 'voice' | 'image' | 'multimodal' => {
@@ -116,12 +95,12 @@ export default function AIGym() {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setAgents(data || []);
-    } catch (error: any) {
+      setAgents((data || []).map(normalizeAIAgent));
+    } catch (error: unknown) {
       console.error('Error fetching agents:', error);
       toast({
         title: 'Erro ao carregar agentes',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -203,10 +182,10 @@ export default function AIGym() {
         title: 'Download concluído',
         description: `Cérebro de ${agent.name} v${agent.version} exportado com sucesso.`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro no download',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     }
@@ -242,11 +221,11 @@ export default function AIGym() {
       });
 
       fetchAgents();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[AI_GYM] Status change failed:', error);
       toast({
         title: 'Erro ao atualizar status',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     }
@@ -295,11 +274,11 @@ export default function AIGym() {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Upload error:', error);
       toast({
         title: 'Erro no upload',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -333,10 +312,10 @@ export default function AIGym() {
       });
 
       setAgents(prev => prev.filter(a => a.id !== agentToDelete.id));
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao excluir',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {

@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -131,9 +132,9 @@ export function AutomationSchedulerConfig() {
       if (stagesError) throw stagesError;
 
       toast.success('Configurações de automação salvas!');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao salvar:', error);
-      toast.error(`Erro ao salvar: ${error.message}`);
+      toast.error(`Erro ao salvar: ${getErrorMessage(error)}`);
     } finally {
       setSaving(false);
     }

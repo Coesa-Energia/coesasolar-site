@@ -26,33 +26,16 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { toast } from 'sonner';
 import { startOfMonth, endOfMonth, subMonths, isWithinInterval, parseISO } from 'date-fns';
 import * as XLSX from 'xlsx';
+import type { DbRow } from '@/types/database';
 
-interface PropostaAssinante {
-  id: string;
-  cliente_nome: string;
-  cliente_cidade: string;
-  cliente_uf: string;
-  cliente_telefone: string | null;
-  cliente_email: string | null;
-  economia_mensal: number;
-  economia_acumulada: number;
-  status: string;
-  created_at: string;
-  crm_contato_id: string | null;
-  tipo_proposta: string | null;
-}
+type PropostaAssinante = Pick<DbRow<'propostas_assinantes'>,
+  'id' | 'cliente_nome' | 'cliente_cidade' | 'cliente_uf' | 'cliente_telefone' |
+  'cliente_email' | 'economia_mensal' | 'economia_acumulada' | 'status' |
+  'created_at' | 'crm_contato_id' | 'tipo_proposta'>;
 
-interface PropostaUsineiro {
-  id: string;
-  nome_projeto: string;
-  cidade: string;
-  uf: string;
-  potencia_mwp: number;
-  receita_bruta_anual: number;
-  tir: number;
-  status: string;
-  created_at: string;
-}
+type PropostaUsineiro = Pick<DbRow<'propostas_usineiros'>,
+  'id' | 'nome_projeto' | 'cidade' | 'uf' | 'potencia_mwp' |
+  'receita_bruta_anual' | 'tir' | 'status' | 'created_at'>;
 
 export default function Historico() {
   const { user } = useAuth();
@@ -67,8 +50,8 @@ export default function Historico() {
   const [loading, setLoading] = useState(true);
   const [viewingAssinante, setViewingAssinante] = useState<PropostaAssinante | null>(null);
   const [viewingUsineiro, setViewingUsineiro] = useState<PropostaUsineiro | null>(null);
-  const [detailsAssinante, setDetailsAssinante] = useState<any>(null);
-  const [detailsUsineiro, setDetailsUsineiro] = useState<any>(null);
+  const [detailsAssinante, setDetailsAssinante] = useState<DbRow<'propostas_assinantes'> | null>(null);
+  const [detailsUsineiro, setDetailsUsineiro] = useState<DbRow<'propostas_usineiros'> | null>(null);
   const [assinantePdfData, setAssinantePdfData] = useState<AssinantePDFData | null>(null);
   
   // Bulk selection state
@@ -417,9 +400,10 @@ export default function Historico() {
     switch (periodoFilter) {
       case 'este_mes':
         return { start: startOfMonth(now), end: endOfMonth(now) };
-      case 'mes_passado':
+      case 'mes_passado': {
         const lastMonth = subMonths(now, 1);
         return { start: startOfMonth(lastMonth), end: endOfMonth(lastMonth) };
+      }
       case 'ultimos_3_meses':
         return { start: startOfMonth(subMonths(now, 2)), end: endOfMonth(now) };
       case 'ultimos_6_meses':
@@ -429,7 +413,7 @@ export default function Historico() {
     }
   };
 
-  const filterByDateAndStatus = <T extends { status: string; created_at: string }>(items: T[]) => {
+  const filterByDateAndStatus = <T extends { status: string | null; created_at: string | null }>(items: T[]): T[] => {
     const dateRange = getDateRange();
     
     return items.filter(item => {
@@ -439,7 +423,7 @@ export default function Historico() {
       }
       
       // Filtro por período
-      if (dateRange) {
+      if (dateRange && item.created_at) {
         const itemDate = parseISO(item.created_at);
         if (!isWithinInterval(itemDate, { start: dateRange.start, end: dateRange.end })) {
           return false;
@@ -880,7 +864,7 @@ export default function Historico() {
                           <TableCell className="text-right font-bold">
                             {formatCurrency(p.economia_acumulada || 0)}
                           </TableCell>
-                          <TableCell>{getStatusBadge(p.status)}</TableCell>
+                          <TableCell>{getStatusBadge(p.status ?? 'rascunho')}</TableCell>
                           <TableCell>
                             {format(new Date(p.created_at), 'dd/MM/yyyy', { locale: ptBR })}
                           </TableCell>
@@ -1125,7 +1109,7 @@ export default function Historico() {
                           <TableCell className="text-right font-bold">
                             {p.tir?.toFixed(1)}%
                           </TableCell>
-                          <TableCell>{getStatusBadge(p.status)}</TableCell>
+                          <TableCell>{getStatusBadge(p.status ?? 'rascunho')}</TableCell>
                           <TableCell>
                             {format(new Date(p.created_at), 'dd/MM/yyyy', { locale: ptBR })}
                           </TableCell>

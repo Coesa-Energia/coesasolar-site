@@ -1,3 +1,4 @@
+import { asRecord, getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { useUIConfig } from '@/hooks/useUIConfig';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,36 +45,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
-interface AIAgent {
-  id: string;
-  agent_id: string;
-  name: string;
-  role: string;
-  description: string;
-  avatar_emoji: string;
-  channels: string[];
-  status: string;
-  version: string;
-  persona: any;
-  guardrails: any;
-  tools_config: any;
-  intents: any;
-  kb_sources: any;
-  collection_rules: any;
-  metrics: any;
-  tests: any;
-  created_at: string;
-  updated_at: string;
-  published_at: string | null;
-}
+import type { Json } from '@/integrations/supabase/types';
+import type { AIAgent } from '@/types/ai-agent';
 
 interface AgentVersion {
   id: string;
   agent_id: string;
   version: string;
   changelog: string | null;
-  brain_snapshot: any;
+  brain_snapshot: Json;
   is_published: boolean | null;
   created_at: string;
   created_by: string | null;
@@ -112,11 +92,11 @@ export function AgentVersionHistory({ agent, onVersionRestored }: AgentVersionHi
 
       if (error) throw error;
       setVersions(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching versions:', error);
       toast({
         title: 'Erro ao carregar versões',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -168,7 +148,7 @@ export function AgentVersionHistory({ agent, onVersionRestored }: AgentVersionHi
           agent_id: agent.id,
           version: newVersion,
           changelog: changelog || null,
-          brain_snapshot: brainSnapshot,
+          brain_snapshot: brainSnapshot as unknown as Json,
           is_published: false,
           created_by: user?.id || null
         });
@@ -193,10 +173,10 @@ export function AgentVersionHistory({ agent, onVersionRestored }: AgentVersionHi
       setChangelog('');
       fetchVersions();
       onVersionRestored();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao criar versão',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -208,21 +188,22 @@ export function AgentVersionHistory({ agent, onVersionRestored }: AgentVersionHi
     try {
       setRestoring(version.id);
 
-      const snapshot = version.brain_snapshot as any;
+      const snapshot = asRecord(version.brain_snapshot);
+      if (!snapshot) throw new Error('Snapshot inválido');
 
       // Restore agent from snapshot
       const { error } = await supabase
         .from('ai_agents')
         .update({
-          persona: snapshot.persona,
-          guardrails: snapshot.guardrails,
-          tools_config: snapshot.tools_config,
-          intents: snapshot.intents,
-          kb_sources: snapshot.kb_sources,
-          collection_rules: snapshot.collection_rules,
-          tests: snapshot.tests,
-          description: snapshot.description,
-          channels: snapshot.channels,
+          persona: snapshot.persona as Json,
+          guardrails: snapshot.guardrails as Json,
+          tools_config: snapshot.tools_config as Json,
+          intents: snapshot.intents as Json,
+          kb_sources: snapshot.kb_sources as Json,
+          collection_rules: snapshot.collection_rules as Json,
+          tests: snapshot.tests as Json,
+          description: typeof snapshot.description === 'string' ? snapshot.description : null,
+          channels: Array.isArray(snapshot.channels) ? snapshot.channels.filter((channel): channel is string => typeof channel === 'string') : [],
           version: version.version
         })
         .eq('id', agent.id);
@@ -235,10 +216,10 @@ export function AgentVersionHistory({ agent, onVersionRestored }: AgentVersionHi
       });
 
       onVersionRestored();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao restaurar versão',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -247,7 +228,7 @@ export function AgentVersionHistory({ agent, onVersionRestored }: AgentVersionHi
   };
 
   const downloadVersion = (version: AgentVersion) => {
-    const snapshot = version.brain_snapshot as any;
+    const snapshot = asRecord(version.brain_snapshot) ?? {};
     const brainData = {
       agent_id: agent.agent_id,
       name: agent.name,
@@ -269,10 +250,10 @@ export function AgentVersionHistory({ agent, onVersionRestored }: AgentVersionHi
     URL.revokeObjectURL(url);
   };
 
-  const compareVersions = (current: any, previous: any): string[] => {
+  const compareVersions = (current: Record<string, unknown>, previous: Record<string, unknown>): string[] => {
     const changes: string[] = [];
     
-    const compare = (path: string, a: any, b: any) => {
+    const compare = (path: string, a: unknown, b: unknown) => {
       if (JSON.stringify(a) !== JSON.stringify(b)) {
         changes.push(path);
       }
@@ -295,8 +276,8 @@ export function AgentVersionHistory({ agent, onVersionRestored }: AgentVersionHi
     if (index === versions.length - 1) return ['Versão inicial'];
     
     const previousVersion = versions[index + 1];
-    const current = version.brain_snapshot as any;
-    const previous = previousVersion.brain_snapshot as any;
+    const current = asRecord(version.brain_snapshot) ?? {};
+    const previous = asRecord(previousVersion.brain_snapshot) ?? {};
     
     return compareVersions(current, previous);
   };

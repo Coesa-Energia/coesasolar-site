@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,23 +42,9 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { DbRow } from '@/types/database';
 
-interface RAGDocument {
-  id: string;
-  file_name: string;
-  file_type: string;
-  category: string;
-  subcategory: string | null;
-  source_type: string;
-  source_path: string | null;
-  chunk_count: number;
-  total_tokens: number;
-  processing_status: string;
-  processing_error: string | null;
-  created_at: string;
-  updated_at: string;
-  is_active: boolean;
-}
+type RAGDocument = DbRow<'rag_documents'>;
 
 interface Props {
   onRefresh: () => void;
@@ -87,10 +74,10 @@ export function RAGDocumentsList({ onRefresh }: Props) {
 
       if (error) throw error;
       setDocuments(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao carregar documentos',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -116,10 +103,10 @@ export function RAGDocumentsList({ onRefresh }: Props) {
 
       setDocuments(prev => prev.filter(d => d.id !== documentToDelete.id));
       onRefresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao excluir',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -147,10 +134,10 @@ export function RAGDocumentsList({ onRefresh }: Props) {
       });
 
       fetchDocuments();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao reprocessar',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -292,9 +279,9 @@ export function RAGDocumentsList({ onRefresh }: Props) {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">{doc.chunk_count}</TableCell>
-                    <TableCell className="text-center">{doc.total_tokens.toLocaleString()}</TableCell>
+                    <TableCell className="text-center">{(doc.total_tokens ?? 0).toLocaleString()}</TableCell>
                     <TableCell>
-                      {getStatusBadge(doc.processing_status)}
+                      {getStatusBadge(doc.processing_status ?? 'pending')}
                       {doc.processing_error && (
                         <p className="text-xs text-destructive mt-1 truncate max-w-[150px]" title={doc.processing_error}>
                           {doc.processing_error}

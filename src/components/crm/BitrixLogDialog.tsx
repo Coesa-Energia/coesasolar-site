@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { asRecord } from '@/lib/errors';
 
 interface BitrixLog {
   id: string;
@@ -198,24 +199,25 @@ export function BitrixLogDialog({
   };
 
   const extractMissingFields = (log: BitrixLog): string[] => {
-    const responseData = log.response_data as any;
-    if (responseData?.validation?.missingFields) {
-      return responseData.validation.missingFields;
-    }
-    if (responseData?.missingFields) {
-      return responseData.missingFields;
-    }
+    const responseData = asRecord(log.response_data);
+    const validation = asRecord(responseData?.validation);
+    if (Array.isArray(validation?.missingFields)) return validation.missingFields.filter((field): field is string => typeof field === 'string');
+    if (Array.isArray(responseData?.missingFields)) return responseData.missingFields.filter((field): field is string => typeof field === 'string');
     return [];
   };
 
   const extractConcessionaria = (log: BitrixLog): string | null => {
-    const responseData = log.response_data as any;
-    return responseData?.concessionaria || null;
+    const concessionaria = asRecord(log.response_data)?.concessionaria;
+    return typeof concessionaria === 'string' ? concessionaria : null;
   };
 
   const extractLeadData = (log: BitrixLog): { nome?: string; telefone?: string; email?: string } => {
-    const responseData = log.response_data as any;
-    return responseData?.lead || {};
+    const lead = asRecord(asRecord(log.response_data)?.lead);
+    return {
+      nome: typeof lead?.nome === 'string' ? lead.nome : undefined,
+      telefone: typeof lead?.telefone === 'string' ? lead.telefone : undefined,
+      email: typeof lead?.email === 'string' ? lead.email : undefined,
+    };
   };
 
   return (

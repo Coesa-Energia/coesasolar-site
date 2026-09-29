@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/sonner';
 import { Brain, CheckCircle, XCircle, AlertTriangle, RefreshCw, Sparkles, Clock, Shield, Zap, FileCode } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { getErrorMessage } from '@/lib/errors';
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -23,7 +24,7 @@ interface Proposal {
   evidence: {
     conversation_ids?: string[];
     pattern_frequency?: number;
-    metrics?: Record<string, any>;
+    metrics?: Record<string, unknown>;
   };
   proposed_change: string;
   expected_impact: string;
@@ -69,7 +70,7 @@ function useRunAnalysis() {
       queryClient.invalidateQueries({ queryKey: ['improvement-proposals'] });
       toast.success(`Análise concluída: ${data.proposals_generated} propostas geradas`);
     },
-    onError: (err: any) => toast.error(`Erro na análise: ${err.message}`),
+    onError: (err: unknown) => toast.error(`Erro na análise: ${getErrorMessage(err)}`),
   });
 }
 
@@ -87,7 +88,7 @@ function useReviewProposal() {
       queryClient.invalidateQueries({ queryKey: ['improvement-proposals'] });
       toast.success('Proposta revisada');
     },
-    onError: (err: any) => toast.error(`Erro: ${err.message}`),
+    onError: (err: unknown) => toast.error(`Erro: ${getErrorMessage(err)}`),
   });
 }
 
@@ -101,7 +102,7 @@ function useIndexCode() {
       return data;
     },
     onSuccess: (data) => toast.success(`Indexação concluída: ${data.files_processed} arquivos, ${data.chunks_created} chunks`),
-    onError: (err: any) => toast.error(`Erro na indexação: ${err.message}`),
+    onError: (err: unknown) => toast.error(`Erro na indexação: ${getErrorMessage(err)}`),
   });
 }
 

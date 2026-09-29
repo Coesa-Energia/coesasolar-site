@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ProposalTemplate, TemplatePage, CanvasElementData } from '@/components/proposal-editor/types';
+import type { Json } from '@/integrations/supabase/types';
 
 export function useProposalTemplates() {
   const [templates, setTemplates] = useState<ProposalTemplate[]>([]);
@@ -48,11 +49,11 @@ export function useProposalTemplates() {
             name: template.name,
             description: template.description,
             type: template.type,
-            pages: JSON.parse(JSON.stringify(template.pages)),
+            pages: JSON.parse(JSON.stringify(template.pages)) as Json,
             is_active: template.is_active,
             created_by: userData.user?.id,
             updated_by: userData.user?.id,
-          } as any)
+          })
           .select()
           .single();
 
@@ -105,10 +106,10 @@ export function useProposalTemplates() {
           .from('proposal_templates')
           .update({
             ...updates,
-            pages: updates.pages ? JSON.parse(JSON.stringify(updates.pages)) : undefined,
+            pages: updates.pages ? JSON.parse(JSON.stringify(updates.pages)) as Json : undefined,
             updated_by: userData.user?.id,
             updated_at: new Date().toISOString(),
-          } as any)
+          })
           .eq('id', id)
           .select()
           .single();
@@ -294,10 +295,10 @@ export function useTemplateEditor(templateId?: string) {
             name: template.name,
             description: template.description,
             type: template.type,
-            pages: JSON.parse(JSON.stringify(template.pages)),
+            pages: JSON.parse(JSON.stringify(template.pages)) as Json,
             is_active: template.is_active,
             updated_by: userData.user?.id,
-          } as any)
+          })
           .eq('id', template.id)
           .select()
           .single();
@@ -326,11 +327,11 @@ export function useTemplateEditor(templateId?: string) {
             name: template.name,
             description: template.description,
             type: template.type,
-            pages: JSON.parse(JSON.stringify(template.pages)),
+            pages: JSON.parse(JSON.stringify(template.pages)) as Json,
             is_active: template.is_active,
             created_by: userData.user?.id,
             updated_by: userData.user?.id,
-          } as any)
+          })
           .select()
           .single();
 

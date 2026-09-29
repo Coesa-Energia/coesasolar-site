@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -101,9 +102,9 @@ export function CustomBitrixContactFieldsManager({ onFieldsChange }: CustomBitri
       setDialogOpen(false);
       await loadCustomFields();
       onFieldsChange?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao adicionar campo:', error);
-      toast.error(`Erro ao adicionar: ${error.message}`);
+      toast.error(`Erro ao adicionar: ${getErrorMessage(error)}`);
     } finally {
       setSaving(false);
     }
@@ -123,9 +124,9 @@ export function CustomBitrixContactFieldsManager({ onFieldsChange }: CustomBitri
       );
       toast.success('Campo atualizado!');
       onFieldsChange?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao atualizar campo:', error);
-      toast.error(`Erro: ${error.message}`);
+      toast.error(`Erro: ${getErrorMessage(error)}`);
     }
   };
 
@@ -142,9 +143,9 @@ export function CustomBitrixContactFieldsManager({ onFieldsChange }: CustomBitri
       toast.success('Campo removido!');
       await loadCustomFields();
       onFieldsChange?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao remover campo:', error);
-      toast.error(`Erro: ${error.message}`);
+      toast.error(`Erro: ${getErrorMessage(error)}`);
     } finally {
       setDeleting(null);
     }

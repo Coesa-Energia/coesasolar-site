@@ -1,4 +1,5 @@
 import { Sun, Zap, Shield, CheckCircle2, ArrowRight, TrendingUp, Phone, Mail, Award, ArrowRightLeft, AlertTriangle, Clock, Target, DollarSign, Calendar, Unlock } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { motion, Variants, Easing } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import coesaLogo from '@/assets/logos/coesa-green.png';
@@ -364,7 +365,7 @@ export function PropostaClienteGDPDF({ data, animated = true }: PropostaClienteG
                 className="w-14 h-14 bg-white rounded-xl p-2 shadow-lg"
                 whileHover={{ scale: 1.05, rotate: 5 }}
               >
-                <img src={coesaLogo} alt="COESA" className="w-full h-full object-contain" />
+                <img src={coesaLogo.src} alt="COESA" className="w-full h-full object-contain" />
               </motion.div>
               <div>
                 <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -689,7 +690,7 @@ export function PropostaClienteGDPDF({ data, animated = true }: PropostaClienteG
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-white rounded-lg p-1.5 shadow">
-                <img src={coesaLogo} alt="COESA" className="w-full h-full object-contain" />
+                <img src={coesaLogo.src} alt="COESA" className="w-full h-full object-contain" />
               </div>
               <div>
                 <h2 className="text-lg font-bold" style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -882,7 +883,7 @@ export function PropostaClienteGDPDF({ data, animated = true }: PropostaClienteG
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-white rounded-xl p-2">
-                    <img src={coesaLogo} alt="COESA" className="w-full h-full object-contain" />
+                    <img src={coesaLogo.src} alt="COESA" className="w-full h-full object-contain" />
                   </div>
                   <div>
                     <p className="font-bold text-lg" style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -929,7 +930,7 @@ export function PropostaClienteGDPDF({ data, animated = true }: PropostaClienteG
 // ========== VERSÃO ESTÁTICA PARA PDF ==========
 interface StaticPDFProps {
   data: ClienteGDPDFData;
-  vantagens: { icon: any; title: string; desc: string; color: string }[];
+  vantagens: { icon: LucideIcon; title: string; desc: string; color: string }[];
   periodos: { label: string; value: number; highlight?: boolean }[];
   maxValue: number;
   today: Date;
@@ -956,7 +957,7 @@ function StaticPDF({ data, vantagens, periodos, maxValue, today, validity, confi
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-white rounded-xl p-2 shadow-lg">
-                <img src={coesaLogo} alt="COESA" className="w-full h-full object-contain" />
+                <img src={coesaLogo.src} alt="COESA" className="w-full h-full object-contain" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -1158,7 +1159,7 @@ function StaticPDF({ data, vantagens, periodos, maxValue, today, validity, confi
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-white rounded-lg p-1.5 shadow">
-                <img src={coesaLogo} alt="COESA" className="w-full h-full object-contain" />
+                <img src={coesaLogo.src} alt="COESA" className="w-full h-full object-contain" />
               </div>
               <div>
                 <h2 className="text-lg font-bold" style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -1309,7 +1310,7 @@ function StaticPDF({ data, vantagens, periodos, maxValue, today, validity, confi
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-white rounded-xl p-2">
-                    <img src={coesaLogo} alt="COESA" className="w-full h-full object-contain" />
+                    <img src={coesaLogo.src} alt="COESA" className="w-full h-full object-contain" />
                   </div>
                   <div>
                     <p className="font-bold text-lg" style={{ fontFamily: "'Montserrat', sans-serif" }}>

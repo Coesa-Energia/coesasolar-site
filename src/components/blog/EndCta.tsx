@@ -2,7 +2,7 @@
 // Fechamento do artigo: CTA primário do perfil OU fallback de compartilhamento
 // + newsletter (o fechamento sempre leva a UMA ação — guia Neil Patel).
 import { AUTOBLOG_PROFILE } from '@/lib/autoblog-profile';
-import { buildShareUrls, hasPrimaryCta, resolveCtaVariant } from '@/lib/blog/cta';
+import { buildShareUrls, getCurrentWeekIndex, hasPrimaryCta, resolveCtaVariant } from '@/lib/blog/cta';
 import CtaButton from '@/components/blog/CtaButton';
 
 interface EndCtaProps {
@@ -21,8 +21,7 @@ export default function EndCta({ title, slug }: EndCtaProps) {
   // padrão do perfil. A variante ativa vai para o beacon de clique.
   // O render roda no servidor e congela no cache ISR até a revalidação —
   // sem relógio no client, sem risco de hidratação.
-  // eslint-disable-next-line react-hooks/purity
-  const weekIndex = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+  const weekIndex = getCurrentWeekIndex();
   const variantIndex = resolveCtaVariant(slug, weekIndex, cta.variants);
   const active = variantIndex !== null ? cta.variants[variantIndex] : null;
 

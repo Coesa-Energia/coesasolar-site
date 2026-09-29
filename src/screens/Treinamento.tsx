@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState } from 'react';
 import { AppLayout } from '@/components/AppLayout';
 import { Button } from '@/components/ui/button';
@@ -552,8 +553,8 @@ const [rows, setRows] = useState<EvalRow[]>([
       );
 
       toast.success(`${unsyncedRows.length} linha(s) enviada(s) para a planilha!`);
-    } catch (err: any) {
-      toast.error('Erro ao sincronizar: ' + (err.message || 'Erro desconhecido'));
+    } catch (err: unknown) {
+      toast.error('Erro ao sincronizar: ' + (getErrorMessage(err) || 'Erro desconhecido'));
     } finally {
       setSyncing(false);
     }

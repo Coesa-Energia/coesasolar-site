@@ -20,6 +20,8 @@ interface ProposalViewStats {
   last_viewed_at: string | null;
 }
 
+type BadgeVariant = React.ComponentProps<typeof Badge>['variant'];
+
 function formatDuration(seconds: number): string {
   if (seconds === 0) return '—';
   const m = Math.floor(seconds / 60);
@@ -46,7 +48,7 @@ export function ProposalViewsTracker() {
 
       // Fetch all views grouped
       const { data: views, error: viewsError } = await supabase
-        .from('proposal_views' as any)
+        .from('proposal_views')
         .select('proposal_id, fingerprint, viewed_at, duration_seconds');
 
       if (viewsError) throw viewsError;
@@ -54,7 +56,7 @@ export function ProposalViewsTracker() {
       // Aggregate views per proposal
       const viewsMap = new Map<string, { total: number; uniqueFingerprints: Set<string>; totalDuration: number; lastViewedAt: string | null }>();
       
-      for (const view of (views || []) as any[]) {
+      for (const view of views || []) {
         const existing = viewsMap.get(view.proposal_id) || { total: 0, uniqueFingerprints: new Set<string>(), totalDuration: 0, lastViewedAt: null };
         existing.total++;
         existing.totalDuration += (view.duration_seconds || 0);
@@ -185,7 +187,7 @@ export function ProposalViewsTracker() {
                 <TableRow key={row.proposal_id}>
                   <TableCell className="font-medium">{row.cliente_nome}</TableCell>
                   <TableCell>
-                    <Badge variant={statusColor(row.status) as any}>{row.status}</Badge>
+                    <Badge variant={statusColor(row.status) as BadgeVariant}>{row.status}</Badge>
                   </TableCell>
                   <TableCell>
                     <a

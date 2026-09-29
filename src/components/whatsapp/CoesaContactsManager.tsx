@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getErrorCode } from '@/lib/errors';
 import { Plus, Trash2, Pencil, Phone, Save, X, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -120,9 +121,9 @@ export function CoesaContactsManager() {
       setDialogOpen(false);
       resetForm();
       fetchContatos();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao salvar contato:', error);
-      if (error.code === '23505') {
+      if (getErrorCode(error) === '23505') {
         toast.error('Já existe um contato com esse identificador');
       } else {
         toast.error('Erro ao salvar contato');

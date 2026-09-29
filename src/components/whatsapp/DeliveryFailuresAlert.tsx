@@ -50,7 +50,10 @@ export function DeliveryFailuresAlert() {
         return;
       }
       
-      setFailures(data || []);
+      setFailures((data || []).map((failure) => ({
+        ...failure,
+        created_at: failure.created_at ?? fourHoursAgo,
+      })));
     } catch (err) {
       console.error('Error:', err);
     } finally {

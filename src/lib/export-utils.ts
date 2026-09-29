@@ -136,7 +136,7 @@ export function exportGoalsToPDF(
   });
 
   // Summary
-  const finalY = (doc as any).lastAutoTable.finalY + 15;
+  const finalY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15;
   const totalPropostas = goals.reduce((sum, g) => sum + g.propostas_atual, 0);
   const totalValor = goals.reduce((sum, g) => sum + g.valor_atual, 0);
   const avgConversao = goals.length > 0 
@@ -280,7 +280,7 @@ export function exportPerformanceToPDF(
   });
 
   // Summary box
-  const finalY = (doc as any).lastAutoTable.finalY + 15;
+  const finalY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15;
   
   doc.setFillColor(240, 240, 240);
   doc.roundedRect(14, finalY, 180, 45, 3, 3, 'F');

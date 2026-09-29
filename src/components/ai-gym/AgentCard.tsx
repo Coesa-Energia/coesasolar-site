@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,33 +27,14 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import JSZip from 'jszip';
+import type { AIAgent } from '@/types/ai-agent';
 
 // Importar código fonte das Edge Functions como texto raw
-// @ts-ignore - Vite raw import
+// @ts-expect-error -- Vite raw imports are resolved by the bundler.
 import sofiaWebhookSource from '../../../supabase/functions/sofia-webhook/index.ts?raw';
 
 interface AgentCardProps {
-  agent: {
-    id: string;
-    agent_id: string;
-    name: string;
-    role: string;
-    description: string;
-    avatar_emoji: string;
-    channels: string[];
-    status: string;
-    version: string;
-    updated_at: string;
-    published_at: string | null;
-    persona?: any;
-    guardrails?: any;
-    tools_config?: any;
-    intents?: any;
-    kb_sources?: any;
-    collection_rules?: any;
-    tests?: any;
-    metrics?: any;
-  };
+  agent: AIAgent;
   onEdit: () => void;
   onDownload: () => void;
   onStatusChange: (status: string) => void;
@@ -167,11 +149,11 @@ export function AgentCard({ agent, onEdit, onDownload, onStatusChange, isAdmin }
         title: 'Download concluído!',
         description: `Pacote completo de ${agent.name} baixado.`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error downloading complete package:', error);
       toast({
         title: 'Erro no download',
-        description: error.message || 'Não foi possível gerar o pacote completo.',
+        description: getErrorMessage(error) || 'Não foi possível gerar o pacote completo.',
         variant: 'destructive'
       });
     } finally {

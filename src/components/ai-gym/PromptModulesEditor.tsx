@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
 import { 
   Puzzle, 
   Save, 
@@ -53,7 +55,7 @@ interface AgentPromptModule {
   agent_id: string;
   module_id: string;
   is_enabled: boolean | null;
-  custom_variables: Record<string, any> | unknown;
+  custom_variables: Record<string, Json | undefined> | null;
   priority_override: number | null;
   module?: PromptModule | null;
 }
@@ -120,11 +122,11 @@ export function PromptModulesEditor({ agentId, agentName }: PromptModulesEditorP
 
       setModules((allModules || []) as PromptModule[]);
       setAgentModules((configuredModules || []) as AgentPromptModule[]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading modules:', error);
       toast({
         title: 'Erro ao carregar módulos',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -168,17 +170,17 @@ export function PromptModulesEditor({ agentId, agentName }: PromptModulesEditorP
         title: enabled ? 'Módulo ativado' : 'Módulo desativado',
         description: `Módulo ${enabled ? 'adicionado ao' : 'removido do'} prompt do agente.`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error toggling module:', error);
       toast({
         title: 'Erro ao atualizar módulo',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     }
   };
 
-  const updateModuleVariables = async (agentModuleId: string, variables: Record<string, any>) => {
+  const updateModuleVariables = async (agentModuleId: string, variables: Record<string, Json | undefined>) => {
     try {
       const { error } = await supabase
         .from('agent_prompt_modules')
@@ -190,11 +192,11 @@ export function PromptModulesEditor({ agentId, agentName }: PromptModulesEditorP
       setAgentModules(prev => prev.map(am => 
         am.id === agentModuleId ? { ...am, custom_variables: variables } : am
       ));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating variables:', error);
       toast({
         title: 'Erro ao salvar variáveis',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     }
@@ -210,7 +212,7 @@ export function PromptModulesEditor({ agentId, agentName }: PromptModulesEditorP
     for (const am of enabledModules) {
       const module = am.module!;
       let rendered = module.template;
-      const customVars = (am.custom_variables && typeof am.custom_variables === 'object') ? am.custom_variables as Record<string, any> : {};
+      const customVars = am.custom_variables ?? {};
       
       // Simple variable replacement
       const vars = customVars;
@@ -277,11 +279,11 @@ export function PromptModulesEditor({ agentId, agentName }: PromptModulesEditorP
         title: 'Módulo criado!',
         description: `Módulo "${data.module_name}" criado com sucesso.`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating module:', error);
       toast({
         title: 'Erro ao criar módulo',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -495,13 +497,13 @@ export function PromptModulesEditor({ agentId, agentName }: PromptModulesEditorP
                                   <div className="grid grid-cols-2 gap-2">
                                     {(module.variables as string[]).map(varName => {
                                       const customVars = (agentModule.custom_variables && typeof agentModule.custom_variables === 'object') 
-                                        ? agentModule.custom_variables as Record<string, any> 
+                                        ? agentModule.custom_variables
                                         : {};
                                       return (
                                         <div key={varName} className="space-y-1">
                                           <Label className="text-xs text-muted-foreground">{varName}</Label>
                                           <Input
-                                            value={customVars[varName] || ''}
+                                          value={typeof customVars[varName] === 'string' || typeof customVars[varName] === 'number' ? customVars[varName] : ''}
                                             onChange={e => updateModuleVariables(agentModule.id, {
                                               ...customVars,
                                               [varName]: e.target.value

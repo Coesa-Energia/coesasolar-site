@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -82,11 +83,11 @@ export default function RAGDashboard() {
           last_sync_at: row.last_sync_at,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching RAG stats:', error);
       toast({
         title: 'Erro ao carregar estatísticas',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -114,10 +115,10 @@ export default function RAGDashboard() {
       });
 
       fetchStats();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro na sincronização',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -181,11 +182,11 @@ export default function RAGDashboard() {
       });
 
       fetchStats();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error processing scripts:', error);
       toast({
         title: 'Erro no processamento',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -505,7 +506,7 @@ export default function RAGDashboard() {
                   }).catch((error) => {
                     toast({ 
                       title: 'Erro na sincronização', 
-                      description: error.message,
+                      description: getErrorMessage(error),
                       variant: 'destructive'
                     });
                   });

@@ -135,7 +135,7 @@ export function EconomyCalculator() {
                     <p className="text-xs mb-2"><strong>CIP</strong> (Contribuição para Iluminação Pública) é uma taxa municipal cobrada na sua conta de luz.</p>
                     <div className="relative rounded-md overflow-hidden border border-border group cursor-zoom-in">
                       <img 
-                        src={faturaCipExemplo} 
+                        src={faturaCipExemplo.src}
                         alt="Exemplo de CIP na fatura" 
                         className="w-full transition-transform duration-300 group-hover:scale-150 origin-center" 
                       />
@@ -181,7 +181,7 @@ export function EconomyCalculator() {
                     </ul>
                     <div className="relative rounded-md overflow-hidden border border-border group cursor-zoom-in">
                       <img 
-                        src={faturaTipoInstalacaoExemplo} 
+                        src={faturaTipoInstalacaoExemplo.src}
                         alt="Exemplo de Tipo de Instalação na fatura" 
                         className="w-full transition-transform duration-300 group-hover:scale-150 origin-center" 
                       />

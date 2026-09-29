@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { VoiceModeConfig, VoiceSettings } from '@/hooks/useAgentVoiceConfig';
 import { toast } from 'sonner';
+import type { KBSource } from './KnowledgeBaseManager';
 
 interface VoiceInboundConfigProps {
   config: VoiceModeConfig;
@@ -40,7 +41,7 @@ interface VoiceInboundConfigProps {
   onUpdate: (updates: Partial<VoiceModeConfig>) => Promise<boolean>;
   onUpdateSettings: (settings: Partial<VoiceSettings>) => Promise<boolean>;
   saving: boolean;
-  sharedKbSources?: any[];
+  sharedKbSources?: KBSource[] | null;
 }
 
 export function VoiceInboundConfig({

@@ -82,19 +82,24 @@ export function WebhookDiagnostics() {
 
   const fetchEvents = async () => {
     try {
-      // Using type assertion to work around type generation delay
-      const { data, error } = await (supabase
-        .from('whatsapp_webhook_events' as any)
+      const { data, error } = await supabase
+        .from('whatsapp_webhook_events')
         .select('*')
         .order('received_at', { ascending: false })
-        .limit(queryLimitWebhookEvents) as any);
+        .limit(queryLimitWebhookEvents);
 
       if (error) {
         console.error('Error fetching webhook events:', error);
         return;
       }
 
-      setEvents((data || []) as WebhookEvent[]);
+      setEvents((data || []).map((event) => ({
+        ...event,
+        body_parsed: event.body_parsed && typeof event.body_parsed === 'object' && !Array.isArray(event.body_parsed)
+          ? event.body_parsed
+          : null,
+        parsed_ok: event.parsed_ok ?? false,
+      })));
     } catch (err) {
       console.error('Exception fetching events:', err);
     } finally {
@@ -159,10 +164,10 @@ export function WebhookDiagnostics() {
     setClearingLogs(true);
     try {
       // Delete all events (RLS allows admin deletion)
-      const { error } = await (supabase
-        .from('whatsapp_webhook_events' as any)
+      const { error } = await supabase
+        .from('whatsapp_webhook_events')
         .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000') as any); // Delete all
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
 
       if (error) {
         toast.error('Erro ao limpar logs');

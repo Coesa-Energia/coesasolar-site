@@ -37,11 +37,12 @@ export function EmailPreferences() {
   }, [user]);
 
   async function fetchPreferences() {
+    if (!user?.id) return;
     try {
       const { data, error } = await supabase
         .from('email_preferences')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .single();
 
       if (error) {
@@ -70,10 +71,11 @@ export function EmailPreferences() {
   }
 
   async function createDefaultPreferences() {
+    if (!user?.id) return;
     try {
       const { error } = await supabase
         .from('email_preferences')
-        .insert({ user_id: user?.id });
+        .insert({ user_id: user.id });
 
       if (error) throw error;
     } catch (err) {
@@ -82,12 +84,13 @@ export function EmailPreferences() {
   }
 
   async function savePreferences() {
+    if (!user?.id) return;
     setSaving(true);
     try {
       const { error } = await supabase
         .from('email_preferences')
         .update(preferences)
-        .eq('user_id', user?.id);
+        .eq('user_id', user.id);
 
       if (error) throw error;
       toast.success('Preferências de e-mail salvas!');

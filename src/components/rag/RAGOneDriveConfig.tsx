@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -72,6 +73,10 @@ export function RAGOneDriveConfig({ onConfigSaved }: Props) {
         const configData: OneDriveConfig = {
           ...data,
           folder_category_mapping: (data.folder_category_mapping || {}) as Record<string, string>,
+          is_configured: data.is_configured ?? false,
+          root_folder_path: data.root_folder_path ?? '/COESA Knowledge Base',
+          sync_enabled: data.sync_enabled ?? false,
+          sync_interval_hours: data.sync_interval_hours ?? 6,
         };
         setConfig(configData);
         setTenantId(data.tenant_id || '');
@@ -83,10 +88,10 @@ export function RAGOneDriveConfig({ onConfigSaved }: Props) {
         setSyncEnabled(data.sync_enabled || false);
         setSyncIntervalHours(data.sync_interval_hours || 6);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao carregar configuração',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -101,9 +106,7 @@ export function RAGOneDriveConfig({ onConfigSaved }: Props) {
       const isConfigured = !!(tenantId && clientId && driveId);
       const normalizedRootFolderPath = rootFolderPath.trim();
 
-      const { error } = await supabase
-        .from('rag_onedrive_config')
-        .update({
+      const payload = {
           tenant_id: tenantId || null,
           client_id: clientId || null,
           drive_id: driveId || null,
@@ -113,8 +116,10 @@ export function RAGOneDriveConfig({ onConfigSaved }: Props) {
           sync_interval_hours: syncIntervalHours,
           is_configured: isConfigured,
           updated_at: new Date().toISOString(),
-        })
-        .eq('id', config?.id);
+      };
+      const { error } = config
+        ? await supabase.from('rag_onedrive_config').update(payload).eq('id', config.id)
+        : await supabase.from('rag_onedrive_config').insert(payload);
 
       if (error) throw error;
 
@@ -125,10 +130,10 @@ export function RAGOneDriveConfig({ onConfigSaved }: Props) {
 
       onConfigSaved();
       fetchConfig();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao salvar',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -159,11 +164,11 @@ export function RAGOneDriveConfig({ onConfigSaved }: Props) {
         title: 'Conexão bem-sucedida!',
         description: 'O OneDrive foi conectado com sucesso.'
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       setTestResult('error');
       toast({
         title: 'Falha na conexão',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {

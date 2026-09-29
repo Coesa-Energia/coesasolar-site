@@ -109,18 +109,20 @@ interface UploadedDocument {
   qualityResult?: ImageQualityResult;
 }
 
+export interface DocumentUploadPJData {
+  empresa: DadosContratoSocial;
+  contaLuz: DadosContaLuz;
+  adminValidado: boolean;
+  documentUrls: {
+    contratoSocial: string;
+    identificacaoAdmin: string;
+    contaLuz: string;
+  };
+}
+
 interface DocumentUploadPJProps {
   propostaId: string;
-  onExtractionComplete: (data: {
-    empresa: DadosContratoSocial;
-    contaLuz: DadosContaLuz;
-    adminValidado: boolean;
-    documentUrls: {
-      contratoSocial: string;
-      identificacaoAdmin: string;
-      contaLuz: string;
-    };
-  }) => void;
+  onExtractionComplete: (data: DocumentUploadPJData) => void;
   onManualMode: () => void;
 }
 

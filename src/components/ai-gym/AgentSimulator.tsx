@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { AIAgent } from '@/types/ai-agent';
 import { VoiceSimulator } from './VoiceSimulator';
 
 interface Message {
@@ -31,23 +32,6 @@ interface Message {
   responseTime?: number;
   toolsUsed?: string[];
   intent?: string;
-}
-
-interface AIAgent {
-  id: string;
-  agent_id: string;
-  name: string;
-  role: string;
-  description: string;
-  avatar_emoji: string;
-  channels?: string[];
-  persona: any;
-  guardrails: any;
-  tools_config: any;
-  intents: any;
-  kb_sources: any;
-  collection_rules: any;
-  voice_config?: any;
 }
 
 interface AgentSimulatorProps {
@@ -88,7 +72,7 @@ export function AgentSimulator({ agent }: AgentSimulatorProps) {
 
   const getAgentGreeting = (agent: AIAgent): string => {
     // Prioridade 1: Greeting template do voice_config
-    const voiceConfig = agent.persona?.voice_config || (agent as any).voice_config;
+    const voiceConfig = agent.persona?.voice_config || agent.voice_config;
     if (voiceConfig?.inbound?.greeting_template) {
       return voiceConfig.inbound.greeting_template;
     }
@@ -137,18 +121,18 @@ ${guardrails.never_do?.map((item: string) => `- ${item}`).join('\n') || '- Inven
 ${guardrails.handoff_triggers?.map((item: string) => `- ${item}`).join('\n') || '- Reclamação grave\n- Suspeita de fraude'}
 
 ## Ferramentas disponíveis (simule o uso quando apropriado):
-${tools.map((t: any) => `- ${t.name}: usado para ${t.required_for?.join(', ')}`).join('\n') || 'Nenhuma ferramenta configurada'}
+${tools.map((tool) => `- ${tool.name}: usado para ${tool.required_for?.join(', ')}`).join('\n') || 'Nenhuma ferramenta configurada'}
 
 ## Intenções que você reconhece:
-${intents.map((i: any) => `- ${i.id}: passos ${i.steps?.join(' → ')}`).join('\n') || 'Intenções genéricas'}`;
+${intents.map((intent) => `- ${intent.id}: passos ${intent.steps?.join(' → ')}`).join('\n') || 'Intenções genéricas'}`;
 
     // Add collection rules for Julia
     if (agent.role === 'collections' && collectionRules) {
       prompt += `\n\n## Régua de Cobrança:
-${collectionRules.stages?.map((s: any) => `- ${s.id} (${s.days_range}): ${s.tone} - "${s.message_template}"`).join('\n') || ''}
+${collectionRules.stages?.map((stage) => `- D${stage.day} (${stage.stage}): ${stage.tone} - "${stage.action}"`).join('\n') || ''}
 
 ## Exceções:
-${collectionRules.exceptions?.map((e: any) => `- ${e.trigger}: ${e.action}`).join('\n') || ''}`;
+${Object.entries(collectionRules.exceptions ?? {}).map(([trigger, action]) => `- ${trigger}: ${action}`).join('\n')}`;
     }
 
     prompt += `\n\nMantém respostas curtas e objetivas (máximo 3 parágrafos). Use emojis com moderação.
@@ -230,7 +214,7 @@ IMPORTANTE: Você está em modo de SIMULAÇÃO para testes. Simule as ferramenta
         };
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Simulation error:', error);
       
       // Fallback: generate a local mock response
@@ -344,7 +328,7 @@ IMPORTANTE: Você está em modo de SIMULAÇÃO para testes. Simule as ferramenta
   // Check if agent has voice capability
   const hasVoiceChannel = agent.channels?.includes('voice') || 
                           agent.persona?.voice_config || 
-                          (agent as any).voice_config;
+                          agent.voice_config;
 
   return (
     <div className="space-y-4">
@@ -528,7 +512,7 @@ IMPORTANTE: Você está em modo de SIMULAÇÃO para testes. Simule as ferramenta
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2">
               <VoiceSimulator 
-                agent={agent as any} 
+                agent={agent}
                 onStatsUpdate={setVoiceStats}
               />
             </div>

@@ -1,3 +1,4 @@
+import { asRecord, getErrorMessage } from '@/lib/errors';
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,6 +28,9 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { Database, Json } from '@/integrations/supabase/types';
+
+type AgentInsert = Database['public']['Tables']['ai_agents']['Insert'];
 
 interface ImportAgentDialogProps {
   onAgentImported: () => void;
@@ -42,8 +46,14 @@ interface ParsedAgent {
   hasVoiceConfig: boolean;
   hasPersona: boolean;
   hasTools: boolean;
-  rawData: any;
+  rawData: AgentInsert;
 }
+
+const getString = (data: Record<string, unknown>, key: string, fallback = ''): string =>
+  typeof data[key] === 'string' ? data[key] : fallback;
+
+const getJson = (data: Record<string, unknown>, key: string, fallback: Json): Json =>
+  data[key] === undefined || data[key] === null ? fallback : data[key] as Json;
 
 // Generate a valid agent_id from name
 const generateAgentId = (name: string): string => {
@@ -57,9 +67,11 @@ const generateAgentId = (name: string): string => {
 };
 
 // Detect JSON type based on structure
-const detectJsonType = (json: any): JsonType => {
+const detectJsonType = (value: unknown): JsonType => {
+  const json = asRecord(value);
+  if (!json) return 'unknown';
   // Retell AI indicators
-  if (json.llm_websocket_url || json.voice_id || json.response_engine || json.agent_id?.startsWith('agent_')) {
+  if (json.llm_websocket_url || json.voice_id || json.response_engine || getString(json, 'agent_id').startsWith('agent_')) {
     return 'retell';
   }
   
@@ -77,8 +89,10 @@ const detectJsonType = (json: any): JsonType => {
 };
 
 // Map Retell JSON to AI Gym structure
-const mapRetellToAIGym = (retellJson: any): any => {
-  const name = retellJson.agent_name || 'Agente Importado';
+const mapRetellToAIGym = (value: unknown): AgentInsert => {
+  const retellJson = asRecord(value) ?? {};
+  const name = getString(retellJson, 'agent_name', 'Agente Importado');
+  const functions = Array.isArray(retellJson.functions) ? retellJson.functions : [];
   
   return {
     agent_id: generateAgentId(name),
@@ -93,17 +107,17 @@ const mapRetellToAIGym = (retellJson: any): any => {
       inbound: {
         enabled: true,
         provider: 'retell',
-        agent_id: retellJson.agent_id || null,
+        agent_id: getString(retellJson, 'agent_id') || null,
         from_number: null,
-        webhook_url: retellJson.llm_websocket_url || null,
+        webhook_url: getString(retellJson, 'llm_websocket_url') || null,
         kb_mode: 'shared',
         custom_kb_sources: [],
         settings: {
-          language: retellJson.language || 'pt-BR',
-          voice_id: retellJson.voice_id || null,
-          response_delay_ms: retellJson.response_latency_threshold || 800,
-          max_call_duration_seconds: retellJson.max_call_duration_seconds || 1800,
-          greeting_template: retellJson.begin_message || null,
+          language: getString(retellJson, 'language', 'pt-BR'),
+          voice_id: getString(retellJson, 'voice_id') || null,
+          response_delay_ms: typeof retellJson.response_latency_threshold === 'number' ? retellJson.response_latency_threshold : 800,
+          max_call_duration_seconds: typeof retellJson.max_call_duration_seconds === 'number' ? retellJson.max_call_duration_seconds : 1800,
+          greeting_template: getString(retellJson, 'begin_message') || null,
         },
         secrets: {
           api_key_ref: null,
@@ -139,14 +153,17 @@ const mapRetellToAIGym = (retellJson: any): any => {
       tone: { default: 'consultivo_direto' },
       style: 'Comunicação por voz, natural e fluente',
       personality: 'Profissional e atencioso',
-      system_prompt: retellJson.general_prompt || null,
+      system_prompt: getString(retellJson, 'general_prompt') || null,
     },
-    tools_config: (retellJson.functions || []).map((fn: any) => ({
-      name: fn.name,
-      description: fn.description,
-      parameters: fn.parameters,
-      enabled: true,
-    })),
+    tools_config: functions.flatMap((value) => {
+      const fn = asRecord(value);
+      return fn ? [{
+        name: getString(fn, 'name'),
+        description: getString(fn, 'description'),
+        parameters: getJson(fn, 'parameters', {}),
+        enabled: true,
+      }] : [];
+    }),
     guardrails: {
       never_do: [],
       handoff_triggers: ['cliente_solicita_humano'],
@@ -161,29 +178,31 @@ const mapRetellToAIGym = (retellJson: any): any => {
 };
 
 // Map AI Gym JSON (restore backup)
-const mapAIGymToAgent = (gymJson: any): any => {
+const mapAIGymToAgent = (value: unknown): AgentInsert => {
+  const gymJson = asRecord(value) ?? {};
+  const kb = asRecord(gymJson.kb);
   return {
-    agent_id: gymJson.agent_id,
-    name: gymJson.name,
-    description: gymJson.description || `Agente restaurado de backup`,
-    role: gymJson.role || 'sales',
-    channels: gymJson.channels || ['whatsapp'],
+    agent_id: getString(gymJson, 'agent_id'),
+    name: getString(gymJson, 'name', 'Agente importado'),
+    description: getString(gymJson, 'description', 'Agente restaurado de backup'),
+    role: getString(gymJson, 'role', 'sales'),
+    channels: Array.isArray(gymJson.channels) ? gymJson.channels.filter((channel): channel is string => typeof channel === 'string') : ['whatsapp'],
     status: 'draft',
-    version: gymJson.version || '1.0.0',
-    avatar_emoji: gymJson.avatar_emoji || '🤖',
-    voice_config: gymJson.voice_config || null,
-    persona: gymJson.persona || {
-      tone: gymJson.tone || { default: 'amigavel' },
-      style: gymJson.style || 'Comunicação clara e objetiva',
-      personality: gymJson.personality || 'Profissional',
-    },
-    tools_config: gymJson.tools_config || gymJson.tools || [],
-    guardrails: gymJson.guardrails || { never_do: [], handoff_triggers: [] },
-    kb_sources: gymJson.kb_sources || gymJson.kb?.sources || [],
-    intents: gymJson.intents || [],
-    tests: gymJson.tests || [],
-    metrics: gymJson.metrics || {},
-    collection_rules: gymJson.collection_rules || null,
+    version: getString(gymJson, 'version', '1.0.0'),
+    avatar_emoji: getString(gymJson, 'avatar_emoji', '🤖'),
+    voice_config: getJson(gymJson, 'voice_config', null),
+    persona: getJson(gymJson, 'persona', {
+      tone: getJson(gymJson, 'tone', { default: 'amigavel' }),
+      style: getString(gymJson, 'style', 'Comunicação clara e objetiva'),
+      personality: getString(gymJson, 'personality', 'Profissional'),
+    }),
+    tools_config: getJson(gymJson, 'tools_config', getJson(gymJson, 'tools', [])),
+    guardrails: getJson(gymJson, 'guardrails', { never_do: [], handoff_triggers: [] }),
+    kb_sources: getJson(gymJson, 'kb_sources', kb ? getJson(kb, 'sources', []) : []),
+    intents: getJson(gymJson, 'intents', []),
+    tests: getJson(gymJson, 'tests', []),
+    metrics: getJson(gymJson, 'metrics', {}),
+    collection_rules: getJson(gymJson, 'collection_rules', null),
   };
 };
 
@@ -214,7 +233,7 @@ export function ImportAgentDialog({ onAgentImported }: ImportAgentDialogProps) {
     try {
       setError(null);
       const content = await file.text();
-      const json = JSON.parse(content);
+      const json: unknown = JSON.parse(content);
       
       const type = detectJsonType(json);
       
@@ -223,7 +242,7 @@ export function ImportAgentDialog({ onAgentImported }: ImportAgentDialogProps) {
         return;
       }
 
-      let mapped: any;
+      let mapped: AgentInsert;
       if (type === 'retell') {
         mapped = mapRetellToAIGym(json);
       } else {
@@ -233,17 +252,17 @@ export function ImportAgentDialog({ onAgentImported }: ImportAgentDialogProps) {
       setParsedAgent({
         type,
         name: mapped.name,
-        description: mapped.description,
-        channels: mapped.channels,
-        hasVoiceConfig: !!mapped.voice_config?.inbound?.enabled || !!mapped.voice_config?.outbound?.enabled,
-        hasPersona: !!mapped.persona?.system_prompt || !!mapped.persona?.style,
-        hasTools: (mapped.tools_config?.length || 0) > 0,
+        description: mapped.description ?? '',
+        channels: mapped.channels ?? [],
+        hasVoiceConfig: Boolean(asRecord(asRecord(mapped.voice_config)?.inbound)?.enabled || asRecord(asRecord(mapped.voice_config)?.outbound)?.enabled),
+        hasPersona: Boolean(asRecord(mapped.persona)?.system_prompt || asRecord(mapped.persona)?.style),
+        hasTools: Array.isArray(mapped.tools_config) && mapped.tools_config.length > 0,
         rawData: mapped,
       });
 
       setAgentName(mapped.name);
       setAgentId(mapped.agent_id);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error parsing JSON:', err);
       setError('Erro ao processar arquivo JSON. Verifique se o arquivo é válido.');
     }
@@ -293,12 +312,12 @@ export function ImportAgentDialog({ onAgentImported }: ImportAgentDialogProps) {
       setOpen(false);
       resetState();
       onAgentImported();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error importing agent:', err);
-      setError(err.message || 'Erro ao importar agente.');
+      setError(getErrorMessage(err) || 'Erro ao importar agente.');
       toast({
         title: 'Erro na importação',
-        description: err.message,
+        description: getErrorMessage(err),
         variant: 'destructive',
       });
     } finally {

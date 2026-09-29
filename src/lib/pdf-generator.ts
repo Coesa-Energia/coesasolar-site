@@ -161,8 +161,8 @@ export async function generateAssinantePDF(data: AssinantePDFData): Promise<void
   // Load logo
   const { default: coesaWhite } = await import('@/assets/logos/coesa-white.png');
   const { default: coesaGreen } = await import('@/assets/logos/coesa-green.png');
-  const logoWhiteBase64 = await loadImageAsBase64(coesaWhite);
-  const logoGreenBase64 = await loadImageAsBase64(coesaGreen);
+  const logoWhiteBase64 = await loadImageAsBase64(coesaWhite.src);
+  const logoGreenBase64 = await loadImageAsBase64(coesaGreen.src);
   
   // ============ HEADER SECTION ============
   // Green header bar
@@ -230,7 +230,7 @@ export async function generateAssinantePDF(data: AssinantePDFData): Promise<void
   doc.text(installInfo, 20, y + 28);
   
   // Installation info line 2 - Nº Instalação and CIP
-  const installDetails = [];
+  const installDetails: string[] = [];
   if (data.instalacao.numeroInstalacao) {
     installDetails.push(`Nº Instalação: ${data.instalacao.numeroInstalacao}`);
   }
@@ -500,7 +500,7 @@ export async function generateUsineiroPDF(data: UsineiroPDFData): Promise<void> 
   
   // Load logos
   const { default: coesaWhite } = await import('@/assets/logos/coesa-white.png');
-  const logoWhiteBase64 = await loadImageAsBase64(coesaWhite);
+  const logoWhiteBase64 = await loadImageAsBase64(coesaWhite.src);
   
   // ============ PAGE 1 - COVER ============
   // Full green background
@@ -595,7 +595,9 @@ export async function generateUsineiroPDF(data: UsineiroPDFData): Promise<void> 
   
   try {
     doc.addImage(logoWhiteBase64, 'PNG', 12, 3, 36, 18);
-  } catch {}
+  } catch {
+    // Continue without the decorative logo if the image cannot be decoded.
+  }
   
   doc.setTextColor(WHITE.r, WHITE.g, WHITE.b);
   doc.setFont('helvetica', 'bold');
@@ -778,7 +780,7 @@ export async function generateUsineiroPDF(data: UsineiroPDFData): Promise<void> 
   
   // Financing section if applicable
   if (data.financiamento && data.financiamento.valor > 0) {
-    y = (doc as any).lastAutoTable.finalY + 6;
+    y = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 6;
     
     doc.setFillColor(235, 240, 250);
     doc.roundedRect(10, y, pageWidth - 20, 18, 2, 2, 'F');
@@ -813,7 +815,9 @@ export async function generateUsineiroPDF(data: UsineiroPDFData): Promise<void> 
   
   try {
     doc.addImage(logoWhiteBase64, 'PNG', 12, 3, 36, 18);
-  } catch {}
+  } catch {
+    // Continue without the decorative logo if the image cannot be decoded.
+  }
   
   doc.setTextColor(WHITE.r, WHITE.g, WHITE.b);
   doc.setFont('helvetica', 'bold');
@@ -908,7 +912,7 @@ export async function generateUsineiroPDF(data: UsineiroPDFData): Promise<void> 
   });
   
   // Totals row summary
-  y = (doc as any).lastAutoTable.finalY + 5;
+  y = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 5;
   
   const totalReceita = data.resultado.fluxoCaixa.reduce((sum, fc) => sum + fc.receitaBruta, 0);
   const totalFCL = data.resultado.fluxoCaixa.reduce((sum, fc) => sum + fc.fluxoCaixaLivre, 0);

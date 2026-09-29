@@ -30,17 +30,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Users, Plus, Pencil, Trash2, Phone, Crown, CheckCircle, AlertTriangle } from 'lucide-react';
 import { formatWhatsAppNumber, isValidWhatsAppNumber, formatWhatsAppDisplay } from '@/lib/whatsapp-utils';
+import type { DbRow } from '@/types/database';
 
-interface Attendant {
-  id: string;
-  nome: string;
-  telefone: string;
-  is_active: boolean;
-  is_plantao: boolean;
-  escalacoes_recebidas: number;
-  last_escalation_at: string | null;
-  created_at: string;
-}
+type Attendant = DbRow<'whatsapp_atendentes'>;
 
 export function AttendantConfig() {
   const [attendants, setAttendants] = useState<Attendant[]>([]);
@@ -134,7 +126,7 @@ export function AttendantConfig() {
     setEditingAttendant(attendant);
     setNome(attendant.nome);
     setTelefone(attendant.telefone);
-    setIsActive(attendant.is_active);
+    setIsActive(attendant.is_active ?? false);
     setDialogOpen(true);
   };
 
@@ -396,7 +388,7 @@ export function AttendantConfig() {
                     </Button>
                   )}
                   <Switch
-                    checked={attendant.is_active}
+                    checked={attendant.is_active ?? false}
                     onCheckedChange={() => toggleActive(attendant)}
                   />
                   <Button

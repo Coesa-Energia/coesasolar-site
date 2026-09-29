@@ -40,6 +40,7 @@ import { VoiceModeConfig, VoiceSettings, CampaignSettings } from '@/hooks/useAge
 import { toast } from 'sonner';
 import { OutboundCallQueue } from './OutboundCallQueue';
 import { OutboundCallMetrics } from './OutboundCallMetrics';
+import type { KBSource } from './KnowledgeBaseManager';
 
 interface VoiceOutboundConfigProps {
   config: VoiceModeConfig;
@@ -49,7 +50,7 @@ interface VoiceOutboundConfigProps {
   onUpdateSettings: (settings: Partial<VoiceSettings>) => Promise<boolean>;
   onUpdateCampaignSettings: (settings: Partial<CampaignSettings>) => Promise<boolean>;
   saving: boolean;
-  sharedKbSources?: any[];
+  sharedKbSources?: KBSource[] | null;
 }
 
 const WEEKDAYS = [

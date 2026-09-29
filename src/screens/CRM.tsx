@@ -330,18 +330,21 @@ export default function CRM() {
       switch (sortColumn) {
         case 'nome':
           return dir * a.nome.localeCompare(b.nome, 'pt-BR');
-        case 'contato':
+        case 'contato': {
           const aContact = a.email || a.telefone || '';
           const bContact = b.email || b.telefone || '';
           return dir * aContact.localeCompare(bContact, 'pt-BR');
-        case 'localizacao':
+        }
+        case 'localizacao': {
           const aLoc = [a.cidade, a.uf].filter(Boolean).join(' ');
           const bLoc = [b.cidade, b.uf].filter(Boolean).join(' ');
           return dir * aLoc.localeCompare(bLoc, 'pt-BR');
-        case 'etapa':
+        }
+        case 'etapa': {
           const aStage = a.bitrix24_stage || '';
           const bStage = b.bitrix24_stage || '';
           return dir * aStage.localeCompare(bStage);
+        }
         case 'status':
           return dir * a.status.localeCompare(b.status);
         case 'origem':

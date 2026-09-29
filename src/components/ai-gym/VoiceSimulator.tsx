@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { RetellWebClient } from 'retell-client-js-sdk';
 import { Button } from '@/components/ui/button';
@@ -8,24 +9,13 @@ import { Mic, Phone, PhoneOff, AlertCircle, Loader2, Volume2, Clock, User, Zap }
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import type { AIAgent } from '@/types/ai-agent';
 
 interface VoiceMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
-}
-
-interface AIAgent {
-  id: string;
-  agent_id: string;
-  name: string;
-  role: string;
-  description: string;
-  avatar_emoji: string;
-  persona: any;
-  guardrails: any;
-  voice_config?: any;
 }
 
 interface VoiceSimulatorProps {
@@ -144,7 +134,7 @@ export function VoiceSimulator({ agent, onStatsUpdate }: VoiceSimulatorProps) {
             setAudioUnlocked(true);
             setAudioUnlockNeeded(false);
           })
-          .catch((e: any) => {
+          .catch((e: unknown) => {
             console.warn('[VoiceSimulator] startAudioPlayback blocked/failed:', e);
             setAudioUnlocked(false);
             setAudioUnlockNeeded(true);
@@ -183,7 +173,7 @@ export function VoiceSimulator({ agent, onStatsUpdate }: VoiceSimulatorProps) {
         setIsAgentTalking(false);
       });
       
-      retellClient.on('update', (update: any) => {
+      retellClient.on('update', (update) => {
         // Handle transcript updates
         if (update.transcript) {
           // Parse transcript to get messages
@@ -205,9 +195,9 @@ export function VoiceSimulator({ agent, onStatsUpdate }: VoiceSimulatorProps) {
         }
       });
       
-      retellClient.on('error', (err: any) => {
+      retellClient.on('error', (err: unknown) => {
         console.error('[VoiceSimulator] Retell error:', err);
-        setError(`Erro na chamada: ${err.message || 'Erro desconhecido'}`);
+        setError(`Erro na chamada: ${getErrorMessage(err) || 'Erro desconhecido'}`);
         setCallStatus('error');
         
         if (durationIntervalRef.current) {
@@ -223,9 +213,9 @@ export function VoiceSimulator({ agent, onStatsUpdate }: VoiceSimulatorProps) {
       
       toast.success('Chamada iniciada com sucesso!');
       
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[VoiceSimulator] Start call error:', err);
-      setError(err.message || 'Erro ao iniciar chamada');
+      setError(getErrorMessage(err) || 'Erro ao iniciar chamada');
       setCallStatus('error');
       toast.error('Erro ao iniciar chamada de teste');
     }
@@ -250,7 +240,7 @@ export function VoiceSimulator({ agent, onStatsUpdate }: VoiceSimulatorProps) {
       setIsUserTalking(false);
       
       toast.info('Chamada encerrada');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[VoiceSimulator] Stop call error:', err);
       setCallStatus('idle');
     }
@@ -336,7 +326,7 @@ export function VoiceSimulator({ agent, onStatsUpdate }: VoiceSimulatorProps) {
                       setAudioUnlockNeeded(false);
                       toast.success('Áudio ativado!');
                     })
-                    .catch((e: any) => {
+                    .catch((e: unknown) => {
                       console.error('[VoiceSimulator] Manual audio unlock failed:', e);
                       toast.error('Não foi possível ativar o áudio');
                     });

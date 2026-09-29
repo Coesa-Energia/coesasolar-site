@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -110,10 +111,10 @@ export function EditUserDialog({ open, onOpenChange, user, onSuccess }: EditUser
 
       onSuccess();
       onOpenChange(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         title: 'Erro ao atualizar',
-        description: err.message || 'Tente novamente.',
+        description: getErrorMessage(err) || 'Tente novamente.',
         variant: 'destructive',
       });
     } finally {
@@ -136,10 +137,10 @@ export function EditUserDialog({ open, onOpenChange, user, onSuccess }: EditUser
         title: 'Email enviado',
         description: `Link de redefinição enviado para ${user.email}`,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         title: 'Erro ao enviar email',
-        description: err.message,
+        description: getErrorMessage(err),
         variant: 'destructive',
       });
     } finally {
@@ -173,10 +174,10 @@ export function EditUserDialog({ open, onOpenChange, user, onSuccess }: EditUser
 
       onSuccess();
       onOpenChange(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         title: 'Erro ao excluir',
-        description: err.message,
+        description: getErrorMessage(err),
         variant: 'destructive',
       });
     } finally {

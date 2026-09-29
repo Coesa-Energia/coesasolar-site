@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -177,7 +178,10 @@ export default function DetectionPatterns() {
 
       if (error) throw error;
 
-      setAllPatterns(data || []);
+      setAllPatterns((data || []).map((pattern) => ({
+        ...pattern,
+        is_active: pattern.is_active ?? true,
+      })));
 
       // Calculate stats by category
       const statsMap = new Map<string, CategoryStats>();
@@ -216,10 +220,10 @@ export default function DetectionPatterns() {
       });
 
       setCategoryStats(Array.from(statsMap.values()).sort((a, b) => b.patternCount - a.patternCount));
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao carregar estatísticas',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {

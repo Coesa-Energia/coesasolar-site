@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/errors';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useUIConfig } from '@/hooks/useUIConfig';
 import { 
@@ -71,6 +72,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { DbRow } from '@/types/database';
 
 interface DetectionPattern {
   id: string;
@@ -83,6 +85,17 @@ interface DetectionPattern {
   created_at: string;
   updated_at: string;
 }
+
+type DetectionPatternRow = DbRow<'sofia_detection_patterns'>;
+
+const normalizePattern = (pattern: DetectionPatternRow): DetectionPattern => ({
+  ...pattern,
+  created_at: pattern.created_at ?? '',
+  is_active: pattern.is_active ?? true,
+  priority: pattern.priority ?? 0,
+  pattern_type: pattern.pattern_type === 'regex' ? 'regex' : 'keyword',
+  updated_at: pattern.updated_at ?? '',
+});
 
 interface CategoryGroup {
   category: string;
@@ -169,14 +182,11 @@ export function AgentDetectionPatterns({ agentId, agentName = 'Agente' }: AgentD
         .order('pattern');
 
       if (error) throw error;
-      setPatterns((data || []).map(p => ({
-        ...p,
-        pattern_type: p.pattern_type as 'keyword' | 'regex'
-      })));
-    } catch (error: any) {
+      setPatterns((data || []).map(normalizePattern));
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao carregar padrões',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -258,6 +268,9 @@ export function AgentDetectionPatterns({ agentId, agentName = 'Agente' }: AgentD
   const handleSavePattern = async (pattern: Partial<DetectionPattern>, isNew: boolean) => {
     try {
       if (isNew) {
+        if (!pattern.category || !pattern.pattern) {
+          throw new Error('Categoria e padrão são obrigatórios');
+        }
         const { data, error } = await supabase
           .from('sofia_detection_patterns')
           .insert({
@@ -272,12 +285,10 @@ export function AgentDetectionPatterns({ agentId, agentName = 'Agente' }: AgentD
           .single();
 
         if (error) throw error;
-        setPatterns(prev => [...prev, {
-          ...data,
-          pattern_type: data.pattern_type as 'keyword' | 'regex'
-        }]);
+        setPatterns(prev => [...prev, normalizePattern(data)]);
         toast({ title: 'Padrão criado com sucesso' });
       } else {
+        if (!pattern.id) throw new Error('ID do padrão é obrigatório');
         const { error } = await supabase
           .from('sofia_detection_patterns')
           .update({
@@ -306,10 +317,10 @@ export function AgentDetectionPatterns({ agentId, agentName = 'Agente' }: AgentD
         priority: 0,
         is_active: true
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao salvar padrão',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     }
@@ -327,10 +338,10 @@ export function AgentDetectionPatterns({ agentId, agentName = 'Agente' }: AgentD
       if (error) throw error;
       setPatterns(prev => prev.filter(p => p.id !== patternToDelete.id));
       toast({ title: 'Padrão excluído com sucesso' });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao excluir padrão',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -352,10 +363,10 @@ export function AgentDetectionPatterns({ agentId, agentName = 'Agente' }: AgentD
       setPatterns(prev => prev.map(p => 
         p.id === pattern.id ? { ...p, is_active: !p.is_active } : p
       ));
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao atualizar padrão',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     }
@@ -570,10 +581,7 @@ export function AgentDetectionPatterns({ agentId, agentName = 'Agente' }: AgentD
         if (error) throw error;
         
         if (data) {
-          setPatterns(prev => [...prev, ...data.map(p => ({
-            ...p,
-            pattern_type: p.pattern_type as 'keyword' | 'regex'
-          }))]);
+          setPatterns(prev => [...prev, ...data.map(normalizePattern)]);
           totalImported += data.length;
         }
       }
@@ -585,10 +593,10 @@ export function AgentDetectionPatterns({ agentId, agentName = 'Agente' }: AgentD
         title: 'Importação concluída',
         description: `${totalImported} padrões importados com sucesso`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro na importação',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     } finally {
@@ -619,10 +627,10 @@ export function AgentDetectionPatterns({ agentId, agentName = 'Agente' }: AgentD
         title: setActive ? 'Categoria ativada' : 'Categoria desativada',
         description: `${ids.length} padrões atualizados`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao atualizar categoria',
-        description: error.message,
+        description: getErrorMessage(error),
         variant: 'destructive'
       });
     }

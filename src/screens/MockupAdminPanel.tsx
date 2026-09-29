@@ -71,7 +71,7 @@ const MockupAdminPanel = () => {
         }`}
       >
         <div className="p-4 border-b border-white/[0.06]">
-          <img src={coesaGreen} alt="COESA" className={`transition-all duration-300 ${sidebarOpen ? "h-8" : "h-6 mx-auto"}`} />
+          <img src={coesaGreen.src} alt="COESA" className={`transition-all duration-300 ${sidebarOpen ? "h-8" : "h-6 mx-auto"}`} />
         </div>
 
         <nav className="flex-1 py-4 px-2 space-y-1">

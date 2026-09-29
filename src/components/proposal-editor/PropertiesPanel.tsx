@@ -242,7 +242,7 @@ export function PropertiesPanel({
                       <Label className="text-xs text-muted-foreground">Peso</Label>
                       <Select
                         value={element.style.fontWeight || 'normal'}
-                        onValueChange={(value: ElementStyle['fontWeight']) => updateStyle({ fontWeight: value })}
+                        onValueChange={(value) => updateStyle({ fontWeight: value as ElementStyle['fontWeight'] })}
                         disabled={element.locked}
                       >
                         <SelectTrigger className="h-8">

@@ -1387,7 +1387,7 @@ export default function Assinantes() {
                   economiaAcumulada,
                   projecaoAnual: resultadoGD2?.projecaoAnual || resultado.projecaoAnual,
                 },
-                resultadoGD2: tipoGeracao === 'GD2' ? resultadoGD2 : undefined,
+                resultadoGD2: tipoGeracao === 'GD2' ? resultadoGD2 ?? undefined : undefined,
                 configuracoes: configs ? {
                   whatsapp_numero: configs.whatsapp_numero || '',
                   email_contato: configs.email_contato || '',
