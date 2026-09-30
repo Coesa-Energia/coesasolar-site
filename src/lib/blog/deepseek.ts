@@ -139,6 +139,12 @@ export interface ArticleStructure {
   summary_bullets: string[];
 }
 
+export type ArticleWithSections = ArticleContent & {
+  sectionImagePrompts: string[];
+  structure: ArticleStructure;
+  bodies: string[];
+};
+
 // Alvo do checklist do dono (25/08/2026): mínimo 4.500 palavras totais, 7-9 seções H2 de
 // 400-700 palavras cada, FAQ com exatamente 7 perguntas de 100-150 palavras. Mesmos números
 // do padrão cfgauss.com.br/blog.
@@ -578,6 +584,25 @@ export function assembleArticleMarkdown(structure: ArticleStructure, bodies: str
   return `${sectionsMd}\n\n${summaryMd}\n\n${faqMd}`;
 }
 
+export function buildArticleFromSections(
+  structure: ArticleStructure,
+  bodies: string[],
+): ArticleWithSections {
+  return {
+    title: structure.title,
+    page_title: structure.page_title,
+    slug: structure.slug,
+    meta_desc: structure.meta_desc,
+    image_prompt: structure.cover_image_prompt,
+    cover_alt: structure.cover_alt,
+    category: structure.category,
+    content: assembleArticleMarkdown(structure, bodies),
+    sectionImagePrompts: structure.sections.map(section => section.image_prompt),
+    structure,
+    bodies,
+  };
+}
+
 /**
  * Injeta as 5 obrigações editoriais (keyword na 1ª frase, link interno, link externo,
  * citação em blockquote, CTA de fechamento) nos content_brief de seções específicas —
@@ -620,7 +645,7 @@ export async function generateArticleWithSections(
   internalLinks: InternalLink[] = [],
   brief: EditorialBrief | null = null,
   hasStructureBudget?: () => boolean,
-): Promise<ArticleContent & { sectionImagePrompts: string[]; structure: ArticleStructure; bodies: string[] }> {
+): Promise<ArticleWithSections> {
   const tStructure = Date.now();
   const rawStructure = await generateArticleStructure(keyword, internalLinks, brief, hasStructureBudget);
   console.warn(`[deepseek] estrutura total (com retries) levou ${Math.round((Date.now() - tStructure) / 1000)}s, ${rawStructure.sections.length} seções`);
@@ -641,21 +666,7 @@ export async function generateArticleWithSections(
   );
   console.warn(`[deepseek] ${bodies.length} seções paralelas levaram ${Math.round((Date.now() - tSections) / 1000)}s`);
 
-  const content = assembleArticleMarkdown(structure, bodies);
-
-  return {
-    title: structure.title,
-    page_title: structure.page_title,
-    slug: structure.slug,
-    meta_desc: structure.meta_desc,
-    image_prompt: structure.cover_image_prompt, // capa
-    cover_alt: structure.cover_alt,
-    category: structure.category,
-    content,
-    sectionImagePrompts: structure.sections.map(s => s.image_prompt),
-    structure,
-    bodies,
-  };
+  return buildArticleFromSections(structure, bodies);
 }
 
 /**

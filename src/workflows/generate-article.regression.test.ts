@@ -10,6 +10,8 @@
 // saldo) migraram da rota síncrona pra dentro do workflow, mas continuam
 // sendo os MESMOS invariantes, testados com os MESMOS valores reais.
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 const insertArticle = vi.fn();
 const insertRunLog = vi.fn();
@@ -38,9 +40,14 @@ vi.mock('@/lib/blog/editorial-calendar', () => ({
 }));
 vi.mock('@/lib/blog/gsc', () => ({ fetchTopKeyword: vi.fn() }));
 const regenerateSectionsWithFeedback = vi.fn();
-const generateArticleWithSections = vi.fn();
+const generateArticleStructure = vi.fn();
+const writeSection = vi.fn();
+const buildArticleFromSections = vi.fn();
 vi.mock('@/lib/blog/deepseek', () => ({
-  generateArticleWithSections,
+  generateArticleStructure,
+  writeSection,
+  enrichSectionBriefs: vi.fn((sections: unknown) => sections),
+  buildArticleFromSections,
   assembleArticleMarkdown: vi.fn(() => 'conteúdo regenerado'),
   regenerateSectionsWithFeedback,
   injectSectionImages: vi.fn((content: string) => content),
@@ -72,7 +79,13 @@ vi.mock('@/lib/blog/distribution', () => ({ distributeArticle: vi.fn(), buildDis
 const revalidatePath = vi.fn();
 vi.mock('next/cache', () => ({ revalidatePath }));
 
-const { checkBalanceStep, qualityGateAndPublishStep, recordFailureStep, generateArticleWorkflow } = await import('./generate-article');
+const {
+  checkBalanceStep,
+  qualityGateAndPublishStep,
+  recordFailureStep,
+  generateArticleWorkflow,
+  generateStructureStep,
+} = await import('./generate-article');
 
 const ARTICLE_STUB = {
   title: 'T', slug: 'slug-ok', meta_desc: 'M', image_prompt: 'p', content: 'conteúdo',
@@ -83,6 +96,29 @@ const ARTICLE_STUB = {
   },
   bodies: [], sectionImagePrompts: [], cover_alt: null, category: null,
 } as unknown as Parameters<typeof qualityGateAndPublishStep>[1];
+
+describe('steps duráveis — estrutura e seções isoladas', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('persiste a estrutura antes de iniciar qualquer seção', async () => {
+    generateArticleStructure.mockResolvedValue(ARTICLE_STUB.structure);
+    saveOutlineStructure.mockResolvedValue(undefined);
+
+    await expect(generateStructureStep('kw', [], null)).resolves.toEqual(ARTICLE_STUB.structure);
+
+    expect(saveOutlineStructure).toHaveBeenCalledWith('kw', JSON.stringify(ARTICLE_STUB.structure));
+    expect(writeSection).not.toHaveBeenCalled();
+  });
+
+  it('mantém steps separados e seções paralelas no source do workflow', () => {
+    const source = readFileSync(join(process.cwd(), 'src/workflows/generate-article.ts'), 'utf8');
+
+    expect(source).not.toContain('generateStructureAndSectionsStep');
+    expect(source).toContain('generateStructureStep.maxRetries = 1');
+    expect(source).toContain('writeSectionStep.maxRetries = 1');
+    expect(source).toMatch(/Promise\.all\([\s\S]*writeSectionStep/);
+  });
+});
 
 describe('checkBalanceStep — circuit breaker de saldo (REGRESSÃO 02/09/2026)', () => {
   beforeEach(() => vi.clearAllMocks());
@@ -258,7 +294,9 @@ describe('generateArticleWorkflow — passos pós-publicação não derrubam um 
     vi.clearAllMocks();
     checkOpenRouterBalance.mockResolvedValue({ ok: true, remaining: 50 });
     getNextPlannedEntry.mockResolvedValue({ keyword: 'kw-workflow-test' });
-    generateArticleWithSections.mockResolvedValue(ARTICLE_STUB);
+    generateArticleStructure.mockResolvedValue(ARTICLE_STUB.structure);
+    writeSection.mockResolvedValue('corpo da seção');
+    buildArticleFromSections.mockReturnValue(ARTICLE_STUB);
     runQualityGateLoop.mockImplementation(async (initial: unknown) => ({
       content: initial,
       judged: { skipped: true, score: null, issues: [], categories: null },
@@ -287,6 +325,8 @@ describe('generateArticleWorkflow — passos pós-publicação não derrubam um 
   it('caso positivo: sem falha nos passos pós-publicação, publica normalmente', async () => {
     const result = await generateArticleWorkflow();
     expect(result).toEqual({ slug: 'slug-workflow-test', warnings: [] });
+    expect(generateArticleStructure).toHaveBeenCalledTimes(1);
+    expect(writeSection).toHaveBeenCalledTimes(ARTICLE_STUB.structure.sections.length);
   });
 
   // REGRESSÃO 14/09/2026 (achado da 2ª passada da auditoria): published.warnings (o aviso de
