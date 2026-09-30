@@ -10,7 +10,7 @@ describe("Vercel preflight contract", () => {
     const workflow = read(".github/workflows/ci.yml");
 
     expect(pkg.engines.node).toBe("24.x");
-    expect(pkg.scripts["preflight:ci"]).toBe("npm run lint && npm run typecheck && npm test");
+    expect(pkg.scripts["preflight:ci"]).toBe("npm run models:retirement:check && npm run lint && npm run typecheck && npm test");
     expect(pkg.scripts.preflight).toBe("npm run preflight:ci && npm run build");
     expect(read(".githooks/pre-push")).toContain("mac-gate npm run preflight:ci");
     expect(workflow).toContain("run: npm run preflight:ci");
