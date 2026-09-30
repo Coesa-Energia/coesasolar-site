@@ -50,12 +50,17 @@ import { sendFailureAlertEmail } from '@/lib/blog/alert';
 import { getNextPlannedEntry, markPublished, saveOutlineStructure, type EditorialBrief } from '@/lib/blog/editorial-calendar';
 import { fetchTopKeyword } from '@/lib/blog/gsc';
 import {
-  generateArticleWithSections,
+  generateArticleStructure,
+  writeSection,
+  enrichSectionBriefs,
+  buildArticleFromSections,
   assembleArticleMarkdown,
   regenerateSectionsWithFeedback,
   injectSectionImages,
   fixSimpleValidationIssues,
   type ArticleContent,
+  type ArticleStructure,
+  type ArticleWithSections,
   type InternalLink,
 } from '@/lib/blog/deepseek';
 import { generateAndUploadCover, generateAndUploadBodyImages, generateAndUploadInfographic } from '@/lib/blog/image-gen';
@@ -117,19 +122,32 @@ async function resolveInternalLinksStep(keyword: string): Promise<InternalLink[]
   return [...profileLinks, ...dynamicLinks];
 }
 
-type ArticleWithSections = Awaited<ReturnType<typeof generateArticleWithSections>>;
-
-async function generateStructureAndSectionsStep(
+export async function generateStructureStep(
   keyword: string,
   internalLinks: InternalLink[],
   brief: EditorialBrief | null,
-): Promise<ArticleWithSections> {
+): Promise<ArticleStructure> {
   'use step';
-  const article = await generateArticleWithSections(keyword, internalLinks, brief);
-  await saveOutlineStructure(keyword, JSON.stringify(article.structure)).catch(() => {});
-  return article;
+  const rawStructure = await generateArticleStructure(keyword, internalLinks, brief);
+  const structure: ArticleStructure = {
+    ...rawStructure,
+    sections: enrichSectionBriefs(rawStructure.sections, keyword, internalLinks),
+  };
+  await saveOutlineStructure(keyword, JSON.stringify(structure)).catch(() => {});
+  return structure;
 }
-generateStructureAndSectionsStep.maxRetries = 1;
+generateStructureStep.maxRetries = 1;
+
+export async function writeSectionStep(
+  keyword: string,
+  section: ArticleStructure['sections'][number],
+  index: number,
+  total: number,
+): Promise<string> {
+  'use step';
+  return writeSection(keyword, section, index, total);
+}
+writeSectionStep.maxRetries = 1;
 
 async function generateCoverStep(prompt: string, slug: string): Promise<string | null> {
   'use step';
@@ -319,7 +337,13 @@ export async function generateArticleWorkflow(): Promise<GenerateArticleResult> 
 
     const internalLinks = await resolveInternalLinksStep(kw);
 
-    let article = await generateStructureAndSectionsStep(kw, internalLinks, resolved.brief);
+    const structure = await generateStructureStep(kw, internalLinks, resolved.brief);
+    const bodies = await Promise.all(
+      structure.sections.map((section, index) =>
+        writeSectionStep(kw, section, index, structure.sections.length),
+      ),
+    );
+    let article = buildArticleFromSections(structure, bodies);
 
     // Validação on-page (pura, sem I/O — roda no corpo do workflow) + fix
     // determinístico se falhar (também puro). Regenerar o artigo INTEIRO

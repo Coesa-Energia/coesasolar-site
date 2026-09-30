@@ -32,6 +32,7 @@ const {
   fixSimpleValidationIssues,
   regenerateSectionsWithFeedback,
   assembleArticleMarkdown,
+  buildArticleFromSections,
   generateArticleStructure,
   demoteStrayH2HeadingsInBody,
   FAQ_ANSWER_MIN_WORDS,
@@ -39,6 +40,30 @@ const {
   SECTION_WORD_MIN,
   SECTION_WORD_MAX,
 } = await import('./deepseek');
+
+describe('buildArticleFromSections — montagem pura para steps duráveis', () => {
+  it('preserva estrutura, corpos e prompts sem chamar provider', () => {
+    const structure = {
+      title: 'Título', page_title: 'Page', slug: 'slug', meta_desc: 'Meta',
+      cover_image_prompt: 'cover', cover_alt: 'alt', category: 'guia',
+      sections: [
+        { h2: 'A', content_brief: 'a', word_target: 500, image_prompt: 'img-a' },
+        { h2: 'B', content_brief: 'b', word_target: 500, image_prompt: 'img-b' },
+      ],
+      faq: [], summary_bullets: ['um', 'dois', 'três'],
+    };
+    const bodies = ['corpo A', 'corpo B'];
+
+    const article = buildArticleFromSections(structure, bodies);
+
+    expect(article.structure).toBe(structure);
+    expect(article.bodies).toBe(bodies);
+    expect(article.sectionImagePrompts).toEqual(['img-a', 'img-b']);
+    expect(article.content).toContain('## A');
+    expect(article.content).toContain('## B');
+    expect(createMock).not.toHaveBeenCalled();
+  });
+});
 
 // REGRESSÃO 17/09/2026: resposta de FAQ dentro do contrato real (100-150 palavras) — usada em
 // todas as fixtures de estrutura "válida" deste arquivo. Uma resposta de 1-2 palavras (como
