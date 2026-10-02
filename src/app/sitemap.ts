@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getAllArticles } from '@/lib/blog/supabase-blog';
 import { AUTOBLOG_PROFILE } from '@/lib/autoblog-profile';
+import { getVagasPublicadas } from '@/lib/carreiras/supabase';
 
 // REGRESSÃO 22/08/2026 — relatório do Sentinel (regras-universais.5, "artigo mais
 // recente ausente do sitemap"): sem revalidate, esta rota é gerada 1x no build e fica
@@ -12,6 +13,18 @@ export const revalidate = 3600; // ISR 1h — mesmo padrão de /blog e /categori
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = AUTOBLOG_PROFILE.brand.siteUrl;
   const entries: MetadataRoute.Sitemap = [
+    {
+      url: `${siteUrl}/carreiras`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: `${siteUrl}/carreiras/banco-de-talentos`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
     {
       url: `${siteUrl}/investimentos`,
       lastModified: new Date('2026-09-29'),
@@ -45,6 +58,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch {
     // Supabase indisponível em build time — sitemap sai só com a listagem
+  }
+
+  try {
+    const vagas = await getVagasPublicadas();
+    for (const vaga of vagas) {
+      entries.push({
+        url: `${siteUrl}/carreiras/${vaga.slug}`,
+        lastModified: vaga.publicado_em ? new Date(vaga.publicado_em) : new Date(),
+        changeFrequency: 'daily',
+        priority: 0.9,
+      });
+    }
+  } catch {
+    // Supabase de RH indisponível — preserva o restante do sitemap.
   }
 
   return entries;
