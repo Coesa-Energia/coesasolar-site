@@ -25,6 +25,7 @@ const vagaBase = {
   beneficios: [],
   feedback_dias: 30,
   campos: [],
+  publicado_em: "2026-10-02T12:00:00.000Z",
 }
 
 vi.mock("@/lib/carreiras/supabase", () => ({
@@ -51,5 +52,18 @@ describe("VagaDetalhePage — resumo e metadados", () => {
     render(jsx)
     const resumo = screen.getByRole("heading", { name: "Resumo da vaga" }).closest("div")!
     for (const texto of ["Híbrido", "Vendas", "PJ", "Belo Horizonte"]) expect(within(resumo).getByText(texto)).toBeInTheDocument()
+  })
+
+  it("publica JSON-LD aceito pelo Google Jobs", async () => {
+    const jsx = await VagaDetalhePage({ params: Promise.resolve({ slug: "vaga-1" }) })
+    const { container } = render(jsx)
+    const schema = JSON.parse(container.querySelector('script[type="application/ld+json"]')!.textContent!)
+
+    expect(schema).toMatchObject({
+      "@type": "JobPosting",
+      employmentType: "CONTRACTOR",
+      datePosted: "2026-10-02T12:00:00.000Z",
+      jobLocation: { address: { addressLocality: "Belo Horizonte", addressCountry: "BR" } },
+    })
   })
 })

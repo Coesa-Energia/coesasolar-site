@@ -14,6 +14,7 @@ import { logoDeMarca } from "@/lib/carreiras/marcas"
 
 export const revalidate = 0
 const SITE_URL = "https://coesasolar.com.br"
+const EMPLOYMENT_TYPE: Record<string, string> = { CLT: "FULL_TIME", PJ: "CONTRACTOR", Estágio: "INTERN" }
 
 interface PageProps { params: Promise<{ slug: string }> }
 
@@ -53,19 +54,40 @@ export default async function VagaDetalhePage({ params }: PageProps) {
   const [vaga, config] = await Promise.all([getVagaBySlug(slug), getConfigRhPublica()])
   if (!vaga) notFound()
 
-  const descricao = [vaga.pitch, ...normalizarItensConteudo(vaga.o_que_fara), ...normalizarItensConteudo(vaga.o_que_buscamos)]
+  const descricao = [
+    vaga.pitch,
+    ...normalizarItensConteudo(vaga.o_que_fara),
+    ...normalizarItensConteudo(vaga.o_que_buscamos),
+    ...normalizarDiferenciais(vaga.diferenciais),
+    ...normalizarItensConteudo(vaga.beneficios),
+    vaga.observacoes,
+  ]
     .filter(Boolean).join(" ")
   const jobPosting: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: vaga.titulo,
     description: normalizarTexto(descricao),
-    employmentType: vaga.regime,
+    employmentType: EMPLOYMENT_TYPE[vaga.regime] ?? "OTHER",
     hiringOrganization: { "@type": "Organization", name: "Coesa Energia", sameAs: SITE_URL },
     url: `${SITE_URL}/carreiras/${vaga.slug}`,
   }
   if (vaga.publicado_em) jobPosting.datePosted = vaga.publicado_em
-  if (vaga.local) jobPosting.jobLocation = { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: vaga.local } }
+  if (vaga.modalidade === "Remoto") {
+    jobPosting.jobLocationType = "TELECOMMUTE"
+    jobPosting.applicantLocationRequirements = { "@type": "Country", name: "BR" }
+  } else if (vaga.local) {
+    const [cidade, uf] = vaga.local.split("/").map(parte => parte.trim())
+    jobPosting.jobLocation = {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: cidade,
+        ...(uf ? { addressRegion: uf } : {}),
+        addressCountry: "BR",
+      },
+    }
+  }
 
   const metadados = [
     vaga.modalidade && { icon: MapPin, label: "Modalidade", valor: vaga.modalidade },
