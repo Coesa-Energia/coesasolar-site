@@ -32,9 +32,14 @@ describe("REGRESSÃO: catch-all não pode servir 200 para caminho inexistente", 
   )
 
   it("rotas do SPA continuam servidas (com noindex)", async () => {
-    await expect(Page(params(["crm"]))).resolves.toBeTruthy()
+    await expect(Page(params(["auth"]))).resolves.toBeTruthy()
     await expect(Page(params(["proposta", "abc-123"]))).resolves.toBeTruthy()
-    expect(await generateMetadata(params(["dashboard"]))).toEqual({ robots: { index: false, follow: false } })
+    expect(await generateMetadata(params(["proposta", "abc-123"]))).toEqual({ robots: { index: false, follow: false } })
+  })
+
+  // REGRESSÃO 03/10/2026: telas internas removidas (CRM, AI Gym, dashboards) viram 404.
+  it.each([["crm"], ["dashboard"], ["ai-gym"], ["admin"], ["mockup", "admin"]])("%s removida → notFound()", async (...slug) => {
+    await expect(Page(params(slug))).rejects.toThrow("NEXT_NOT_FOUND")
   })
 
   it("home renderiza (não chama notFound) e tem canonical", async () => {
