@@ -8,6 +8,8 @@ import { HomeFooter } from "@/components/home/HomeFooter"
 import { CareersHeader } from "@/components/carreiras/CareersHeader"
 import { CandidateButton } from "@/components/carreiras/CandidateButton"
 import { CandidaturaForm } from "@/components/carreiras/CandidaturaForm"
+import { AUTOBLOG_PROFILE } from "@/lib/autoblog-profile"
+import { ORGANIZATION_ID } from "@/lib/seo/home-jsonld"
 import { getVagaBySlug, getConfigRhPublica } from "@/lib/carreiras/supabase"
 import { normalizarDiferenciais, normalizarItensConteudo, normalizarTexto } from "@/lib/carreiras/conteudo"
 import { logoDeMarca } from "@/lib/carreiras/marcas"
@@ -69,7 +71,13 @@ export default async function VagaDetalhePage({ params }: PageProps) {
     title: vaga.titulo,
     description: normalizarTexto(descricao),
     employmentType: EMPLOYMENT_TYPE[vaga.regime] ?? "OTHER",
-    hiringOrganization: { "@type": "Organization", name: "Coesa Energia", sameAs: SITE_URL },
+    hiringOrganization: {
+      "@type": "Organization",
+      "@id": ORGANIZATION_ID,
+      name: "COESA Energia Inteligente",
+      sameAs: SITE_URL,
+      logo: AUTOBLOG_PROFILE.brand.logoUrl,
+    },
     url: `${SITE_URL}/carreiras/${vaga.slug}`,
   }
   if (vaga.publicado_em) jobPosting.datePosted = vaga.publicado_em

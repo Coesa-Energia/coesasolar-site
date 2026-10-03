@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Script from "next/script"
 import { AUTOBLOG_PROFILE } from "@/lib/autoblog-profile"
 import { PUBLIC_DISCOUNT_LABEL } from "@/lib/public-discount"
+import { shouldLoadAnalytics } from "@/lib/analytics/should-track"
 import "../index.css"
 
 const publicDescription = `Economize ${PUBLIC_DISCOUNT_LABEL} na sua conta de luz com energia solar por assinatura. Sem investimento inicial, sem obras.`
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // GA4 plugado no perfil do autoblog — um lugar só pra ligar/desligar/trocar o ID.
-  const gaMeasurementId = AUTOBLOG_PROFILE.integrations.googleAnalyticsMeasurementId;
+  const gaMeasurementId = shouldLoadAnalytics() ? AUTOBLOG_PROFILE.integrations.googleAnalyticsMeasurementId : undefined;
 
   return (
     <html lang="pt-BR" suppressHydrationWarning className="motion-safe:scroll-smooth">

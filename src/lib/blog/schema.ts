@@ -1,6 +1,7 @@
 // src/lib/blog/schema.ts
 // JSON-LD dos artigos: BlogPosting + FAQPage (quando o formato do post é FAQ).
 import type { Article } from './supabase-blog';
+import { ORGANIZATION_ID } from '@/lib/seo/home-jsonld';
 
 export interface BrandRef {
   name: string;
@@ -21,8 +22,8 @@ export interface ArticleSchema {
   image: string | null;
   datePublished: string;
   dateModified: string;
-  author: { '@type': string; name: string; url: string };
-  publisher: { '@type': string; name: string; url: string; logo: { '@type': string; url: string } };
+  author: { '@type': string; '@id': string; name: string; url: string };
+  publisher: { '@type': string; '@id': string; name: string; url: string; logo: { '@type': string; url: string } };
   mainEntityOfPage: { '@type': string; '@id': string };
 }
 
@@ -58,9 +59,11 @@ export function buildArticleSchema(article: Article, brand: BrandRef): ArticleSc
     image: article.cover_url,
     datePublished: published,
     dateModified: published,
-    author: { '@type': 'Organization', name: brand.name, url: brand.siteUrl },
+    // @id liga autor/publisher à Organization declarada na home (entidade única).
+    author: { '@type': 'Organization', '@id': ORGANIZATION_ID, name: brand.name, url: brand.siteUrl },
     publisher: {
       '@type': 'Organization',
+      '@id': ORGANIZATION_ID,
       name: brand.name,
       url: brand.siteUrl,
       logo: { '@type': 'ImageObject', url: brand.logoUrl },
