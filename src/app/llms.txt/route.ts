@@ -17,6 +17,7 @@ export async function GET() {
 > ${editorial.businessDescription}
 ${editorial.audience ? `>\n> Público: ${editorial.audience}` : ''}
 
+- [Energia solar por assinatura em Minas Gerais](${brand.siteUrl}/energia-solar-por-assinatura-minas-gerais): página de serviço para clientes CEMIG e Energisa MG
 - [Blog](${brand.siteUrl}/blog): todos os artigos publicados
 ${categories}
 - [Sitemap](${brand.siteUrl}/sitemap.xml)
