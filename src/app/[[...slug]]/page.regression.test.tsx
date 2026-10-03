@@ -14,6 +14,7 @@ vi.mock("next/navigation", () => ({
   },
 }))
 vi.mock("./HomeClient", () => ({ default: () => null }))
+vi.mock("@/lib/blog/supabase-blog", () => ({ getAllArticles: async () => [] }))
 vi.mock("./SpaClient", () => ({ default: () => null }))
 
 import Page, { generateMetadata } from "./page"

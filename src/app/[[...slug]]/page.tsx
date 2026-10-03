@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { AUTOBLOG_PROFILE } from "@/lib/autoblog-profile"
+import { getAllArticles } from "@/lib/blog/supabase-blog"
 import { buildHomeJsonLd } from "@/lib/seo/home-jsonld"
 import { isSpaRoute } from "@/lib/seo/spa-routes"
 import HomeClient from "./HomeClient"
@@ -27,9 +28,12 @@ export default async function Page({ params }: PageProps) {
   const { slug } = await params
 
   if (!slug?.length) {
+    const latestArticles = await getAllArticles()
+      .then(articles => articles.slice(0, 3).map(({ slug, title, meta_desc, keyword, published_at }) => ({ slug, title, meta_desc, keyword, published_at })))
+      .catch(() => undefined) // Supabase do blog fora do ar: a seção cai no fetch client-side
     return (
       <>
-        <HomeClient />
+        <HomeClient latestArticles={latestArticles} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(buildHomeJsonLd()).replace(/</g, "\\u003c") }}

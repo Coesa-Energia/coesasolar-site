@@ -1,6 +1,7 @@
-// Seção de blog da home. Client component (a home é o app Lovable client-only):
-// lê os 3 artigos mais recentes direto do PostgREST com a chave anon
-// (RLS expõe só published) — envs NEXT_PUBLIC_BLOG_*.
+// Seção de blog da home. A rota / (server) passa os 3 artigos mais recentes em
+// initialArticles — assim os links para os posts saem no HTML inicial (descoberta
+// pelo Google). Sem initialArticles (home aberta por navegação dentro do SPA), lê
+// direto do PostgREST com a chave anon (RLS expõe só published) — envs NEXT_PUBLIC_BLOG_*.
 "use client";
 
 import { useEffect, useState } from "react";
@@ -8,7 +9,7 @@ import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { normalizePublicDiscountClaim } from "@/lib/public-discount";
 
-interface BlogArticle {
+export interface BlogArticle {
   slug: string;
   title: string;
   meta_desc: string | null;
@@ -21,6 +22,8 @@ function formatDate(iso: string): string {
     day: "numeric",
     month: "long",
     year: "numeric",
+    // Fixo: o servidor (UTC) e o navegador precisam formatar igual (hidratação).
+    timeZone: "America/Sao_Paulo",
   });
 }
 
@@ -33,11 +36,13 @@ function normalizeArticle(article: BlogArticle): BlogArticle {
   };
 }
 
-export function HomeBlogSection() {
-  const [articles, setArticles] = useState<BlogArticle[]>([]);
-  const [loading, setLoading] = useState(true);
+export function HomeBlogSection({ initialArticles }: { initialArticles?: BlogArticle[] } = {}) {
+  const hasInitial = !!initialArticles?.length;
+  const [articles, setArticles] = useState<BlogArticle[]>(hasInitial ? initialArticles!.map(normalizeArticle) : []);
+  const [loading, setLoading] = useState(!hasInitial);
 
   useEffect(() => {
+    if (hasInitial) return;
     const url = process.env.NEXT_PUBLIC_BLOG_SUPABASE_URL;
     const anon = process.env.NEXT_PUBLIC_BLOG_SUPABASE_ANON_KEY;
     if (!url || !anon) {
@@ -52,7 +57,7 @@ export function HomeBlogSection() {
       .then((data) => setArticles(Array.isArray(data) ? data.map(normalizeArticle) : []))
       .catch(() => setArticles([]))
       .finally(() => setLoading(false));
-  }, []);
+  }, [hasInitial]);
 
   if (!loading && articles.length === 0) return null;
 

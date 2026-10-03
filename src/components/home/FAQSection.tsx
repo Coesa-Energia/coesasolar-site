@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Accordion,
@@ -6,10 +7,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useFAQs } from "@/hooks/useFAQs";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export function FAQSection() {
-  const { faqs, loading } = useFAQs();
+  const { faqs } = useFAQs();
+  const [openItem, setOpenItem] = useState("");
 
   return (
     <section id="faq" className="py-20 lg:py-32 bg-neutral-50">
@@ -39,17 +40,10 @@ export function FAQSection() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="max-w-3xl mx-auto"
         >
-          {loading ? (
-            <div className="space-y-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-white px-6 py-4 rounded-lg">
-                  <Skeleton className="h-6 w-3/4 mb-2" />
-                  <Skeleton className="h-4 w-1/2" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <Accordion type="single" collapsible className="space-y-4">
+          {/* Sem esqueleto: DEFAULT_FAQS já é o estado inicial, então perguntas e respostas
+              saem no HTML do servidor. forceMount mantém a resposta fechada no DOM; o hidden
+              controlado é obrigatório porque o Radix não esconde conteúdo forçado. */}
+            <Accordion type="single" collapsible value={openItem} onValueChange={setOpenItem} className="space-y-4">
               {faqs.map((faq, index) => (
                 <AccordionItem
                   key={index}
@@ -59,13 +53,12 @@ export function FAQSection() {
                   <AccordionTrigger className="text-left font-medium text-foreground hover:no-underline py-6 text-base">
                     {faq.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground pb-6">
+                  <AccordionContent forceMount hidden={openItem !== `item-${index}`} className="text-muted-foreground pb-6">
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
-          )}
         </motion.div>
       </div>
     </section>

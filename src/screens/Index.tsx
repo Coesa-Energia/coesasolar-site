@@ -13,9 +13,9 @@ import {
   WhatsAppFloatingButton,
   CalculatorSection,
 } from "@/components/home";
-import { HomeBlogSection } from "@/components/blog/HomeBlogSection";
+import { HomeBlogSection, type BlogArticle } from "@/components/blog/HomeBlogSection";
 
-const Index = () => {
+const Index = ({ latestArticles }: { latestArticles?: BlogArticle[] } = {}) => {
   return (
     <div className="min-h-screen bg-background">
       <HomeNavbar />
@@ -28,7 +28,7 @@ const Index = () => {
         <HowItWorksSection />
         <AboutSection />
         <PressSection />
-        <HomeBlogSection />
+        <HomeBlogSection initialArticles={latestArticles} />
         <FAQSection />
         <CTASection />
       </main>
