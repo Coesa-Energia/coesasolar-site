@@ -25,7 +25,8 @@ describe("CarreirasPage — Modalidade em destaque", () => {
   it("não repete a modalidade na linha de metadados (regime · local)", async () => {
     const jsx = await CarreirasPage()
     render(jsx)
-    const metadados = screen.getByText(/PJ/).closest("p")!
+    // \bPJ\b: o rodapé agora mostra "CNPJ", que casaria com /PJ/ solto.
+    const metadados = screen.getByText(/\bPJ\b/).closest("p")!
     expect(metadados).toHaveTextContent("PJ · Belo Horizonte")
     expect(metadados).not.toHaveTextContent("Remoto")
   })

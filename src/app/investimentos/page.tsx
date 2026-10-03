@@ -3,6 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowUpRight, ChevronRight } from "lucide-react"
 import coesaLogo from "@/assets/logos/coesa-black.png"
+import { ORGANIZATION_ID } from "@/lib/seo/home-jsonld"
 
 const SITE_URL = "https://coesasolar.com.br"
 
@@ -72,12 +73,17 @@ const structuredData = {
   datePublished: "2026-09-29",
   dateModified: "2026-09-29",
   mainEntityOfPage: `${SITE_URL}/investimentos`,
-  author: { "@type": "Organization", name: "Coesa Energia" },
+  // image é obrigatório para rich result de NewsArticle (auditoria SEO 02/10/2026);
+  // @id liga autor/publisher à Organization da home.
+  image: [`${SITE_URL}/og-image.png`],
+  author: { "@type": "Organization", "@id": ORGANIZATION_ID, name: "Coesa Energia" },
   publisher: {
     "@type": "Organization",
+    "@id": ORGANIZATION_ID,
     name: "Coesa Energia",
     url: SITE_URL,
     taxID: "60.937.217/0001-54",
+    logo: { "@type": "ImageObject", url: `${SITE_URL}/favicon.png` },
   },
   about: [
     { "@type": "Organization", name: "CF GAUSS SERVICOS LTDA", taxID: "33.672.634/0001-40" },

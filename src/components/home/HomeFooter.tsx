@@ -1,6 +1,7 @@
 "use client";
 
-import { Mail, Instagram, Linkedin, Facebook } from "lucide-react";
+import { Mail, Instagram, Linkedin, Facebook, MapPin, MessageCircle } from "lucide-react";
+import { COESA_ADDRESS_LINE, COESA_COMPANY } from "@/lib/coesa-company";
 import Script from "next/script";
 import coesaLogoWhite from "@/assets/logos/coesa-white-new.png";
 import Image from "next/image";
@@ -39,7 +40,7 @@ export function HomeFooter({ compact = false }: { compact?: boolean }) {
             <p className={`text-white/50 text-sm leading-relaxed max-w-md ${compact ? "mb-4" : "mb-8"}`}>
               Pioneiros no modelo de energia solar por assinatura, 
               proporcionando economia real e sustentabilidade para residências 
-              e empresas em todo o Brasil.
+              e empresas em Minas Gerais.
             </p>
             <div className="flex gap-3">
               <a 
@@ -77,11 +78,12 @@ export function HomeFooter({ compact = false }: { compact?: boolean }) {
             <h4 className="text-sm font-medium text-white/80 uppercase tracking-wider mb-6">Links</h4>
             <ul className="space-y-4">
               {[
-                { label: "Início", href: "#inicio" },
-                { label: "Benefícios", href: "#beneficios" },
-                { label: "Planos", href: "#planos" },
-                { label: "Como Funciona", href: "#como-funciona" },
-                { label: "FAQ", href: "#faq" },
+                { label: "Início", href: "/#inicio" },
+                { label: "Benefícios", href: "/#beneficios" },
+                { label: "Planos", href: "/#planos" },
+                { label: "Como Funciona", href: "/#como-funciona" },
+                { label: "FAQ", href: "/#faq" },
+                { label: "Energia solar em MG", href: "/energia-solar-por-assinatura-minas-gerais" },
               ].map((link) => (
                 <li key={link.href}>
                   <a 
@@ -108,6 +110,21 @@ export function HomeFooter({ compact = false }: { compact?: boolean }) {
                   contato@coesaenergia.com.br
                 </a>
               </li>
+              <li className="flex items-start gap-3">
+                <MessageCircle className="w-4 h-4 text-white/50 flex-shrink-0 mt-0.5" />
+                <a
+                  href={`https://wa.me/${COESA_COMPANY.whatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/50 hover:text-white text-sm transition-colors"
+                >
+                  WhatsApp {COESA_COMPANY.phoneDisplay}
+                </a>
+              </li>
+              <li className="flex items-start gap-3">
+                <MapPin className="w-4 h-4 text-white/50 flex-shrink-0 mt-0.5" />
+                <address className="not-italic text-white/50 text-sm">{COESA_ADDRESS_LINE}</address>
+              </li>
             </ul>
           </div>
         </div>
@@ -119,7 +136,7 @@ export function HomeFooter({ compact = false }: { compact?: boolean }) {
               © {currentYear} {configs.empresa_nome}. Todos os direitos reservados.
             </p>
             <p className="text-white/30 text-xs">
-              {configs.empresa_nome}
+              {COESA_COMPANY.legalName} · CNPJ {COESA_COMPANY.cnpj}
             </p>
             <a
               href="https://www.reclameaqui.com.br/rav/p1b9"

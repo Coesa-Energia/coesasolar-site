@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PUBLIC_DISCOUNT_LABEL } from '@/lib/public-discount';
+import { COESA_ADDRESS_LINE, COESA_COMPANY } from '@/lib/coesa-company';
 
 export interface ConfiguracoesSistema {
   // Empresa - Dados básicos
@@ -62,25 +63,25 @@ export interface ConfiguracoesSistema {
 
 const defaultConfigs: ConfiguracoesSistema = {
   // Empresa - Dados básicos
-  whatsapp_numero: '5511999999999',
+  whatsapp_numero: COESA_COMPANY.whatsapp,
   email_contato: 'contato@coesaenergia.com.br',
-  telefone_contato: '(11) 99999-9999',
+  telefone_contato: COESA_COMPANY.phoneDisplay,
   empresa_nome: 'COESA Energia Inteligente',
   empresa_slogan: 'Soluções em Energia Renovável',
   empresa_domain: '@coesaenergia.com.br',
-  empresa_endereco: 'Av. Paulista, 1000, São Paulo - SP',
+  empresa_endereco: COESA_ADDRESS_LINE,
   
   // Empresa - Dados jurídicos
-  empresa_cnpj: '00.000.000/0001-00',
+  empresa_cnpj: COESA_COMPANY.cnpj,
   empresa_cnpj_consorcio: '',
   empresa_razao_social: 'COESA ENERGIA LTDA',
   empresa_site: 'www.coesaenergia.com.br',
   email_financeiro: 'financeiro@coesaenergia.com.br',
   
   // Redes sociais
-  rede_social_instagram: 'https://instagram.com/coesaenergia',
-  rede_social_linkedin: 'https://linkedin.com/company/coesa-energia',
-  rede_social_facebook: 'https://facebook.com/coesaenergia',
+  rede_social_instagram: COESA_COMPANY.instagram,
+  rede_social_linkedin: COESA_COMPANY.linkedin,
+  rede_social_facebook: COESA_COMPANY.facebook,
   
   // Bitrix24
   bitrix24_base_url: 'https://coesaenergia.bitrix24.com.br',
@@ -103,7 +104,7 @@ const defaultConfigs: ConfiguracoesSistema = {
   auth_default_email_domain: '@coesaenergia.com.br',
   
   // WhatsApp Suporte (página pública)
-  whatsapp_suporte_numero: '5531999999999',
+  whatsapp_suporte_numero: COESA_COMPANY.whatsapp,
   whatsapp_suporte_mensagem: 'Olá! Preciso de ajuda com a validação dos meus documentos para a proposta de energia solar.',
   
   // Hero Section
