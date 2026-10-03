@@ -13,7 +13,12 @@ import { buildArticleSchema, buildFaqSchema, buildBreadcrumbSchema, extractFaq }
 import { AUTOBLOG_PROFILE } from '@/lib/autoblog-profile';
 
 export const revalidate = 86400; // ISR 24h
-// dynamicParams: true é o default — novos slugs renderizados on-demand sem 404
+// dynamicParams: true é o default — novos slugs renderizados on-demand sem 404.
+// generateStaticParams vazio é o que liga o cache ISR para esses slugs on-demand:
+// sem ele a rota era renderizada dinamicamente (Cache-Control no-store, CDN sempre MISS).
+export async function generateStaticParams() {
+  return [];
+}
 
 interface Props {
   params: Promise<{ slug: string }>; // Next.js 16: params é Promise
