@@ -15,7 +15,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const category = AUTOBLOG_PROFILE.editorial.categories.find(c => c.slug === slug);
   if (!category) return {};
+  // Categoria sem artigo é página vazia (thin content): fora do índice até ter conteúdo.
+  const isEmpty = await getArticlesByCategory(slug).then(a => a.length === 0).catch(() => false);
   return {
+    ...(isEmpty ? { robots: { index: false, follow: true } } : {}),
     title: `${category.label} | ${AUTOBLOG_PROFILE.blog.title}`,
     description: `Artigos de ${category.label} — ${AUTOBLOG_PROFILE.blog.description}`,
     alternates: { canonical: `${AUTOBLOG_PROFILE.brand.siteUrl}/categoria/${slug}` },

@@ -54,8 +54,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 1,
     },
-    // Páginas de categoria: arquitetura da informação (RD) — indexar todas
-    ...AUTOBLOG_PROFILE.editorial.categories.map(category => ({
+    // Páginas de categoria: arquitetura da informação (RD) — só as que têm artigo
+    // (categoria vazia é noindex; ver src/app/categoria/[slug]/page.tsx).
+    ...AUTOBLOG_PROFILE.editorial.categories
+      .filter(category => articles.some(a => a.category === category.slug))
+      .map(category => ({
       url: `${siteUrl}/categoria/${category.slug}`,
       lastModified: latestArticleAt,
       changeFrequency: 'weekly' as const,
