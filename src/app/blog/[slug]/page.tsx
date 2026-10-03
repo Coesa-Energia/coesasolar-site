@@ -50,7 +50,7 @@ export default async function ArticlePage({ params }: Props) {
 
   const publishedDate = new Date(article.published_at).toISOString();
   const readableDate = new Date(article.published_at).toLocaleDateString('pt-BR', {
-    day: 'numeric', month: 'long', year: 'numeric',
+    day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/Sao_Paulo',
   });
 
   const articleSchema = buildArticleSchema(article, AUTOBLOG_PROFILE.brand);
@@ -146,7 +146,16 @@ export default async function ArticlePage({ params }: Props) {
                   ·{' '}
                 </>
               )}
-              {AUTOBLOG_PROFILE.brand.name} · <time dateTime={publishedDate}>{readableDate}</time>
+              {!article.guest_author && (
+                <>
+                  Por{' '}
+                  <Link href="/" rel="author" className="underline hover:text-foreground transition-colors">
+                    Equipe COESA Energia Inteligente
+                  </Link>{' '}
+                  ·{' '}
+                </>
+              )}
+              <time dateTime={publishedDate}>{readableDate}</time>
             </p>
           </header>
 

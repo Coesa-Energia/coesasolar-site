@@ -8,14 +8,14 @@ import Image from "next/image";
 import coesaLogoWhite from "@/assets/logos/coesa-white-new.png";
 
 const navLinks = [
-  { href: "#inicio", label: "Início" },
-  { href: "#beneficios", label: "Benefícios" },
-  { href: "#planos", label: "Planos" },
-  { href: "#como-funciona", label: "Como Funciona" },
+  { href: "/#inicio", label: "Início" },
+  { href: "/#beneficios", label: "Benefícios" },
+  { href: "/#planos", label: "Planos" },
+  { href: "/#como-funciona", label: "Como Funciona" },
   { href: "/blog", label: "Blog" },
   { href: "/investimentos", label: "Investimentos" },
   { href: "/carreiras", label: "Carreiras" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/#faq", label: "FAQ" },
 ];
 
 export function HomeNavbar() {
@@ -47,7 +47,7 @@ export function HomeNavbar() {
       >
         <div className="container mx-auto px-4">
           <nav className="flex items-center justify-between h-20">
-            <a href="#inicio" className="flex-shrink-0">
+            <a href="/#inicio" className="flex-shrink-0">
               <Image src={coesaLogoWhite} alt="COESA" width={192} height={108} className="h-10 w-auto lg:h-14" priority />
             </a>
             <div className="hidden lg:flex items-center gap-8">

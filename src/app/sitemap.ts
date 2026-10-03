@@ -31,6 +31,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
+      url: `${siteUrl}/energia-solar-por-assinatura-minas-gerais`,
+      lastModified: new Date('2026-10-03'),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
       url: `${siteUrl}/carreiras`,
       lastModified: new Date(),
       changeFrequency: 'daily',
