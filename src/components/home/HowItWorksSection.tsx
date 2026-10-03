@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { responsiveImageProps } from "@/lib/responsive-image";
 import { Button } from "@/components/ui/button";
 import { useConfiguracoes } from "@/hooks/useConfiguracoes";
 
@@ -33,8 +34,10 @@ export function HowItWorksSection() {
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
-          src={configs.home_bg_how_it_works}
-          alt="Solar installation"
+          {...responsiveImageProps(configs.home_bg_how_it_works, "100vw")}
+          loading="lazy"
+          decoding="async"
+          alt=""
           className="w-full h-full object-cover opacity-30"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/60" />

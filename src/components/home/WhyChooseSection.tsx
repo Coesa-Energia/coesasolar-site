@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { responsiveImageProps } from "@/lib/responsive-image";
 import { Shield, TrendingUp, HeartHandshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useConfiguracoes } from "@/hooks/useConfiguracoes";
@@ -29,8 +30,10 @@ export function WhyChooseSection() {
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
-          src={configs.home_bg_why_choose}
-          alt="Solar panels"
+          {...responsiveImageProps(configs.home_bg_why_choose, "100vw")}
+          loading="lazy"
+          decoding="async"
+          alt=""
           className="w-full h-full object-cover opacity-40"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />

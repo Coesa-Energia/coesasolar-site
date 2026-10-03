@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { responsiveImageProps } from "@/lib/responsive-image";
 import { StatsCounter } from "./StatsCounter";
 import { useConfiguracoes } from "@/hooks/useConfiguracoes";
 
@@ -25,8 +26,10 @@ export function AboutSection() {
           >
             <div className="relative overflow-hidden">
               <img
-                src={configs.home_bg_about}
-                alt="Usina solar COESA"
+          {...responsiveImageProps(configs.home_bg_about, "(min-width: 1024px) 50vw, 100vw")}
+          loading="lazy"
+          decoding="async"
+          alt="Usina solar COESA"
                 className="w-full h-[400px] lg:h-[600px] object-cover"
               />
             </div>

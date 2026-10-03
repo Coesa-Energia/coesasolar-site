@@ -45,12 +45,14 @@ export function HeroSection() {
 
   // Iframe do YouTube só depois do load: antes ele era o maior custo do LCP mobile
   // (~1 MB de JS + 600 ms de main thread). Até lá — e sempre, para quem pede menos
-  // movimento ou economia de dados — fica a miniatura do próprio vídeo.
+  // movimento, economia de dados ou está no celular — fica a miniatura do próprio vídeo.
   const [showVideo, setShowVideo] = useState(false);
   useEffect(() => {
     const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
-    if (reduceMotion || saveData) return;
+    // Celular fica só com a miniatura: o player custa ~1 MB de JS em rede móvel.
+    const smallScreen = window.matchMedia?.("(max-width: 767px)").matches;
+    if (reduceMotion || saveData || smallScreen) return;
     let timer: ReturnType<typeof setTimeout>;
     const start = () => { timer = setTimeout(() => setShowVideo(true), 1500); };
     if (document.readyState === "complete") start();
