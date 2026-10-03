@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "preflight:ci": "npm run models:retirement:check && npm run lint && npm run typecheck && npm test",
-    "models:retirement:check": "node scripts/check-retired-claude-models.mjs src supabase/functions",
+    "models:retirement:check": "node scripts/check-retired-claude-models.mjs src",
     "preflight": "npm run preflight:ci && npm run build",
     "hooks:install": "sh scripts/install-hooks.sh",
     "prepare": "npm run hooks:install"

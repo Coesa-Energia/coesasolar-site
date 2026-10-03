@@ -33,7 +33,7 @@ const FILES_WITHOUT_OPACITY_FADE = [
   'src/components/proposta/ProjecaoEconomia.tsx',
   'src/components/home/PlansSection.tsx',
   'src/components/proposta/FABButton.tsx',
-  'src/components/proposta/CadastroForm.tsx',
+  // CadastroForm.tsx removido em 03/10/2026 (não era importado por nenhuma rota).
   'src/components/proposta/ProvaSocial.tsx',
   'src/components/proposta/ComoFunciona.tsx',
   'src/components/proposta/EconomiaDetalhes.tsx',

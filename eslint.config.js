@@ -6,7 +6,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   // As Edge Functions usam Deno e têm toolchain própria; este gate valida o app Next.
-  { ignores: ["dist", ".next", "next-env.d.ts", "supabase/functions"] },
+  { ignores: ["dist", ".next", "next-env.d.ts"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],

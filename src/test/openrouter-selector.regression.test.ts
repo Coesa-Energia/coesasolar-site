@@ -2,82 +2,36 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
+// 03/10/2026: o seletor de LLM do AI Gym, as telas de configuração e as Edge Functions
+// que este arquivo inspecionava foram removidos (código herdado do Lovable, nunca
+// publicado no projeto Supabase atual). As regras que continuam valendo passam a
+// varrer todo o src/ — mais forte que a lista fixa de arquivos de antes.
+const SELF = path.join('src', 'test', 'openrouter-selector.regression.test.ts');
+
+function sourceFiles(dir: string): string[] {
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) return sourceFiles(p);
+    return /\.(tsx?|jsx?|mjs)$/.test(e.name) && p !== SELF ? [p] : [];
+  });
+}
+
+const files = sourceFiles('src').map((f) => ({ f, src: fs.readFileSync(f, 'utf8') }));
+
 describe('LLM custom provider routing', () => {
-  it('routes OpenAI and DeepSeek templates through OpenRouter only', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'src/components/ai-gym/LLMModelSelector.tsx'),
-      'utf8',
-    );
-
-    expect(source).not.toContain('https://api.openai.com/v1');
-    expect(source).not.toContain('https://api.deepseek.com/v1');
-    expect(source.match(/https:\/\/openrouter\.ai\/api\/v1/g)).toHaveLength(2);
-  });
-
-  it('requests only the dedicated project key', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'src/screens/AgentSettings.tsx'),
-      'utf8',
-    );
-
-    expect(source).toContain('COESASOLAR_OPENROUTER_API_KEY');
-    expect(source).not.toContain("? 'OPENROUTER_API_KEY'");
-  });
-
-  it('uses only live OpenRouter replacements for retired Gemini and OpenAI TTS models', () => {
-    const selectorSource = fs.readFileSync(
-      path.join(process.cwd(), 'src/components/ai-gym/LLMModelSelector.tsx'),
-      'utf8',
-    );
-    const correctionSource = fs.readFileSync(
-      path.join(process.cwd(), 'supabase/functions/generate-error-correction/index.ts'),
-      'utf8',
-    );
-    const ttsSource = fs.readFileSync(
-      path.join(process.cwd(), 'supabase/functions/_shared/tts-client.ts'),
-      'utf8',
-    );
-
-    expect(selectorSource).toContain('google/gemini-3.1-pro-preview');
-    expect(selectorSource).not.toContain("id: 'google/gemini-3-pro-preview'");
-    expect(correctionSource).toContain('google/gemini-2.5-flash');
-    expect(correctionSource).not.toContain('google/gemini-2.0-flash');
-    expect(ttsSource).toContain("openaiModel: 'x-ai/grok-voice-tts-1.0'");
-    expect(ttsSource).toContain("openaiVoice: 'eve'");
-    expect(ttsSource).not.toContain("openaiModel: 'tts-1'");
+  it('nenhum código chama OpenAI/DeepSeek direto (só via OpenRouter)', () => {
+    const hits = files.filter(({ src }) => /https:\/\/api\.(openai|deepseek)\.com\/v1/.test(src)).map(({ f }) => f);
+    expect(hits).toEqual([]);
   });
 
   it('keeps executable Supabase URLs on the active CoesaSolar project', () => {
-    const sources = [
-      'src/components/ai-gym/ZApiIntegrationDocs.tsx',
-      'src/screens/Configuracoes.tsx',
-    ].map((file) => fs.readFileSync(path.join(process.cwd(), file), 'utf8'));
-
-    for (const source of sources) {
-      expect(source).toContain('sapsikmekwfwcnpyvzed.supabase.co');
-      expect(source).not.toContain('cvcdweqybgfxywcelriq.supabase.co');
-    }
+    const hits = files.filter(({ src }) => src.includes('cvcdweqybgfxywcelriq.supabase.co')).map(({ f }) => f);
+    expect(hits).toEqual([]);
   });
 
   it('keeps executable public URLs on the active CoesaSolar domain', () => {
-    const sources = [
-      'src/components/admin/ProposalViewsTracker.tsx',
-      'src/hooks/useConfiguracoes.ts',
-      'src/screens/Configuracoes.tsx',
-      'supabase/functions/bitrix24-webhook/index.ts',
-      'supabase/functions/stuck-leads-rescue-scheduler/index.ts',
-      'supabase/functions/_shared/fast-path-handlers.ts',
-      'supabase/functions/_shared/llm-guardrails.ts',
-      'supabase/functions/_shared/proposal-link-sender.ts',
-      'supabase/functions/_shared/proposal-resend.ts',
-      'supabase/functions/_shared/security-helpers.ts',
-      'supabase/functions/_shared/technical-issues.ts',
-    ].map((file) => fs.readFileSync(path.join(process.cwd(), file), 'utf8'));
-
-    for (const source of sources) {
-      expect(source).toContain('coesasolar.com.br');
-      expect(source).not.toContain('.lovable.app');
-      expect(source).not.toContain('lovableproject.com');
-    }
+    const hits = files.filter(({ src }) => /\.lovable\.app|lovableproject\.com/.test(src)).map(({ f }) => f);
+    expect(hits).toEqual([]);
+    expect(fs.readFileSync('src/hooks/useConfiguracoes.ts', 'utf8')).toContain('coesasolar.com.br');
   });
 });
