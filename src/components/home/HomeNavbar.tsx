@@ -65,7 +65,12 @@ export function HomeNavbar() {
                 <a href="https://relatorios.coesasolar.com.br/" target="_blank" rel="noopener noreferrer">Acesso</a>
               </Button>
             </div>
-            <button className="lg:hidden text-white p-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            <button
+              className="lg:hidden text-white p-2"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
+              aria-expanded={isMobileMenuOpen}
+            >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </nav>

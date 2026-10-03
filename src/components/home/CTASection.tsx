@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { responsiveImageProps } from "@/lib/responsive-image";
 import { Button } from "@/components/ui/button";
 import { useConfiguracoes } from "@/hooks/useConfiguracoes";
 import { WHATSAPP_5192 } from "@/lib/whatsapp-numbers";
@@ -20,8 +21,10 @@ export function CTASection() {
       {/* Background */}
       <div className="absolute inset-0">
         <img
-          src={configs.home_bg_cta}
-          alt="Solar energy"
+          {...responsiveImageProps(configs.home_bg_cta, "100vw")}
+          loading="lazy"
+          decoding="async"
+          alt=""
           className="w-full h-full object-cover opacity-30"
         />
         <div className="absolute inset-0 bg-black/50" />

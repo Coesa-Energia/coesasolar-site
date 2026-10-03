@@ -43,7 +43,8 @@ export function HomeFooter({ compact = false }: { compact?: boolean }) {
             </p>
             <div className="flex gap-3">
               <a 
-                href={configs.rede_social_instagram} 
+                href={configs.rede_social_instagram}
+                aria-label="Instagram da COESA"
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-10 h-10 flex items-center justify-center text-white/50 hover:text-white transition-colors"
@@ -51,7 +52,8 @@ export function HomeFooter({ compact = false }: { compact?: boolean }) {
                 <Instagram className="w-5 h-5" />
               </a>
               <a 
-                href={configs.rede_social_linkedin} 
+                href={configs.rede_social_linkedin}
+                aria-label="LinkedIn da COESA"
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-10 h-10 flex items-center justify-center text-white/50 hover:text-white transition-colors"
@@ -59,7 +61,8 @@ export function HomeFooter({ compact = false }: { compact?: boolean }) {
                 <Linkedin className="w-5 h-5" />
               </a>
               <a 
-                href={configs.rede_social_facebook} 
+                href={configs.rede_social_facebook}
+                aria-label="Facebook da COESA"
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-10 h-10 flex items-center justify-center text-white/50 hover:text-white transition-colors"

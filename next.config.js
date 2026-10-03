@@ -1,5 +1,7 @@
 const { withWorkflow } = require('workflow/next')
 
+const { buildArchivedRedirects } = require('./src/lib/blog/archived-redirects.js')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   outputFileTracingRoot: __dirname,
@@ -20,6 +22,9 @@ const nextConfig = {
       type: 'asset/source',
     })
     return config
+  },
+  async redirects() {
+    return buildArchivedRedirects()
   },
   async headers() {
     return [

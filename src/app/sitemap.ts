@@ -12,7 +12,24 @@ export const revalidate = 3600; // ISR 1h — mesmo padrão de /blog e /categori
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = AUTOBLOG_PROFILE.brand.siteUrl;
+  let articles: Awaited<ReturnType<typeof getAllArticles>> = [];
+  try {
+    articles = await getAllArticles();
+  } catch {
+    // Supabase indisponível em build time — sitemap sai só com as páginas fixas
+  }
+  // lastmod das páginas de listagem = artigo mais recente (elas mudam quando entra post novo).
+  const latestArticleAt = articles.reduce<Date | undefined>((latest, a) => {
+    const d = new Date(a.published_at);
+    return !latest || d > latest ? d : latest;
+  }, undefined) ?? new Date();
   const entries: MetadataRoute.Sitemap = [
+    {
+      url: `${siteUrl}/`,
+      lastModified: latestArticleAt,
+      changeFrequency: 'daily',
+      priority: 1,
+    },
     {
       url: `${siteUrl}/carreiras`,
       lastModified: new Date(),
@@ -33,31 +50,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${siteUrl}/blog`,
-      lastModified: new Date(),
+      lastModified: latestArticleAt,
       changeFrequency: 'daily',
       priority: 1,
     },
-    // Páginas de categoria: arquitetura da informação (RD) — indexar todas
-    ...AUTOBLOG_PROFILE.editorial.categories.map(category => ({
+    // Páginas de categoria: arquitetura da informação (RD) — só as que têm artigo
+    // (categoria vazia é noindex; ver src/app/categoria/[slug]/page.tsx).
+    ...AUTOBLOG_PROFILE.editorial.categories
+      .filter(category => articles.some(a => a.category === category.slug))
+      .map(category => ({
       url: `${siteUrl}/categoria/${category.slug}`,
-      lastModified: new Date(),
+      lastModified: latestArticleAt,
       changeFrequency: 'weekly' as const,
       priority: 0.5,
     })),
   ];
 
-  try {
-    const articles = await getAllArticles();
-    for (const article of articles) {
-      entries.push({
-        url: `${siteUrl}/blog/${article.slug}`,
-        lastModified: new Date(article.published_at),
-        changeFrequency: 'weekly',
-        priority: 0.8,
-      });
-    }
-  } catch {
-    // Supabase indisponível em build time — sitemap sai só com a listagem
+  for (const article of articles) {
+    entries.push({
+      url: `${siteUrl}/blog/${article.slug}`,
+      lastModified: new Date(article.published_at),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    });
   }
 
   try {

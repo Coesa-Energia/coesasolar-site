@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, Zap, Leaf, Shield, Clock, LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -43,6 +43,26 @@ export function HeroSection() {
     return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${origin}`;
   }, [configs.hero_video_youtube_id, configs.hero_video_origin]);
 
+  // Iframe do YouTube só depois do load: antes ele era o maior custo do LCP mobile
+  // (~1 MB de JS + 600 ms de main thread). Até lá — e sempre, para quem pede menos
+  // movimento, economia de dados ou está no celular — fica a miniatura do próprio vídeo.
+  const [showVideo, setShowVideo] = useState(false);
+  useEffect(() => {
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+    // Celular fica só com a miniatura: o player custa ~1 MB de JS em rede móvel.
+    const smallScreen = window.matchMedia?.("(max-width: 767px)").matches;
+    if (reduceMotion || saveData || smallScreen) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const start = () => { timer = setTimeout(() => setShowVideo(true), 1500); };
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("load", start);
+    };
+  }, []);
+
   const scrollToForm = () => {
     const element = document.querySelector("#beneficios");
     if (element) {
@@ -56,14 +76,22 @@ export function HeroSection() {
       className="relative min-h-screen flex flex-col"
     >
       {/* YouTube Video Background */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden">
-        <iframe
-          src={videoUrl}
-          title="COESA Background Video"
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.78vh] min-w-full h-[56.25vw] min-h-full object-cover pointer-events-none"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
+      <div
+        className="absolute inset-0 w-full h-full overflow-hidden bg-black bg-cover bg-center"
+        style={{ backgroundImage: `url(https://i.ytimg.com/vi/${configs.hero_video_youtube_id}/maxresdefault.jpg)` }}
+      >
+        {showVideo && (
+          // scale-[1.35]: o YouTube ignora controls=0/showinfo=0 para título, crédito e
+          // botões sobrepostos — ampliar empurra essas bordas para fora do overflow-hidden.
+          <iframe
+            src={videoUrl}
+            title="Vídeo de fundo: usinas solares da COESA"
+            aria-hidden="true"
+            tabIndex={-1}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-[1.35] w-[177.78vh] min-w-full h-[56.25vw] min-h-full object-cover pointer-events-none"
+            allow="autoplay; encrypted-media; picture-in-picture"
+          />
+        )}
         {/* Dark Overlay */}
         <div className="absolute inset-0 bg-black/65" />
       </div>

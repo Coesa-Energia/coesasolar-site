@@ -196,6 +196,7 @@ export function EconomyCalculator() {
               </TooltipProvider>
             </div>
             <select
+              aria-label="Tipo de instalação"
               value={tipoInstalacao}
               onChange={(e) => setTipoInstalacao(e.target.value as TipoInstalacao)}
               className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none"
@@ -229,6 +230,7 @@ export function EconomyCalculator() {
               </TooltipProvider>
             </div>
             <select
+              aria-label="Distribuidora"
               value={distribuidoraSelecionada}
               onChange={(e) => setDistribuidoraSelecionada(e.target.value)}
               className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none"

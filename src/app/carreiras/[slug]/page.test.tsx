@@ -64,6 +64,9 @@ describe("VagaDetalhePage — resumo e metadados", () => {
       employmentType: "CONTRACTOR",
       datePosted: "2026-10-02T12:00:00.000Z",
       jobLocation: { address: { addressLocality: "Belo Horizonte", addressCountry: "BR" } },
+      // REGRESSÃO 02/10/2026 (auditoria SEO): entidade única — mesmo @id/nome legal da
+      // Organization da home (antes "Coesa Energia", sem logo).
+      hiringOrganization: { "@id": "https://coesasolar.com.br/#organization", name: "COESA Energia Inteligente", logo: "https://coesasolar.com.br/favicon.png" },
     })
   })
 })
