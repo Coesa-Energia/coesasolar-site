@@ -722,7 +722,7 @@ const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,
 
 /**
  * Corrige DETERMINISTICAMENTE (sem chamar o LLM de novo) as issues do checklist on-page
- * que dão pra resolver por concatenação simples de texto — meta_keyword e cover_alt_keyword.
+ * que dão pra resolver sem inventar conteúdo — metas, títulos e H2 da keyword.
  * ACHADO 25/08/2026: a rota antiga regenerava o ARTIGO INTEIRO quando qualquer issue
  * falhava (mesmo 1 issue pequena) — a 2ª chamada completa (~190s) é cara e arriscava
  * estourar o maxDuration de novo. Issues que este fix não cobre (ex.: citation_blocks)
@@ -735,12 +735,34 @@ export function fixSimpleValidationIssues<T extends ArticleContent>(
   issueRules: string[],
 ): T {
   const fixed = { ...article };
+  const truncateTitle = (value: string): string => {
+    if (value.length <= 60) return value;
+    const hardCut = value.slice(0, 60).trimEnd();
+    const lastSpace = hardCut.lastIndexOf(' ');
+    const wordCut = lastSpace >= 40 ? hardCut.slice(0, lastSpace) : hardCut;
+    return wordCut.replace(/[\s,:;–—-]+$/u, '');
+  };
+
+  if (issueRules.includes('title_length')) fixed.title = truncateTitle(fixed.title);
+  if (issueRules.includes('page_title_length') && fixed.page_title) {
+    fixed.page_title = truncateTitle(fixed.page_title);
+  }
   if (issueRules.includes('meta_keyword') && !norm(fixed.meta_desc).includes(norm(keyword))) {
     const candidate = `${keyword}: ${fixed.meta_desc}`;
     fixed.meta_desc = candidate.length <= 155 ? candidate : candidate.slice(0, 152).trimEnd() + '...';
   }
   if (issueRules.includes('cover_alt_keyword') && fixed.cover_alt && !norm(fixed.cover_alt).includes(norm(keyword))) {
     fixed.cover_alt = `${fixed.cover_alt} — ${keyword}`;
+  }
+  if (issueRules.includes('h2_keyword')) {
+    const hasKeywordH2 = (fixed.content.match(/^##\s.*$/gm) ?? [])
+      .some(heading => norm(heading).includes(norm(keyword)));
+    if (!hasKeywordH2) {
+      fixed.content = fixed.content.replace(
+        /^##\s+(?!(?:Em resumo|Perguntas Frequentes)\s*$)(.+)$/m,
+        `## ${keyword}: $1`,
+      );
+    }
   }
   return fixed;
 }
