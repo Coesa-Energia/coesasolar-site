@@ -837,6 +837,25 @@ describe('REGRESSÃO 25/08/2026 (achado E2E): fixSimpleValidationIssues corrige 
     const fixed = fixSimpleValidationIssues(longa, 'financiamento de energia solar residencial', ['meta_keyword']);
     expect(fixed.meta_desc.length).toBeLessThanOrEqual(155);
   });
+
+  it('title_length: encurta no limite de palavra sem cortar a keyword inicial', () => {
+    const fixed = fixSimpleValidationIssues(
+      { ...ARTICLE_BASE, title: 'Energia solar por assinatura para imóveis alugados: economize 20%' },
+      'energia solar por assinatura para imóveis alugados',
+      ['title_length'],
+    );
+    expect(fixed.title).toBe('Energia solar por assinatura para imóveis alugados');
+    expect(fixed.title.length).toBeLessThanOrEqual(60);
+  });
+
+  it('h2_keyword: inclui a keyword no primeiro H2 editorial', () => {
+    const fixed = fixSimpleValidationIssues(
+      { ...ARTICLE_BASE, content: '## Como funciona\n\nTexto\n\n## Em resumo\n\n- Item' },
+      'energia solar por assinatura',
+      ['h2_keyword'],
+    );
+    expect(fixed.content).toContain('## energia solar por assinatura: Como funciona');
+  });
 });
 
 describe('REGRESSÃO 26/08/2026: isValidStructure aceita keyword separada por pontuação no título (pipeline preso no seed)', () => {
