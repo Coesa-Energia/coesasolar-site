@@ -1,5 +1,6 @@
 // src/lib/blog/deepseek.ts
 import OpenAI from 'openai';
+import { createJevRouterFetch } from '@/lib/ai/jev-router-fetch';
 import { AUTOBLOG_PROFILE } from '@/lib/autoblog-profile';
 import { buildEditorialBriefSection, type EditorialBrief } from '@/lib/blog/editorial-calendar';
 import type { JudgeIssue } from '@/lib/blog/quality-gate';
@@ -466,6 +467,7 @@ export async function writeSection(
     // O loop abaixo já controla as tentativas e troca de modelo. Retry interno repetia
     // o mesmo provedor por até 180s e impedia o fallback de ser alcançado.
     maxRetries: 0,
+    fetch: createJevRouterFetch(),
   });
   const baseUser = `Tema geral do artigo: "${keyword}" (seção ${sectionIndex + 1} de ${totalSections}).
 Título desta seção (H2): ${section.h2}
@@ -883,6 +885,7 @@ export async function generateArticle(
     baseURL: 'https://openrouter.ai/api/v1',
     timeout: 90_000,
     maxRetries: 1,
+    fetch: createJevRouterFetch(),
   });
 
   for (let attempt = 1; attempt <= 2; attempt++) {
@@ -1012,6 +1015,7 @@ async function askDeepseek(system: string, user: string, route: string, maxToken
     // generateArticleStructure já controla 3 tentativas e troca de modelo. Retry
     // interno duplicava cada timeout de 150s e consumia o orçamento do pipeline.
     maxRetries: maxTokens !== undefined ? 0 : 1,
+    fetch: createJevRouterFetch(),
   });
   // Mesmo motivo do comentário em generateArticle: 'deepseek-v4-flash' substitui o
   // nome legado 'deepseek-chat', desativado pela DeepSeek em 2026-07-24.

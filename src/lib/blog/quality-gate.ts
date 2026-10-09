@@ -9,6 +9,7 @@
 // sempre segue publicando, mesmo se o gate não puder rodar.
 
 import OpenAI from 'openai';
+import { createJevRouterFetch } from '@/lib/ai/jev-router-fetch';
 
 export type JudgeSeverity = 'P0' | 'P1' | 'P2';
 
@@ -171,7 +172,7 @@ export async function runQualityGate(articleContent: string): Promise<QualityGat
     // Timeout explícito: o default do SDK é 10min (bem acima do maxDuration=300s da rota
     // de geração) — sem isso, uma chamada travada não cai no fail-open, ela é morta pelo
     // platform timeout, o catch nunca roda, e o insertRunLog de erro nunca é gravado.
-    const client = new OpenAI({ apiKey, baseURL: 'https://openrouter.ai/api/v1', timeout: 60_000, maxRetries: 1 });
+    const client = new OpenAI({ apiKey, baseURL: 'https://openrouter.ai/api/v1', timeout: 60_000, maxRetries: 1, fetch: createJevRouterFetch() });
     const response = await client.chat.completions.create({
       user: 'coesasolar/blog/quality-gate',
       model: 'z-ai/glm-5.3-flash',
