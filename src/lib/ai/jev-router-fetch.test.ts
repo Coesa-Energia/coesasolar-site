@@ -29,12 +29,22 @@ describe('Jev Router fetch', () => {
     expect(JSON.parse(fetchImpl.mock.calls[1][1].body).model).toBe('fixed');
   });
 
-  it('não roteia mensagem multimodal', async () => {
+  it('roteia mensagem multimodal com saída textual', async () => {
     vi.stubEnv('OPENROUTER_JEV_PERCENT', '100');
     const fetchImpl = vi.fn().mockResolvedValue(new Response('{}'));
     await createJevRouterFetch(fetchImpl)(...request({
       model: 'vision', messages: [{ role: 'user', content: [{ type: 'image_url', image_url: { url: 'x' } }] }],
     }));
-    expect(JSON.parse(fetchImpl.mock.calls[0][1].body).model).toBe('vision');
+    expect(JSON.parse(fetchImpl.mock.calls[0][1].body).model).toBe('typesafe/jev-router');
+  });
+
+  it('mantém o modelo fixo quando a chamada Jev falha na rede', async () => {
+    vi.stubEnv('OPENROUTER_JEV_PERCENT', '100');
+    const fetchImpl = vi.fn()
+      .mockRejectedValueOnce(new TypeError('network unavailable'))
+      .mockResolvedValueOnce(new Response('{"choices":[{"message":{"content":"ok"}}]}'));
+    await createJevRouterFetch(fetchImpl)(...request({ model: 'fixed', messages: [{ role: 'user', content: 'oi' }] }));
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(fetchImpl.mock.calls[1][1].body).model).toBe('fixed');
   });
 });
