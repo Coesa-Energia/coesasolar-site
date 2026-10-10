@@ -381,6 +381,17 @@ describe('REGRESSÃO checklist 25/08/2026: estrutura precisa de 7-9 seções e 7
   it('parseStructure: JSON malformado devolve null (nunca lança)', () => {
     expect(parseStructure('não é json')).toBeNull();
   });
+  it('parseStructure: normaliza as chaves em português observadas no fallback GLM', () => {
+    const { title, sections, faq, ...rest } = ESTRUTURA_VALIDA;
+    const localizada = {
+      ...rest,
+      título: title,
+      seções: sections,
+      faq: faq.map(({ question, answer }) => ({ pergunta: question, resposta: answer })),
+    };
+
+    expect(parseStructure(JSON.stringify(localizada))).toEqual(ESTRUTURA_VALIDA);
+  });
 
   // REGRESSÃO 02/09/2026: generateArticleStructure logava só "Estrutura inválida", sem dizer
   // qual regra falhou nem mostrar o texto bruto — impossível diagnosticar em produção se foi
