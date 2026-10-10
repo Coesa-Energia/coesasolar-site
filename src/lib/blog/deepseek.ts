@@ -1031,14 +1031,11 @@ async function askDeepseek(system: string, user: string, route: string, maxToken
       { role: 'user', content: user },
     ],
     temperature: 0.7,
-    // A chamada com maxTokens é a estrutura JSON. JSON mode impede cercas/texto extra;
-    // reasoning low preserva o orçamento para o conteúdo visível em vez de consumir o
-    // teto pensando e truncar no meio de `sections` (incidente real de 26/08/2026).
-    // reasoning_effort é específico do modelo de raciocínio DeepSeek — omitido no fallback
-    // (z-ai/glm-5.3-flash já roda sem esse parâmetro em quality-gate.ts, sem garantia de
-    // suporte por outro provedor).
+    // Estrutura é transformação em JSON, não tarefa de raciocínio. Em 09/10/2026, tanto o
+    // DeepSeek com effort low quanto o fallback GLM consumiram o teto pensando e devolveram
+    // content vazio. OpenRouter aceita reasoning_effort=none para ambos.
     ...(maxTokens !== undefined ? { response_format: { type: 'json_object' as const } } : {}),
-    ...(maxTokens !== undefined && model === PRIMARY_STRUCTURE_MODEL ? { reasoning_effort: 'low' as const } : {}),
+    ...(maxTokens !== undefined ? { reasoning_effort: 'none' as const } : {}),
     ...(maxTokens !== undefined ? { max_tokens: maxTokens } : {}),
   });
   const choice = response.choices[0];
