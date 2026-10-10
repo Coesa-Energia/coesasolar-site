@@ -205,6 +205,10 @@ Gere a ESTRUTURA de um artigo (não o texto completo). Retorne SOMENTE JSON vál
 }
 
 REGRAS OBRIGATÓRIAS:
+- Os nomes das propriedades JSON são um contrato de API: use EXATAMENTE "title", "page_title",
+  "slug", "meta_desc", "cover_image_prompt", "cover_alt", "category", "sections", "h2",
+  "content_brief", "word_target", "image_prompt", "faq", "question", "answer" e
+  "summary_bullets". NUNCA traduza esses nomes para português.
 - Entre ${MIN_SECTIONS} e ${MAX_SECTIONS} seções H2, cada uma sobre um aspecto distinto do tema (sem sobreposição).
 - word_target por seção: 400-700 (soma total mínima ${MIN_ARTICLE_WORDS.toLocaleString('pt-BR')} palavras) — este número é o alvo do REDATOR
   na próxima etapa; content_brief em si fica CURTO (60-90 palavras), é só a instrução, não o texto final.
@@ -236,7 +240,28 @@ Retorne SOMENTE o JSON da estrutura.`;
 export function parseStructure(text: string): ArticleStructure | null {
   try {
     const cleaned = text.replace(/^```(?:json)?\n?/m, '').replace(/\n?```$/m, '').trim();
-    return JSON.parse(cleaned) as ArticleStructure;
+    const parsed = JSON.parse(cleaned) as Record<string, unknown>;
+
+    // REGRESSÃO 10/10/2026: o fallback GLM devolveu JSON válido, mas localizou quatro
+    // chaves do contrato. Aceitamos somente os aliases vistos no E2E e mantemos a
+    // validação editorial integral logo depois deste parser.
+    parsed.title ??= parsed['título'];
+    parsed.sections ??= parsed['seções'];
+    delete parsed['título'];
+    delete parsed['seções'];
+    if (Array.isArray(parsed.faq)) {
+      parsed.faq = parsed.faq.map(item => {
+        if (!item || typeof item !== 'object' || Array.isArray(item)) return item;
+        const faqItem = item as Record<string, unknown>;
+        faqItem.question ??= faqItem.pergunta;
+        faqItem.answer ??= faqItem.resposta;
+        delete faqItem.pergunta;
+        delete faqItem.resposta;
+        return faqItem;
+      });
+    }
+
+    return parsed as unknown as ArticleStructure;
   } catch {
     return null;
   }
