@@ -960,6 +960,7 @@ describe('REGRESSÃO 26/08/2026: generateArticleStructure dá feedback à 2ª te
     const secondUser = createMock.mock.calls[1][0].messages[1].content;
     expect(firstUser).not.toContain('tentativa anterior foi rejeitada');
     expect(secondUser).toContain('tentativa anterior foi rejeitada');
+    expect(secondUser).toContain('title_sem_keyword');
     expect(secondUser).toContain('geração distribuída compartilhada vale a pena');
   });
 
@@ -1022,7 +1023,7 @@ describe('REGRESSÃO 02/09/2026: generateArticleStructure troca de modelo na 3ª
     expect(createMock.mock.calls[2][0].model).toBe('z-ai/glm-5.3-flash');
   });
 
-  it('desativa raciocínio no modelo principal e no fallback para preservar tokens do JSON visível', async () => {
+  it('desativa raciocínio no modelo principal e usa o mínimo obrigatório no fallback', async () => {
     const invalida = makeEstrutura('Guia genérico sem a keyword');
     const valida = makeEstrutura('Placa Solar: Guia Completo 2026');
     createMock
@@ -1034,7 +1035,7 @@ describe('REGRESSÃO 02/09/2026: generateArticleStructure troca de modelo na 3ª
 
     expect(createMock.mock.calls[0][0].reasoning_effort).toBe('none');
     expect(createMock.mock.calls[1][0].reasoning_effort).toBe('none');
-    expect(createMock.mock.calls[2][0].reasoning_effort).toBe('none');
+    expect(createMock.mock.calls[2][0].reasoning_effort).toBe('minimal');
     expect(createMock.mock.calls[2][0].response_format).toEqual({ type: 'json_object' });
   });
 
