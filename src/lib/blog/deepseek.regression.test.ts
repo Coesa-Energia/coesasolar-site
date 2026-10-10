@@ -470,6 +470,9 @@ describe('REGRESSÃO checklist 25/08/2026: writeSection nunca depende do default
     expect(createMock.mock.calls[0][0].model).toBe('deepseek/deepseek-v4-flash-0731');
     expect(createMock.mock.calls[1][0].model).toBe('z-ai/glm-5.3-flash');
     expect(createMock.mock.calls[2][0].model).toBe('deepseek/deepseek-v4-flash-0731');
+    expect(createMock.mock.calls[0][0].reasoning_effort).toBe('none');
+    expect(createMock.mock.calls[1][0].reasoning_effort).toBe('minimal');
+    expect(createMock.mock.calls[2][0].reasoning_effort).toBe('none');
   });
 
   it('REGRESSÃO 11/09/2026: timeout troca de provedor sem retry interno do SDK', async () => {

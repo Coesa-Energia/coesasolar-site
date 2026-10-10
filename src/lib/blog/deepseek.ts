@@ -543,7 +543,7 @@ Alvo: ${section.word_target} palavras (não conte, escreva naturalmente até cob
         ],
         temperature: 0.7,
         max_tokens: maxTokensForSection(section.word_target),
-        ...(model === PRIMARY_STRUCTURE_MODEL ? { reasoning_effort: 'low' as const } : {}),
+        reasoning_effort: model === FALLBACK_STRUCTURE_MODEL ? 'minimal' as const : 'none' as const,
       });
       const text = response.choices[0]?.message?.content?.trim() ?? '';
       if (!text) {
