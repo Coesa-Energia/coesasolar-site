@@ -20,19 +20,6 @@ function costTier(): JevCostTier {
   return value;
 }
 
-function textOnly(messages: unknown): boolean {
-  return Array.isArray(messages) && messages.every((message) => {
-    if (!message || typeof message !== 'object') return false;
-    const content = (message as { content?: unknown }).content;
-    if (typeof content === 'string') return true;
-    return Array.isArray(content) && content.every((part) => (
-      Boolean(part) && typeof part === 'object' &&
-      (part as { type?: unknown }).type === 'text' &&
-      typeof (part as { text?: unknown }).text === 'string'
-    ));
-  });
-}
-
 async function usable(response: Response): Promise<boolean> {
   if (!response.ok) return false;
   try {
@@ -59,21 +46,26 @@ export function createJevRouterFetch(fetchImpl: typeof fetch = fetch): typeof fe
       return fetchImpl(input, init);
     }
     const percent = canaryPercent();
-    if (!textOnly(body.messages) || percent === 0 || Math.random() * 100 >= percent) {
+    if (percent === 0 || Math.random() * 100 >= percent) {
       return fetchImpl(input, init);
     }
 
     const plugins = Array.isArray(body.plugins)
       ? body.plugins.filter((plugin) => !plugin || typeof plugin !== 'object' || (plugin as { id?: unknown }).id !== 'jev-router')
       : [];
-    const routed = await fetchImpl(input, {
-      ...init,
-      body: JSON.stringify({
-        ...body,
-        model: JEV_ROUTER_MODEL,
-        plugins: [{ id: 'jev-router', cost_tier: costTier() }, ...plugins],
-      }),
-    });
+    let routed: Response;
+    try {
+      routed = await fetchImpl(input, {
+        ...init,
+        body: JSON.stringify({
+          ...body,
+          model: JEV_ROUTER_MODEL,
+          plugins: [{ id: 'jev-router', cost_tier: costTier() }, ...plugins],
+        }),
+      });
+    } catch {
+      return fetchImpl(input, init);
+    }
     if (await usable(routed)) return routed;
     await routed.body?.cancel().catch(() => undefined);
     return fetchImpl(input, init);
