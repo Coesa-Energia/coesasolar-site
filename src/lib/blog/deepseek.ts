@@ -211,7 +211,8 @@ REGRAS OBRIGATÓRIAS:
 - Exatamente ${FAQ_COUNT} perguntas no FAQ, cada resposta de ${FAQ_ANSWER_MIN_WORDS}-${FAQ_ANSWER_MAX_WORDS} palavras
   — ao contrário do content_brief das seções, não existe etapa seguinte que expanda isto: o
   campo "answer" É o texto final publicado, tem que ser completo (contexto + explicação +
-  exemplo quando fizer sentido), nunca um resumo de 1-2 frases.
+  exemplo quando fizer sentido), nunca um resumo de 1-2 frases. Mire em 110-140 palavras
+  para não ficar abaixo do mínimo por diferença de contagem.
 - summary_bullets: 3 a 5 frases CURTAS, cada uma auto-contida (entrega a ideia sozinha, sem depender
   do resto do artigo) — vira o box "Em resumo" citável por IA de busca.
 - cover_image_prompt e image_prompt de cada seção sempre em inglês, fotorrealista, sem texto/logo.
@@ -382,6 +383,7 @@ export async function generateArticleStructure(
   hasBudget: () => boolean = () => true,
 ): Promise<ArticleStructure> {
   const maxAttempts = STRUCTURE_MODELS_BY_ATTEMPT.length;
+  let previousFailureReasons: string[] = [];
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     if (!hasBudget()) {
       console.warn(`[deepseek] Sem orçamento de tempo pra tentativa ${attempt} de estrutura — abortando retries em vez de arriscar estourar o deadline do pipeline.`);
@@ -395,7 +397,7 @@ export async function generateArticleStructure(
     const retryHint =
       attempt === 1
         ? ''
-        : `\n\nATENÇÃO: a tentativa anterior foi rejeitada. O campo "title" DEVE conter a keyword EXATA "${keyword}" nas primeiras palavras, com a ordem preservada (a pontuação pode separar as palavras). Retorne SOMENTE o JSON válido da estrutura, sem texto ao redor.`;
+        : `\n\nATENÇÃO: a tentativa anterior foi rejeitada por: ${previousFailureReasons.join(', ')}. Corrija TODOS esses motivos. O campo "title" DEVE conter a keyword EXATA "${keyword}" nas primeiras palavras, com a ordem preservada (a pontuação pode separar as palavras). Retorne SOMENTE o JSON válido da estrutura, sem texto ao redor.`;
     let text: string;
     try {
       text = await askDeepseek(
@@ -412,11 +414,12 @@ export async function generateArticleStructure(
     console.warn(`[deepseek] tentativa ${attempt} de estrutura (${model}) levou ${Math.round((Date.now() - tAttempt) / 1000)}s`);
     const structure = parseStructure(text);
     if (structure && isValidStructure(structure, keyword)) return structure;
+    previousFailureReasons = describeStructureInvalidity(structure, keyword);
     // REGRESSÃO 02/09/2026: sem isso não dava pra saber SE era content vazio (reasoning
     // comendo o teto) ou uma violação de formato específica — texto truncado nos primeiros
     // 300 chars evita despejar um artigo inteiro no log.
     console.warn(
-      `[deepseek] Estrutura inválida na tentativa ${attempt} (${model}): ${describeStructureInvalidity(structure, keyword).join(', ')} ` +
+      `[deepseek] Estrutura inválida na tentativa ${attempt} (${model}): ${previousFailureReasons.join(', ')} ` +
       `(texto: ${text.length} chars${text ? `, início: ${text.slice(0, 300)}` : ' — VAZIO'})`,
     );
     if (attempt === maxAttempts) break;
@@ -1031,11 +1034,10 @@ async function askDeepseek(system: string, user: string, route: string, maxToken
       { role: 'user', content: user },
     ],
     temperature: 0.7,
-    // Estrutura é transformação em JSON, não tarefa de raciocínio. Em 09/10/2026, tanto o
-    // DeepSeek com effort low quanto o fallback GLM consumiram o teto pensando e devolveram
-    // content vazio. OpenRouter aceita reasoning_effort=none para ambos.
+    // Estrutura é transformação em JSON, não tarefa de raciocínio. DeepSeek aceita `none`;
+    // o fallback GLM exige raciocínio e rejeita `none`, então usa o menor esforço aceito.
     ...(maxTokens !== undefined ? { response_format: { type: 'json_object' as const } } : {}),
-    ...(maxTokens !== undefined ? { reasoning_effort: 'none' as const } : {}),
+    ...(maxTokens !== undefined ? { reasoning_effort: model === FALLBACK_STRUCTURE_MODEL ? 'minimal' as const : 'none' as const } : {}),
     ...(maxTokens !== undefined ? { max_tokens: maxTokens } : {}),
   });
   const choice = response.choices[0];
