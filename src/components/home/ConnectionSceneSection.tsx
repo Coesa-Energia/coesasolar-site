@@ -1,15 +1,14 @@
 "use client";
 
 import { openLeadForm } from "@/lib/lead-funnel";
-import { useEffect, useRef, useState } from "react";
-import { useMotionValueEvent, useScroll } from "framer-motion";
+import { useEffect, useRef } from "react";
 import { ArrowUpRight } from "lucide-react";
 
 type SpaceNode = { x: number; y: number; z: number; source: boolean };
 type SpaceEdge = [number, number];
 type ProjectedNode = SpaceNode & { screenX: number; screenY: number; depth: number; scale: number };
 
-const spaceNodes: SpaceNode[] = Array.from({ length: 64 }, (_, index) => {
+const spaceNodes: SpaceNode[] = Array.from({ length: 48 }, (_, index) => {
   const angle = index * 2.39996;
   const radius = 0.22 + ((index * 37) % 100) / 100 * 0.9;
   const depth = -1 + ((index * 53) % 100) / 100 * 2;
@@ -28,7 +27,7 @@ const spaceEdges = (() => {
         const distanceB = (b.x - node.x) ** 2 + (b.y - node.y) ** 2 + (b.z - node.z) ** 2;
         return distanceA - distanceB;
       })
-      .slice(0, 4)
+      .slice(0, 3)
       .forEach(({ candidateIndex }) => {
         const start = Math.min(index, candidateIndex);
         const end = Math.max(index, candidateIndex);
@@ -56,7 +55,7 @@ function project(node: SpaceNode, width: number, height: number, progress: numbe
   const rotatedY = node.y * cosPitch - rotatedZ * sinPitch;
   const depth = rotatedY * sinPitch + rotatedZ * cosPitch;
   const scale = 1.78 / (2.6 - depth * 1.08);
-  return { ...node, screenX: width / 2 + rotatedX * width * 0.48 * scale, screenY: height / 2 + rotatedY * height * 0.78 * scale, depth, scale };
+  return { ...node, screenX: width * 0.66 + rotatedX * width * 0.38 * scale, screenY: height / 2 + rotatedY * height * 0.78 * scale, depth, scale };
 }
 
 function drawNetwork(canvas: HTMLCanvasElement, progressRef: { current: number }, theme: "dark" | "light" = "dark") {
@@ -65,6 +64,8 @@ function drawNetwork(canvas: HTMLCanvasElement, progressRef: { current: number }
   let width = 1;
   let height = 1;
   let frame = 0;
+  let visible = false;
+  let lastPaint = 0;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const edgeColor = theme === "light" ? "79, 94, 79" : "212, 220, 205";
   const packetColor = theme === "light" ? "52, 93, 63" : "244, 239, 226";
@@ -80,6 +81,11 @@ function drawNetwork(canvas: HTMLCanvasElement, progressRef: { current: number }
   };
 
   const render = (timestamp: number) => {
+    if (!reducedMotion && timestamp - lastPaint < 32) {
+      frame = requestAnimationFrame(render);
+      return;
+    }
+    lastPaint = timestamp;
     const time = reducedMotion ? 0 : timestamp;
     const progress = progressRef.current;
     const connection = clamp((progress + 0.08) / 0.54);
@@ -163,14 +169,24 @@ function drawNetwork(canvas: HTMLCanvasElement, progressRef: { current: number }
       context.globalAlpha = 1;
     });
 
-    if (!reducedMotion) frame = requestAnimationFrame(render);
+    if (visible && !reducedMotion && !document.hidden) frame = requestAnimationFrame(render);
   };
 
   resize();
   const observer = new ResizeObserver(resize);
   observer.observe(canvas);
-  frame = requestAnimationFrame(render);
-  return () => { cancelAnimationFrame(frame); observer.disconnect(); };
+  const visibilityObserver = new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+    cancelAnimationFrame(frame);
+    if (visible && !document.hidden) frame = requestAnimationFrame(render);
+  });
+  const onVisibilityChange = () => {
+    cancelAnimationFrame(frame);
+    if (visible && !document.hidden) frame = requestAnimationFrame(render);
+  };
+  visibilityObserver.observe(canvas);
+  document.addEventListener("visibilitychange", onVisibilityChange);
+  return () => { cancelAnimationFrame(frame); observer.disconnect(); visibilityObserver.disconnect(); document.removeEventListener("visibilitychange", onVisibilityChange); };
 }
 
 export function FlowCanvas({ progress, theme = "dark" }: { progress: number; theme?: "dark" | "light" }) {
@@ -181,35 +197,28 @@ export function FlowCanvas({ progress, theme = "dark" }: { progress: number; the
     if (process.env.NODE_ENV === "test" || !canvasRef.current) return undefined;
     return drawNetwork(canvasRef.current, progressRef, theme);
   }, [theme]);
-  return <div role="img" aria-label="Cena de scroll mostrando energia saindo de usinas e chegando a clientes" className="absolute inset-0"><canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" /></div>;
+  return <div role="img" aria-label="Fluxo de energia entre usinas, rede e clientes" className="pointer-events-none absolute inset-0 opacity-20 sm:opacity-75"><canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" /></div>;
 }
 
-const scenes = [
-  { label: "01 · A conexão", title: <>A energia encontra<br /><span>um caminho só.</span></>, body: "Usinas e clientes passam a fazer parte da mesma rede. A distribuidora continua cuidando dos fios." },
-  { label: "02 · O fluxo", title: <>A energia circula.<br /><span>Você acompanha.</span></>, body: "A energia sai de uma usina, atravessa a rede e chega até a sua conta. Sem obra, sem visita técnica." },
-  { label: "03 · A conta", title: <>Do outro lado,<br /><span>uma conta simples.</span></>, body: "A COESA organiza a complexidade. Você vê a economia, acompanha tudo no app e paga uma vez só." },
+const steps = [
+  { label: "01 / Usina", body: "Usinas parceiras geram energia." },
+  { label: "02 / Rede", body: "A distribuidora cuida dos fios." },
+  { label: "03 / Sua conta", body: "Os créditos entram na conta. Você vê a economia no app." },
 ];
 
 export function ConnectionSceneSection() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
-  useMotionValueEvent(scrollYProgress, "change", (value) => {
-    const next = Math.round(value * 100) / 100;
-    setProgress((current) => current === next ? current : next);
-  });
-
-  return <div id="rede" ref={sectionRef} className="relative bg-[#090b09] text-[#f3f0e7]">
-    <div className="sticky top-20 z-0 -mb-[calc(100svh-80px)] h-[calc(100svh-80px)] overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_38%,rgba(214,204,177,0.12),transparent_30%),linear-gradient(120deg,#080a08,#171c17_56%,#0a0d0a)]" />
-      <FlowCanvas progress={progress} />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(9,11,9,0.96)_0%,rgba(9,11,9,0.68)_34%,transparent_74%),linear-gradient(0deg,rgba(9,11,9,0.8)_0%,transparent_32%,rgba(9,11,9,0.18)_100%)]" />
+  return <section id="rede" aria-labelledby="rede-titulo" className="relative isolate flex min-h-[calc(100svh-80px)] flex-col justify-between overflow-hidden bg-[#090b09] px-5 py-5 text-[#f3f0e7] sm:px-8 sm:py-8 lg:px-14 lg:py-12 xl:px-20">
+    <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_72%_38%,rgba(214,204,177,0.12),transparent_30%),linear-gradient(120deg,#080a08,#171c17_56%,#0a0d0a)]" />
+    <FlowCanvas progress={0.8} />
+    <div className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(90deg,rgba(9,11,9,0.96)_0%,rgba(9,11,9,0.76)_35%,transparent_80%),linear-gradient(0deg,rgba(9,11,9,0.82)_0%,transparent_42%)]" />
+    <div className="relative z-10 mx-auto w-full max-w-[1600px]">
+      <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/48">01 · A conexão</p>
+      <h2 id="rede-titulo" className="mt-4 max-w-3xl text-[clamp(2.6rem,5vw,5.5rem)] font-medium leading-[0.92] tracking-[-0.075em] text-white">Energia em movimento.<br /><span className="text-[#b4cbb0]">Economia na sua conta.</span></h2>
+      <p className="mt-3 max-w-md text-base leading-relaxed text-white/66 sm:mt-5 sm:text-lg">Usinas, rede e clientes conectados em um fluxo simples de acompanhar. Sem obra ou troca de medidor.</p>
+      <button type="button" onClick={() => openLeadForm("connection_scene")} className="mt-4 inline-flex items-center gap-2 text-sm text-white/85 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4efe2] sm:mt-7">Simular minha conta <ArrowUpRight className="h-4 w-4" /></button>
     </div>
-    {scenes.map((scene, index) => <section key={scene.label} aria-label={scene.label} className="relative z-10 flex min-h-[calc(100svh-80px)] flex-col justify-end px-5 pb-8 pt-6 sm:px-8 lg:px-14 lg:pb-12 xl:px-20">
-      <div className="w-full max-w-[1600px] mx-auto">
-        <div className="max-w-3xl"><p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/48">{scene.label}</p><h2 className="mt-4 text-[clamp(2.8rem,5vw,5rem)] font-medium leading-[0.9] tracking-[-0.075em] text-white">{scene.title}</h2><p className="mt-5 max-w-md text-base leading-relaxed text-white/62 sm:text-lg">{scene.body}</p><div className="mt-7 grid max-w-md grid-cols-2 border-t border-white/15 pt-4"><div><strong className="block text-3xl font-medium tracking-[-0.05em] text-white">+2.000</strong><span className="mt-1 block text-sm text-white/48">clientes COESA</span></div><div><strong className="block text-3xl font-medium tracking-[-0.05em] text-white">R$ 0</strong><span className="mt-1 block text-sm text-white/48">de adesão</span></div></div></div>
-        <div className="mt-6 flex items-end justify-between gap-6 border-t border-white/10 pt-4 text-xs text-white/42"><span>{index === 0 ? "As usinas entram na rede." : index === 1 ? "O fluxo chega até você." : "A conta fica mais simples."}</span>{index === 0 && <span>Role para acompanhar</span>}{index === 2 && <button type="button" onClick={() => openLeadForm("connection_scene")} className="inline-flex items-center gap-2 text-white/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4efe2]">Simular minha conta <ArrowUpRight className="h-4 w-4" /></button>}</div>
-      </div>
-    </section>)}
-  </div>;
+    <div className="relative z-10 mx-auto mt-5 grid w-full max-w-[1600px] gap-3 border-t border-white/20 pt-4 sm:mt-10 sm:grid-cols-3 sm:gap-7 sm:pt-5">
+      {steps.map((step) => <div key={step.label} className="last:pr-16 sm:last:pr-0"><h3 className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#b4cbb0]">{step.label}</h3><p className="mt-2 max-w-xs text-sm leading-snug text-white/70">{step.body}</p></div>)}
+    </div>
+  </section>;
 }
