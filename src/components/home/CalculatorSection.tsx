@@ -12,7 +12,7 @@ export function CalculatorSection() {
           <p className="mt-6 max-w-lg text-base leading-relaxed text-[#596259] sm:text-lg">
             Digite o valor da sua conta e veja uma estimativa mensal e anual. O cálculo considera encargos e consumo mínimo, por isso o resultado pode variar.
           </p>
-          <p className="mt-8 max-w-lg border-t border-[#d5cbb7] pt-4 font-mono text-[10px] uppercase tracking-[0.16em] text-[#6b7168]">Informe a conta · Confira o resultado · Ajuste se quiser</p>
+          <p className="mt-8 max-w-lg border-t border-[#d5cbb7] pt-4 font-mono text-[10px] uppercase tracking-[0.16em] text-[#6b7168]">Informe a conta · Confira sua estimativa</p>
         </section>
 
         <section aria-label="Calculadora de economia" className="flex min-h-[calc(100svh-80px)] min-w-0 items-center py-6 lg:py-6">

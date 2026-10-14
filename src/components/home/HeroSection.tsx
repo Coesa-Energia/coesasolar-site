@@ -26,7 +26,7 @@ export function HeroSection() {
   }, [configs.hero_stats]);
 
   const openForm = () => openLeadForm("hero_full_form");
-  const scrollToStory = () => document.querySelector("#beneficios")?.scrollIntoView({ behavior: "smooth" });
+  const scrollToStory = () => document.querySelector("#como-funciona")?.scrollIntoView({ behavior: "smooth" });
 
   return (
     <section id="inicio" className="relative flex min-h-[calc(100svh-80px)] flex-col overflow-hidden bg-[#090b09] text-white">

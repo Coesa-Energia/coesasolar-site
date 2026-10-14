@@ -2,6 +2,7 @@
 // FAIL): botão do menu mobile, ícones de redes sociais e <select> do simulador sem nome
 // acessível. O hero mantém um vídeo ambiente sem controles, foco ou interação.
 import { renderToString } from "react-dom/server"
+import { act, fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 vi.mock("@/integrations/supabase/client", () => {
@@ -25,7 +26,6 @@ import { HomeNavbar } from "./HomeNavbar"
 import { HomeFooter } from "./HomeFooter"
 import { EconomyCalculator } from "./EconomyCalculator"
 import { HeroSection } from "./HeroSection"
-import { TooltipProvider } from "@/components/ui/tooltip"
 
 function semNome(html: string, tag: "button" | "a" | "select") {
   const re = new RegExp(`<${tag}\\b([^>]*)>([\\s\\S]*?)</${tag}>`, "g")
@@ -39,10 +39,14 @@ describe("REGRESSÃO: controles da home com nome acessível", () => {
   it.each([
     ["HomeNavbar", () => <HomeNavbar />],
     ["HomeFooter", () => <HomeFooter />],
-    ["EconomyCalculator", () => <TooltipProvider><EconomyCalculator /></TooltipProvider>],
+    ["EconomyCalculator", () => <EconomyCalculator />],
   ])("%s", (_, El) => {
     const html = renderToString(<El />)
-    if (_ === "EconomyCalculator") expect(html.match(/<select\b/g)?.length).toBe(2)
+    if (_ === "EconomyCalculator") {
+      expect(html).toContain('id="valor-conta-simulacao"')
+      expect(html).not.toContain('<select')
+      expect(html).not.toContain('Ajustar dados da fatura')
+    }
     for (const tag of ["button", "a", "select"] as const) expect(semNome(html, tag), tag).toEqual([])
   })
 })
@@ -57,4 +61,15 @@ describe("REGRESSÃO: animação ambiente do hero sem player visível", () => {
     expect(html).not.toContain('<iframe')
     expect(html).toMatch(/i\.ytimg\.com\/vi\/[\w-]+\/maxresdefault\.jpg/)
   })
+})
+
+it("o botão Como funciona do hero leva à seção do processo", async () => {
+  const section = document.createElement("section")
+  section.id = "como-funciona"
+  section.scrollIntoView = vi.fn()
+  document.body.append(section)
+  await act(async () => { render(<HeroSection />) })
+  fireEvent.click(screen.getByRole("button", { name: "Como funciona" }))
+  expect(section.scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth" })
+  section.remove()
 })

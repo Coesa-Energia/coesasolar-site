@@ -41,4 +41,8 @@ describe("REGRESSÃO: página de serviço Minas Gerais", () => {
       expect(src).not.toMatch(/href: "#/)
     }
   })
+
+  it("o CTA de simulação leva ao formulário da home", () => {
+    expect(html).toContain('href="/#simulacao"')
+  })
 })
