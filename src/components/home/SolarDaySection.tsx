@@ -60,7 +60,7 @@ export function SolarDaySection() {
 
   return (
     <section ref={sectionRef} id="dia-de-sol" aria-labelledby="dia-de-sol-titulo" className="scroll-mt-20 bg-[#f7f0e3] text-[#172019]">
-      <div className="mx-auto flex max-w-[1600px] flex-col justify-center px-5 py-12 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:px-14 lg:py-7 xl:px-20">
+      <div className="mx-auto flex max-w-[1600px] flex-col justify-center px-5 py-6 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:px-14 lg:py-7 xl:px-20">
         <div className="grid gap-5 lg:grid-cols-[1fr_0.8fr] lg:items-end lg:gap-16">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#526b55]">08 · Energia em movimento</p>
@@ -73,7 +73,7 @@ export function SolarDaySection() {
           </p>
         </div>
 
-        <div className="relative mt-8 h-[610px] overflow-hidden rounded-[1.5rem] text-[#f8f5eb] sm:h-[530px] lg:mt-7 lg:h-[450px]" style={{ backgroundImage: sky }}>
+        <div className="relative mt-5 h-[470px] overflow-hidden rounded-[1.5rem] text-[#f8f5eb] sm:h-[530px] lg:mt-7 lg:h-[450px]" style={{ backgroundImage: sky }}>
           <div className="absolute inset-x-0 top-0 h-2/3 opacity-40 [background-image:radial-gradient(circle_at_73%_45%,#fff5ad_0%,transparent_32%)]" />
           <div className="absolute inset-x-[4%] top-[3%] h-[53%] w-[92%]" aria-hidden="true">
             <svg className="h-full w-full" viewBox="0 0 1000 300" preserveAspectRatio="none">

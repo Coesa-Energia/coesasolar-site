@@ -43,7 +43,7 @@ export function HowItWorksSection() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#101c16] via-transparent to-[#101c16]/35" />
       </div>
 
-      <div className="mx-auto flex max-w-[1600px] flex-col justify-center px-5 py-16 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:px-14 lg:py-12 xl:px-20">
+      <div className="mx-auto flex max-w-[1600px] flex-col justify-center px-5 py-8 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:px-14 lg:py-12 xl:px-20">
         <motion.div
           initial={{ y: 24 }}
           whileInView={{ y: 0 }}
@@ -62,7 +62,7 @@ export function HowItWorksSection() {
           </p>
         </motion.div>
 
-        <div className="mt-14 grid border-t border-white/30 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 border-t border-white/30 lg:mt-16 lg:grid-cols-4">
           {steps.map((step, index) => (
             <motion.div
               key={step.number}
@@ -70,11 +70,11 @@ export function HowItWorksSection() {
               whileInView={{ y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.08 }}
-              className="border-b border-white/25 py-6 sm:px-5 lg:min-h-56 lg:border-b-0 lg:border-r lg:px-7 lg:py-7 first:pl-0 last:border-r-0 last:pr-0"
+              className="border-b border-white/25 px-2 py-3 lg:min-h-56 lg:border-b-0 lg:border-r lg:px-7 lg:py-7 first:pl-0 last:border-r-0 last:pr-0"
             >
               <span className="font-mono text-xs tracking-[0.2em] text-[#a9cfb0]">{step.number} / 04</span>
-              <h3 className="mt-8 text-[clamp(1.75rem,2.5vw,2.5rem)] font-medium tracking-[-0.055em]">{step.title}</h3>
-              <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/65">{step.description}</p>
+              <h3 className="mt-4 text-[clamp(1.5rem,2.5vw,2.5rem)] font-medium tracking-[-0.055em] lg:mt-8">{step.title}</h3>
+              <p className="mt-2 max-w-xs text-xs leading-relaxed text-white/65 sm:text-sm">{step.description}</p>
             </motion.div>
           ))}
         </div>
@@ -82,7 +82,7 @@ export function HowItWorksSection() {
         <button
           type="button"
           onClick={() => window.dispatchEvent(new Event("coesa:open-lead-form"))}
-          className="group mt-10 inline-flex min-h-14 items-center justify-between gap-8 self-start rounded-full bg-[#e9ece3] px-6 py-4 text-sm font-medium text-[#203b2b] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9cfb0] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101c16]"
+          className="group mt-6 inline-flex min-h-12 items-center justify-between gap-8 self-start rounded-full bg-[#e9ece3] px-6 py-3 text-sm font-medium text-[#203b2b] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9cfb0] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101c16] lg:mt-10 lg:min-h-14 lg:py-4"
         >
           Começar minha simulação
           <ArrowUpRight aria-hidden="true" className="h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

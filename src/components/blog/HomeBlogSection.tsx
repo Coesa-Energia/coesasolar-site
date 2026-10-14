@@ -63,16 +63,16 @@ export function HomeBlogSection({ initialArticles }: { initialArticles?: BlogArt
 
   return (
     <section id="blog" aria-labelledby="blog-titulo" className="scroll-mt-20 bg-[#f4efe3] text-[#17251b]">
-      <div className="mx-auto flex max-w-[1600px] flex-col justify-center px-5 py-14 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:px-14 lg:py-8 xl:px-20">
+      <div className="mx-auto flex max-w-[1600px] flex-col justify-center px-5 py-8 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:px-14 lg:py-8 xl:px-20">
         <motion.div
           initial={{ y: 20 }}
           whileInView={{ y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mb-9 grid items-end gap-6 border-b border-[#c4ccbf] pb-6 lg:grid-cols-[1fr_0.55fr]"
+          className="mb-5 grid items-end gap-4 border-b border-[#c4ccbf] pb-5 lg:mb-9 lg:grid-cols-[1fr_0.55fr] lg:gap-6 lg:pb-6"
         >
-          <div><p className="mb-4 font-mono text-[10px] uppercase tracking-[0.25em] text-[#617b64]">15 · Conteúdo</p><h2 id="blog-titulo" className="text-[clamp(3rem,5.2vw,6rem)] font-medium leading-[0.96] tracking-[-0.07em]">Energia sem <span className="text-[#467653]">dúvidas.</span></h2></div>
-          <p className="max-w-md text-base leading-relaxed text-[#5c695d] lg:pb-2">Guias e explicações para entender sua conta, o modelo de assinatura e a energia solar.</p>
+          <div><p className="mb-3 font-mono text-[10px] uppercase tracking-[0.25em] text-[#617b64] lg:mb-4">15 · Conteúdo</p><h2 id="blog-titulo" className="text-[clamp(2.7rem,5.2vw,6rem)] font-medium leading-[0.96] tracking-[-0.07em]">Energia sem <span className="text-[#467653]">dúvidas.</span></h2></div>
+          <p className="max-w-md text-sm leading-relaxed text-[#5c695d] sm:text-base lg:pb-2">Guias para entender sua conta e a energia solar por assinatura.</p>
         </motion.div>
 
         {loading ? (
@@ -91,7 +91,7 @@ export function HomeBlogSection({ initialArticles }: { initialArticles?: BlogArt
               <a
                 key={article.slug}
                 href={`/blog/${article.slug}`}
-                className="group flex min-h-[280px] flex-col rounded-[1.2rem] border border-[#c4ccbf] bg-white p-6 transition-colors hover:border-[#467653] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#467653]"
+                className="group flex min-h-[235px] flex-col rounded-[1.2rem] border border-[#c4ccbf] bg-white p-5 transition-colors hover:border-[#467653] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#467653] sm:min-h-[280px] sm:p-6"
               >
                 {article.keyword && (
                   <p className="mb-5 line-clamp-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[#467653]">

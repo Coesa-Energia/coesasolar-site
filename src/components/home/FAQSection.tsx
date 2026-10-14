@@ -14,7 +14,7 @@ export function FAQSection() {
 
   return (
     <section id="faq" aria-labelledby="faq-titulo" className="scroll-mt-20 bg-[#e9eee9] text-[#17251b]">
-      <div className="mx-auto grid max-w-[1600px] gap-10 px-5 py-14 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:grid-cols-[0.7fr_1fr] lg:items-center lg:gap-16 lg:px-14 lg:py-8 xl:px-20">
+      <div className="mx-auto grid max-w-[1600px] gap-6 px-5 py-7 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:grid-cols-[0.7fr_1fr] lg:items-center lg:gap-16 lg:px-14 lg:py-8 xl:px-20">
         <motion.div
           initial={{ y: 20 }}
           whileInView={{ y: 0 }}

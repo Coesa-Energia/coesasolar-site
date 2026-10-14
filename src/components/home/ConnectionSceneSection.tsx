@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { useMotionValueEvent, useScroll } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 
 type SpaceNode = { x: number; y: number; z: number; source: boolean };
@@ -190,31 +190,25 @@ const scenes = [
 ];
 
 export function ConnectionSceneSection() {
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   useMotionValueEvent(scrollYProgress, "change", (value) => {
     const next = Math.round(value * 100) / 100;
     setProgress((current) => current === next ? current : next);
   });
-  const sceneIndex = progress < 0.34 ? 0 : progress < 0.7 ? 1 : 2;
-  const scene = scenes[sceneIndex];
 
-  return <section id="rede" ref={sectionRef} className="relative h-[300vh] bg-[#090b09] text-[#f3f0e7]">
-    <div className="sticky top-0 h-screen min-h-[680px] overflow-hidden">
+  return <div id="rede" ref={sectionRef} className="relative bg-[#090b09] text-[#f3f0e7]">
+    <div className="sticky top-20 z-0 -mb-[calc(100svh-80px)] h-[calc(100svh-80px)] overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_38%,rgba(214,204,177,0.12),transparent_30%),linear-gradient(120deg,#080a08,#171c17_56%,#0a0d0a)]" />
       <FlowCanvas progress={progress} />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(9,11,9,0.96)_0%,rgba(9,11,9,0.68)_34%,transparent_74%),linear-gradient(0deg,rgba(9,11,9,0.8)_0%,transparent_32%,rgba(9,11,9,0.18)_100%)]" />
-      <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-end px-5 pb-10 sm:px-8 lg:px-14 lg:pb-16 xl:px-20">
-        <motion.div key={sceneIndex} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }} className="max-w-xl">
-          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/48">{scene.label}</p>
-          <h2 className="mt-5 text-[clamp(2.8rem,6vw,6.8rem)] font-medium leading-[0.9] tracking-[-0.075em] text-white">{scene.title}</h2>
-          <p className="mt-7 max-w-md text-base leading-relaxed text-white/62 sm:text-lg">{scene.body}</p>
-          <div className="mt-10 grid max-w-md grid-cols-2 border-t border-white/15 pt-5"><div><strong className="block text-3xl font-medium tracking-[-0.05em] text-white">+2.000</strong><span className="mt-1 block text-sm text-white/48">clientes COESA</span></div><div><strong className="block text-3xl font-medium tracking-[-0.05em] text-white">R$ 0</strong><span className="mt-1 block text-sm text-white/48">de adesão</span></div></div>
-        </motion.div>
-        <div className="mt-8 flex items-end justify-between gap-6 border-t border-white/10 pt-4 text-xs text-white/42"><span>{sceneIndex === 0 ? "As usinas entram na rede." : sceneIndex === 1 ? "O fluxo chega até você." : "A conta fica mais simples."}</span><span className="hidden sm:block">Role para acompanhar</span></div>
-      </div>
-      {progress > 0.82 && <button type="button" onClick={() => window.dispatchEvent(new Event("coesa:open-lead-form"))} className="group absolute bottom-10 right-5 z-20 inline-flex items-center gap-3 text-sm text-white/72 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4efe2] sm:right-8 lg:right-14 xl:right-20">Simular minha conta <ArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></button>}
     </div>
-  </section>;
+    {scenes.map((scene, index) => <section key={scene.label} aria-label={scene.label} className="relative z-10 flex min-h-[calc(100svh-80px)] flex-col justify-end px-5 pb-8 pt-6 sm:px-8 lg:px-14 lg:pb-12 xl:px-20">
+      <div className="w-full max-w-[1600px] mx-auto">
+        <div className="max-w-3xl"><p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/48">{scene.label}</p><h2 className="mt-4 text-[clamp(2.8rem,5vw,5rem)] font-medium leading-[0.9] tracking-[-0.075em] text-white">{scene.title}</h2><p className="mt-5 max-w-md text-base leading-relaxed text-white/62 sm:text-lg">{scene.body}</p><div className="mt-7 grid max-w-md grid-cols-2 border-t border-white/15 pt-4"><div><strong className="block text-3xl font-medium tracking-[-0.05em] text-white">+2.000</strong><span className="mt-1 block text-sm text-white/48">clientes COESA</span></div><div><strong className="block text-3xl font-medium tracking-[-0.05em] text-white">R$ 0</strong><span className="mt-1 block text-sm text-white/48">de adesão</span></div></div></div>
+        <div className="mt-6 flex items-end justify-between gap-6 border-t border-white/10 pt-4 text-xs text-white/42"><span>{index === 0 ? "As usinas entram na rede." : index === 1 ? "O fluxo chega até você." : "A conta fica mais simples."}</span>{index === 0 && <span>Role para acompanhar</span>}{index === 2 && <button type="button" onClick={() => window.dispatchEvent(new Event("coesa:open-lead-form"))} className="inline-flex items-center gap-2 text-white/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4efe2]">Simular minha conta <ArrowUpRight className="h-4 w-4" /></button>}</div>
+      </div>
+    </section>)}
+  </div>;
 }

@@ -28,7 +28,7 @@ export function HeroSection() {
   const scrollToStory = () => document.querySelector("#beneficios")?.scrollIntoView({ behavior: "smooth" });
 
   return (
-    <section id="inicio" className="relative flex min-h-[760px] flex-col overflow-hidden bg-[#090b09] text-white lg:min-h-screen">
+    <section id="inicio" className="relative flex min-h-[calc(100svh-80px)] flex-col overflow-hidden bg-[#090b09] text-white">
       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(https://i.ytimg.com/vi/${configs.hero_video_youtube_id}/maxresdefault.jpg)` }}>
         <video autoPlay muted loop playsInline preload="auto" aria-hidden="true" tabIndex={-1} className="pointer-events-none absolute inset-0 h-full w-full object-cover">
           <source src="/media/hero-clouds-timelapse.webm?v=3" type="video/webm" />
@@ -40,9 +40,9 @@ export function HeroSection() {
       </div>
       <div className="pointer-events-none absolute inset-0 opacity-[0.045] [background-image:linear-gradient(rgba(255,255,255,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:96px_96px] [mask-image:linear-gradient(to_bottom,transparent,black_32%,black_72%,transparent)]" />
 
-      <div className="relative z-10 flex flex-1 flex-col justify-end px-5 pb-8 pt-32 sm:px-8 lg:px-14 lg:pb-10 xl:px-20">
+      <div className="relative z-10 flex flex-1 flex-col justify-end px-5 pb-6 pt-8 sm:px-8 lg:px-14 lg:pb-8 xl:px-20">
         <div className="mx-auto w-full max-w-[1500px]">
-          <div className="grid items-end gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
+          <div className="grid items-end gap-7 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
             <motion.div initial={{ y: 24 }} animate={{ y: 0 }} transition={{ duration: 0.8, ease }} className="max-w-3xl">
               <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.24em] text-white/50">Energia inteligente</p>
               <h1 className="max-w-3xl text-[clamp(3.2rem,6.2vw,6.8rem)] font-medium leading-[0.9] tracking-[-0.07em] text-white">Energia Solar por Assinatura</h1>
@@ -57,8 +57,8 @@ export function HeroSection() {
             </motion.div>
           </div>
 
-          <motion.div initial={{ y: 18 }} animate={{ y: 0 }} transition={{ duration: 0.7, delay: 0.34, ease }} className="mt-12 grid border-t border-white/15 pt-5 sm:grid-cols-4">
-            {stats.map(({ value, label, Icon }) => <div key={label} className="flex items-center gap-3 border-white/10 py-3 sm:border-r sm:px-5 first:pl-0 last:border-0 last:pr-0"><Icon className="h-4 w-4 shrink-0 text-white/55" strokeWidth={1.5} /><div><strong className="block text-lg font-medium tracking-tight text-white">{value}</strong><span className="text-xs text-white/45">{label}</span></div></div>)}
+          <motion.div initial={{ y: 18 }} animate={{ y: 0 }} transition={{ duration: 0.7, delay: 0.34, ease }} className="mt-5 grid grid-cols-4 border-t border-white/15 pt-3 sm:mt-8">
+            {stats.map(({ value, label, Icon }) => <div key={label} className="flex min-w-0 flex-col gap-1 border-white/10 py-2 pr-1 sm:flex-row sm:items-center sm:gap-3 sm:border-r sm:px-5 first:pl-0 last:border-0 last:pr-0"><Icon className="h-4 w-4 shrink-0 text-white/55" strokeWidth={1.5} /><div><strong className="block text-base font-medium tracking-tight text-white sm:text-lg">{value}</strong><span className="text-[10px] text-white/45 sm:text-xs">{label}</span></div></div>)}
           </motion.div>
         </div>
       </div>
