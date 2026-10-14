@@ -1,97 +1,75 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
 import { PUBLIC_DISCOUNT_LABEL } from "@/lib/public-discount";
-import { coletarUtm } from "@/lib/carreiras/form-utils";
 
-const FORM_BASE_URL = "https://web-production-118a5.up.railway.app/f/landing-assinatura-solar-coesa";
+const benefits = [
+  { number: "01", title: `${PUBLIC_DISCOUNT_LABEL} de desconto`, detail: "Economia visível na conta de luz, mês após mês." },
+  { number: "02", title: "Sem instalar painéis", detail: "Nada de obras ou mudanças na sua casa." },
+  { number: "03", title: "Sem investimento inicial", detail: "Você não precisa comprar equipamentos." },
+  { number: "04", title: "Adesão digital", detail: "Comece a conversa de onde estiver." },
+];
 
 export function BenefitsSection() {
-  // Repassa as UTMs da URL do site pro form embeddado, pra manter a atribuição da campanha.
-  const [formSrc, setFormSrc] = useState(FORM_BASE_URL);
-
-  useEffect(() => {
-    const utm = coletarUtm(new URLSearchParams(window.location.search));
-    const query = new URLSearchParams(utm).toString();
-    if (query) setFormSrc(`${FORM_BASE_URL}?${query}`);
-  }, []);
-
   return (
-    <section id="beneficios" className="py-20 lg:py-32 bg-white">
-      <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-          {/* Left Column - Text Content */}
-          <motion.div
-            initial={{ x: -30 }}
-            whileInView={{ x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <p className="text-sm font-medium text-muted-foreground tracking-widest uppercase mb-4">
-              Energia Inteligente
-            </p>
-            <h2 
-              className="text-3xl md:text-4xl lg:text-5xl font-medium text-foreground mb-8 leading-tight"
-              style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
-            >
-              Economize sem<br />
-              complicação
-            </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg">
-              A energia solar por assinatura da COESA permite que você reduza sua conta de luz 
-              em {PUBLIC_DISCOUNT_LABEL} sem instalar painéis, sem obras e sem nenhum investimento inicial.
-              A energia vem direto de nossas usinas solares.
-            </p>
-            
-            {/* Feature List - Minimal */}
-            <div className="space-y-4">
-              {[
-                `Economia de ${PUBLIC_DISCOUNT_LABEL} na conta de luz`,
-                "Sem obras ou instalações na sua casa",
-                "Energia 100% limpa e renovável",
-                "Contratação 100% digital",
-              ].map((feature, index) => (
-                <motion.div
-                  key={feature}
-                  initial={{ x: -20 }}
-                  whileInView={{ x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="flex items-center gap-3"
-                >
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <span className="text-foreground">{feature}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+    <section id="beneficios" aria-labelledby="beneficios-titulo" className="bg-[#e9ece3] text-[#172019]">
+      <div className="mx-auto grid max-w-[1600px] gap-14 px-5 py-20 sm:px-8 lg:min-h-screen lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:gap-20 lg:px-14 lg:py-28 xl:px-20">
+        <motion.div
+          initial={{ x: -30 }}
+          whileInView={{ x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#526b55]">03 · Simplicidade</p>
+          <h2 id="beneficios-titulo" className="mt-5 max-w-3xl text-[clamp(3.2rem,5.8vw,6.8rem)] font-medium leading-[0.92] tracking-[-0.075em]">
+            Economize sem <span className="text-[#3b6948]">complicação.</span>
+          </h2>
+          <p className="mt-7 max-w-xl text-base leading-relaxed text-[#566359] sm:text-lg">
+            Energia solar por assinatura para reduzir sua conta de luz em {PUBLIC_DISCOUNT_LABEL}. Sem placas no telhado, sem obras e sem investimento inicial.
+          </p>
 
-          {/* Right Column - Form */}
-          <motion.div
-            initial={{ x: 30 }}
-            whileInView={{ x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="lg:sticky lg:top-24"
-          >
-            <link rel="preconnect" href="https://web-production-118a5.up.railway.app" />
-            {/*
-              Sem API de auto-resize do form (não manda postMessage de altura) e
-              cross-origin impede medir o conteúdo real por JS. Altura fixa por
-              breakpoint, enviesada pra sobrar espaço em vez de cortar/rolar —
-              nunca pode aparecer scroll dentro do form, nem mobile nem desktop.
-            */}
-            <iframe
-              src={formSrc}
-              width="100%"
-              className="block h-[950px] sm:h-[780px] lg:h-[620px] border-0 mx-auto"
-              title="Landing – Assinatura Solar Coesa"
-              sandbox="allow-scripts allow-forms allow-same-origin allow-top-navigation"
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
-          </motion.div>
-        </div>
+          <div className="mt-10 grid border-t border-[#bdc9bc] sm:grid-cols-2">
+            {benefits.map((benefit) => (
+              <div key={benefit.number} className="min-h-32 border-b border-[#bdc9bc] py-5 sm:pr-6">
+                <span className="font-mono text-[10px] tracking-[0.18em] text-[#62846a]">{benefit.number}</span>
+                <h3 className="mt-3 text-xl font-medium tracking-[-0.035em]">{benefit.title}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-[#657267]">{benefit.detail}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ x: 30 }}
+          whileInView={{ x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          className="relative overflow-hidden rounded-[2rem] bg-[#203b2b] px-7 py-8 text-[#f4f1e8] sm:px-10 sm:py-11 lg:px-12 lg:py-14"
+        >
+          <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-28 h-80 w-80 rounded-full border border-white/10 shadow-[0_0_0_50px_rgba(255,255,255,0.035),0_0_0_100px_rgba(255,255,255,0.025)]" />
+          <div className="relative">
+            <div className="flex items-center justify-between border-b border-white/20 pb-5">
+              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#a6cbb0]">Comece pela sua conta</span>
+              <ArrowUpRight aria-hidden="true" className="h-5 w-5 text-[#a6cbb0]" />
+            </div>
+            <p className="mt-10 max-w-md text-3xl font-medium leading-[1.1] tracking-[-0.055em] sm:text-4xl">Sua economia começa com uma simulação simples.</p>
+            <div className="mt-11 border-y border-white/20 py-7">
+              <span className="block font-mono text-[10px] uppercase tracking-[0.22em] text-[#a6cbb0]">Desconto COESA</span>
+              <strong className="mt-2 block text-[clamp(5rem,10vw,8rem)] font-medium leading-none tracking-[-0.09em]">{PUBLIC_DISCOUNT_LABEL}</strong>
+              <p className="mt-3 text-sm text-white/60">na conta de luz, sem instalar nada</p>
+            </div>
+            <p className="mt-8 max-w-sm text-sm leading-relaxed text-white/70">Informe sua distribuidora e o valor médio da fatura. A COESA continua a conversa pelo WhatsApp.</p>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event("coesa:open-lead-form"))}
+              className="group mt-7 flex w-full items-center justify-between rounded-full bg-[#e9ece3] px-6 py-4 text-sm font-medium text-[#203b2b] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b9e6c3] focus-visible:ring-offset-2 focus-visible:ring-offset-[#203b2b]"
+            >
+              Simular minha economia
+              <ArrowUpRight aria-hidden="true" className="h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </button>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

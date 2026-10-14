@@ -8,10 +8,7 @@ export function CTASection() {
   const { configs } = useConfiguracoes();
   
   const scrollToForm = () => {
-    const element = document.querySelector("#beneficios");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+    window.dispatchEvent(new Event("coesa:open-lead-form"));
   };
 
   const whatsappUrl = `https://wa.me/${WHATSAPP_5192}?text=Olá! Vim pelo site e quero começar a economizar na conta de luz.`;

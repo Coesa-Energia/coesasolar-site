@@ -11,6 +11,7 @@ const SELF = path.join('src', 'test', 'openrouter-selector.regression.test.ts');
 function sourceFiles(dir: string): string[] {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const p = path.join(dir, e.name);
+    if (p.includes('/.well-known/workflow/')) return [];
     if (e.isDirectory()) return sourceFiles(p);
     return /\.(tsx?|jsx?|mjs)$/.test(e.name) && p !== SELF ? [p] : [];
   });

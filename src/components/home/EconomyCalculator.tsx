@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Calculator, Zap, TrendingUp, ExternalLink, HelpCircle } from 'lucide-react';
+import { ChevronDown, ExternalLink, HelpCircle } from 'lucide-react';
 import { useEconomyCalculator, CalculoResult, TipoInstalacao } from '@/hooks/useEconomyCalculator';
 import { PUBLIC_DISCOUNT_LABEL, PUBLIC_DISCOUNT_PERCENT } from '@/lib/public-discount';
 import {
@@ -88,48 +87,45 @@ export function EconomyCalculator() {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6">
-      {/* Input Section */}
-      <div className="space-y-3">
-        <label className="block text-sm font-medium text-muted-foreground">
-          Quanto você paga de luz por mês?
-        </label>
+    <div className="w-full space-y-2">
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <label htmlFor="valor-conta-simulacao" className="block text-sm font-medium text-[#425547]">Quanto você paga de luz por mês?</label>
+          <span className="text-xs text-[#345d3f]">{PUBLIC_DISCOUNT_LABEL} de desconto</span>
+        </div>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-muted-foreground">
-            R$
-          </span>
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl text-[#5e6b5f]">R$</span>
           <input
+            id="valor-conta-simulacao"
             type="text"
+            inputMode="decimal"
             value={valorConta}
             onChange={handleInputChange}
             placeholder="0,00"
-            className="w-full pl-14 pr-4 py-4 text-2xl font-bold bg-background border-2 border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+            aria-invalid={valorNumerico > 0 && !resultado}
+            aria-describedby={resultado ? undefined : 'simulacao-elegibilidade'}
+            className="w-full rounded-md border border-[#b9c8ba] bg-white py-2.5 pl-14 pr-4 text-2xl font-medium tracking-[-0.04em] text-[#172019] outline-none transition focus:border-[#3b6948] focus:ring-2 focus:ring-[#3b6948]/20"
           />
         </div>
       </div>
 
-      {/* Parameters Section - Always Visible */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <p className="text-sm font-medium text-muted-foreground">
-            Parâmetros da simulação
-          </p>
-          <span className="text-xs text-muted-foreground/70">
-            (deixe em branco para usar os valores padrão)
-          </span>
-        </div>
+      <details className="group border-b border-[#ded8ca]">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-2 text-sm font-medium text-[#425547] marker:content-none [&::-webkit-details-marker]:hidden">
+          <span>Ajustar dados da fatura <span className="block pt-1 text-xs font-normal text-[#748075]">Opcional: CIP, instalação e distribuidora</span></span>
+          <ChevronDown aria-hidden="true" className="h-5 w-5 shrink-0 transition-transform group-open:rotate-180" />
+        </summary>
         
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-xl border border-border">
+        <div className="grid grid-cols-1 gap-4 border-t border-[#e1dacb] py-3 sm:grid-cols-3">
           {/* CIP */}
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
-              <label className="block text-xs font-medium text-muted-foreground">
+              <label htmlFor="cip-simulacao" className="block text-xs font-medium text-muted-foreground">
                 Contribuição de Iluminação Pública (R$)
               </label>
               <TooltipProvider delayDuration={100}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground/60 hover:text-muted-foreground cursor-help" />
+                    <button type="button" aria-label="O que é CIP?" className="text-muted-foreground/60 hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><HelpCircle className="h-3.5 w-3.5" /></button>
                   </TooltipTrigger>
                   <TooltipContent side="top" className="w-80 p-3">
                     <p className="text-xs mb-2"><strong>CIP</strong> (Contribuição para Iluminação Pública) é uma taxa municipal cobrada na sua conta de luz.</p>
@@ -150,7 +146,9 @@ export function EconomyCalculator() {
               </TooltipProvider>
             </div>
             <input
+              id="cip-simulacao"
               type="text"
+              inputMode="decimal"
               value={cipCustom}
               onChange={(e) => setCipCustom(e.target.value.replace(/[^\d,]/g, ''))}
               placeholder={config.cipDefault.toString()}
@@ -170,7 +168,7 @@ export function EconomyCalculator() {
               <TooltipProvider delayDuration={100}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground/60 hover:text-muted-foreground cursor-help" />
+                    <button type="button" aria-label="Sobre o tipo de instalação" className="text-muted-foreground/60 hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><HelpCircle className="h-3.5 w-3.5" /></button>
                   </TooltipTrigger>
                   <TooltipContent side="top" className="w-80 p-3">
                     <p className="text-xs mb-1"><strong>Tipo de Instalação</strong> define a demanda mínima cobrada:</p>
@@ -221,7 +219,7 @@ export function EconomyCalculator() {
               <TooltipProvider delayDuration={100}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground/60 hover:text-muted-foreground cursor-help" />
+                    <button type="button" aria-label="O que é distribuidora?" className="text-muted-foreground/60 hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><HelpCircle className="h-3.5 w-3.5" /></button>
                   </TooltipTrigger>
                   <TooltipContent side="top" className="max-w-[220px] text-xs">
                     <p><strong>Distribuidora</strong> é a empresa que entrega a energia elétrica na sua região. Cada uma tem tarifas diferentes definidas pela ANEEL.</p>
@@ -246,155 +244,59 @@ export function EconomyCalculator() {
             </p>
           </div>
         </div>
-      </div>
+      </details>
 
-      <div className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/10 p-4">
-        <div>
-          <p className="text-sm font-medium text-foreground">Desconto aplicado</p>
-          <p className="text-xs text-muted-foreground">Plano Economia</p>
-        </div>
-        <p className="text-3xl font-bold text-primary">{PUBLIC_DISCOUNT_LABEL}</p>
-      </div>
+      {resultado ? (
+        <div aria-live="polite" className="border-t border-[#ded8ca] pt-3">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#617366]">Economia mensal estimada</p>
+              <strong className="mt-1 block text-[clamp(2.7rem,4vw,4rem)] font-medium leading-none tracking-[-0.07em] text-[#203b2b]">{formatCurrency(resultado.economiaMensal)}</strong>
+            </div>
+            <span className="pb-1 text-sm text-[#345d3f]">{resultado.economiaPercentual.toFixed(1)}% da fatura total</span>
+          </div>
 
-      {/* Results */}
-      <AnimatePresence mode="wait">
-        {resultado && valorNumerico >= 100 && (
-          <motion.div
-            initial={{ y: 20 }}
-            animate={{ y: 0 }}
-            exit={{ y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-4"
+          <div className="mt-3 grid grid-cols-2 gap-x-5 border-t border-[#ded8ca] py-3">
+            <div><span className="block text-xs text-[#6b7168]">Conta atual</span><strong className="mt-1 block text-lg font-medium tracking-[-0.03em]">{formatCurrency(resultado.valorAtual)}</strong></div>
+            <div><span className="block text-xs text-[#6b7168]">Com COESA</span><strong className="mt-1 block text-lg font-medium tracking-[-0.03em] text-[#345d3f]">{formatCurrency(resultado.valorComCoesa)}</strong></div>
+          </div>
+          <div className="grid grid-cols-2 gap-x-5 border-t border-[#ded8ca] py-3">
+            <div><span className="block text-xs text-[#6b7168]">Em 12 meses</span><strong className="mt-1 block text-base font-medium">{formatCurrency(resultado.economiaAnual)}</strong></div>
+            <div><span className="block text-xs text-[#6b7168]">Em {resultado.fidelidadeAnos} {resultado.fidelidadeAnos === 1 ? 'ano' : 'anos'}</span><strong className="mt-1 block text-base font-medium">{formatCurrency(resultado.economiaAcumulada)}</strong></div>
+          </div>
+
+          <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 border-t border-[#ded8ca] pt-2 text-xs text-[#6b7168]">
+            <span>Consumo estimado</span>
+            <span>~{resultado.consumoEstimado} kWh/mês · {resultado.tipoInstalacao}</span>
+          </div>
+          <details className="mt-2 text-xs text-[#6b7168]">
+            <summary className="cursor-pointer py-1 underline underline-offset-2">Ver premissas do cálculo</summary>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+              <span>CIP: R$ {cipCustom ? parseFloat(cipCustom.replace(',', '.')) : config.cipDefault}</span>
+              <span>Disponibilidade: {resultado.disponibilidadeKwh} kWh</span>
+              <span>Tarifa c/ impostos: R$ {resultado.tarifaUtilizada.toFixed(4)}/kWh</span>
+              <span>PIS/COFINS: {(config.pisCofinsAliquota * 100).toFixed(2)}%</span>
+            </div>
+          </details>
+
+          <p className="mt-2 text-xs leading-relaxed text-[#6b7168]">Valores simulados com médias de mercado. Uma proposta personalizada considera sua fatura real.</p>
+          <a
+            href={getWhatsAppLink('Simulei minha economia no site e queria uma proposta inicial, sofIA!')}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 flex items-center justify-between rounded-md bg-[#172019] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#345d3f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#345d3f]"
           >
-            {/* Main Results Card */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-background to-primary/5 border border-primary/20 p-6">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
-              
-              <h3 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
-                <Zap className="h-5 w-5 text-primary" />
-                Sua economia com COESA
-              </h3>
-
-              {/* Consumption Estimate */}
-              <div className="text-sm text-muted-foreground mb-4">
-                📊 Consumo estimado: <span className="font-semibold text-foreground">~{resultado.consumoEstimado} kWh/mês</span>
-                <span className="ml-2 text-xs">({resultado.tipoInstalacao})</span>
-              </div>
-
-              {/* Before/After */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="space-y-1">
-                  <div className="text-sm text-muted-foreground">Você paga hoje:</div>
-                  <div className="text-xl font-bold text-foreground">
-                    {formatCurrency(resultado.valorAtual)}
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-sm text-muted-foreground">Com COESA:</div>
-                  <motion.div
-                    key={resultado.valorComCoesa}
-                    initial={{ scale: 1.1 }}
-                    animate={{ scale: 1 }}
-                    className="text-xl font-bold text-primary"
-                  >
-                    {formatCurrency(resultado.valorComCoesa)}
-                  </motion.div>
-                </div>
-              </div>
-
-              {/* Savings Breakdown */}
-              <div className="space-y-3 p-4 rounded-xl bg-background/50 border border-border">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground flex items-center gap-2">
-                    <Calculator className="h-4 w-4" />
-                    Economia Mensal:
-                  </span>
-                  <motion.span
-                    key={resultado.economiaMensal}
-                    initial={{ scale: 1.2, color: 'hsl(var(--primary))' }}
-                    animate={{ scale: 1, color: 'hsl(var(--foreground))' }}
-                    className="font-bold text-lg"
-                  >
-                    {formatCurrency(resultado.economiaMensal)}
-                    <span className="text-sm text-primary ml-1">
-                      ({resultado.economiaPercentual.toFixed(1)}%)
-                    </span>
-                  </motion.span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">📅 Economia Anual:</span>
-                  <span className="font-semibold">{formatCurrency(resultado.economiaAnual)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    Em {resultado.fidelidadeAnos} {resultado.fidelidadeAnos === 1 ? 'ano' : 'anos'}:
-                  </span>
-                  <motion.span
-                    key={resultado.economiaAcumulada}
-                    initial={{ scale: 1.1 }}
-                    animate={{ scale: 1 }}
-                    className="font-bold text-primary"
-                  >
-                    {formatCurrency(resultado.economiaAcumulada)}
-                  </motion.span>
-                </div>
-              </div>
-
-              {/* Technical Details */}
-              <div className="mt-4 text-xs text-muted-foreground flex flex-wrap gap-2">
-                <span className="px-2 py-1 bg-muted/50 rounded">
-                  CIP: R$ {cipCustom ? parseFloat(cipCustom.replace(',', '.')) : config.cipDefault}
-                </span>
-                <span className="px-2 py-1 bg-muted/50 rounded">
-                  Disponibilidade: {resultado.disponibilidadeKwh} kWh
-                </span>
-                <span className="px-2 py-1 bg-muted/50 rounded">
-                  Tarifa c/ impostos: R$ {resultado.tarifaUtilizada.toFixed(4)}/kWh
-                </span>
-                <span className="px-2 py-1 bg-muted/50 rounded">
-                  PIS/COFINS: {(config.pisCofinsAliquota * 100).toFixed(2)}%
-                </span>
-              </div>
-            </div>
-
-            {/* Disclaimer */}
-            <div className="text-center space-y-2">
-              <p className="text-sm text-muted-foreground">
-                ⚠️ <strong>Valores simulados.</strong> O cálculo considera estimativas baseadas em médias de mercado.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Para ter acesso a um orçamento personalizado com base na sua fatura real,{' '}
-                <a
-                  href={getWhatsAppLink()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary font-semibold hover:underline inline-flex items-center gap-1"
-                >
-                  clique aqui para falar com a sofIA no WhatsApp
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              </p>
-            </div>
-
-            {/* CTA Button */}
-            <a
-              href={getWhatsAppLink('Simulei minha economia no site e queria uma proposta inicial, sofIA!')}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group block w-full py-5 px-8 bg-primary text-primary-foreground font-bold text-lg text-center rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover-scale"
-            >
-              QUERO MEU DESCONTO
-              <span className="inline-block ml-2 transition-transform group-hover:translate-x-1">→</span>
-            </a>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Placeholder when no value */}
-      {(!resultado || valorNumerico < 100) && valorNumerico > 0 && (
-        <div className="text-center py-8 text-muted-foreground">
-          <p className="text-sm">Digite um valor acima de R$ 100,00 para ver sua economia</p>
+            Solicitar proposta pelo WhatsApp
+            <ExternalLink aria-hidden="true" className="h-4 w-4" />
+          </a>
+        </div>
+      ) : (
+        <div id="simulacao-elegibilidade" aria-live="polite" className="border-t border-[#ded8ca] pt-4 text-sm text-[#6b7168]">
+          {valorNumerico === 0
+            ? 'Para simular: conta a partir de R$ 300/mês e consumo estimado de 300 kWh/mês.'
+            : valorNumerico < 300
+              ? 'A conta precisa ser de pelo menos R$ 300,00 por mês para simular.'
+              : 'O consumo estimado ficou abaixo de 300 kWh/mês. Confira os dados da fatura.'}
         </div>
       )}
     </div>

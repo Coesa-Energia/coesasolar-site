@@ -1,9 +1,6 @@
 // REGRESSÃO 02/10/2026 — auditoria SEO/agentic (Lighthouse "agent-accessibility-tree"
 // FAIL): botão do menu mobile, ícones de redes sociais e <select> do simulador sem nome
-// acessível. E o hero carregava o iframe do YouTube no HTML inicial (1 MB de JS no LCP
-// mobile, título/controles do player sobre os CTAs).
-import { readFileSync } from "node:fs"
-import { join } from "node:path"
+// acessível. O hero mantém um vídeo ambiente sem controles, foco ou interação.
 import { renderToString } from "react-dom/server"
 import { describe, expect, it, vi } from "vitest"
 
@@ -50,15 +47,14 @@ describe("REGRESSÃO: controles da home com nome acessível", () => {
   })
 })
 
-describe("REGRESSÃO: hero sem iframe do YouTube no HTML inicial", () => {
-  it("renderiza a miniatura como fundo e adia o iframe", () => {
+describe("REGRESSÃO: animação ambiente do hero sem player visível", () => {
+  it("renderiza o timelapse local sem controles nem interação", () => {
     const html = renderToString(<HeroSection />)
-    expect(html).not.toContain("<iframe")
+    expect(html).toContain('/media/hero-clouds-timelapse.webm?v=3')
+    expect(html).toContain('/media/hero-clouds-timelapse.mp4?v=3')
+    expect(html).toContain('/media/hero-clouds-timelapse.gif?v=3')
+    expect(html).toContain('<video')
+    expect(html).not.toContain('<iframe')
     expect(html).toMatch(/i\.ytimg\.com\/vi\/[\w-]+\/maxresdefault\.jpg/)
-  })
-
-  it("não monta o player em tela pequena", () => {
-    const src = readFileSync(join(__dirname, "HeroSection.tsx"), "utf-8")
-    expect(src).toMatch(/max-width: 767px/)
   })
 })

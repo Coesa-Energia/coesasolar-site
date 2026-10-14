@@ -26,12 +26,13 @@ export function HomeNavbar() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToForm = () => {
-    document.querySelector("#beneficios")?.scrollIntoView({ behavior: "smooth" });
+    window.dispatchEvent(new Event("coesa:open-lead-form"));
     setIsMobileMenuOpen(false);
   };
 

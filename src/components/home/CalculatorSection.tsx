@@ -1,55 +1,26 @@
-import { Calculator, Sparkles } from 'lucide-react';
 import { EconomyCalculator } from './EconomyCalculator';
 
 export function CalculatorSection() {
   return (
-    <section id="calculadora" className="py-20 bg-background relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      </div>
-
-      <div className="container mx-auto px-4 relative z-10">
-        {/* Header */}
-        <div className="text-center mb-12 space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-sm text-primary font-medium">
-            <Calculator className="h-4 w-4" />
-            Simulador de Economia
-          </div>
-          
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Calcule sua economia{' '}
-            <span className="text-primary">REAL</span>{' '}
-            em segundos
+    <section id="calculadora" aria-labelledby="calculadora-titulo" className="scroll-mt-20 bg-[#f4eddf] text-[#172019]">
+      <div className="mx-auto grid max-w-[1600px] items-center gap-12 px-5 py-12 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:grid-cols-[0.85fr_1.15fr] lg:gap-20 lg:px-14 lg:py-6 xl:px-20">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#58715e]">05 · Simulador de economia</p>
+          <h2 id="calculadora-titulo" className="mt-5 max-w-2xl text-[clamp(3rem,4.7vw,5.4rem)] font-medium leading-[0.94] tracking-[-0.07em]">
+            Sua economia, <span className="text-[#3b6948]">em números.</span>
           </h2>
-          
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Digite o valor da sua conta de luz e veja quanto você pode economizar 
-            com energia solar por assinatura, considerando{' '}
-            <span className="text-foreground font-medium">CIP</span>,{' '}
-            <span className="text-foreground font-medium">disponibilidade mínima</span> e{' '}
-            <span className="text-foreground font-medium">PIS/COFINS</span>.
+          <p className="mt-6 max-w-lg text-base leading-relaxed text-[#596259] sm:text-lg">
+            Digite o valor da sua conta e veja uma estimativa mensal e anual. O cálculo considera encargos e consumo mínimo, por isso o resultado pode variar.
           </p>
+          <p className="mt-8 max-w-lg border-t border-[#d5cbb7] pt-4 font-mono text-[10px] uppercase tracking-[0.16em] text-[#6b7168]">Informe a conta · Confira o resultado · Ajuste se quiser</p>
         </div>
 
-        {/* Calculator */}
-        <EconomyCalculator />
-
-        {/* Trust badges */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span>Cálculo baseado em dados reais do mercado</span>
+        <div className="min-w-0 rounded-[1.5rem] border border-[#d5cbb7] bg-[#fbf9f3] p-5 sm:p-7 lg:p-6">
+          <div className="mb-3 flex items-center justify-between gap-3 border-b border-[#e1dacb] pb-3">
+            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#617366]">Simulação</span>
+            <span className="text-xs text-[#6b7168]">Sem compromisso</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span>Sem compromisso</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span>100% gratuito</span>
-          </div>
+          <EconomyCalculator />
         </div>
       </div>
     </section>

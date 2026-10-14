@@ -54,7 +54,7 @@ export function AboutSection() {
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed mb-8">
               A <strong className="text-foreground">COESA Energia Inteligente</strong> é pioneira no modelo de energia solar 
-              por assinatura em Minas Gerais. Com usinas próprias estrategicamente localizadas, 
+              por assinatura em Minas Gerais. Com usinas estrategicamente localizadas,
               garantimos energia de qualidade e economia real para nossos assinantes.
             </p>
             
