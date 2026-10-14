@@ -231,7 +231,7 @@ export default function SolicitarPropostaDefinitiva() {
       
       // Pre-fill form with existing data (but don't mark as AI extracted)
       if (data.cliente_cpf_cnpj) {
-        setCpfCnpj(data.cliente_cpf_cnpj);
+        setCpfCnpj(formatCpfCnpj(data.cliente_cpf_cnpj));
         const docType = getDocumentType(data.cliente_cpf_cnpj);
         if (docType === 'CNPJ') {
           setTipoPessoa('PJ');
@@ -1157,6 +1157,7 @@ export default function SolicitarPropostaDefinitiva() {
                       </Label>
                       <Input
                         id="cpf_cnpj"
+                        inputMode="numeric"
                         value={cpfCnpj}
                         onChange={(e) => setCpfCnpj(formatCpfCnpj(e.target.value))}
                         placeholder={tipoPessoa === 'PF' ? '000.000.000-00' : '00.000.000/0000-00'}

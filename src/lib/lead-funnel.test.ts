@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { formatLeadBill, openLeadForm, trackLeadEvent } from "./lead-funnel";
+import { formatLeadBill, formatLeadBillInput, openLeadForm, trackLeadEvent } from "./lead-funnel";
 
 afterEach(() => {
   delete (window as Window & { gtag?: unknown }).gtag;
@@ -11,6 +11,12 @@ describe("lead funnel", () => {
     expect(formatLeadBill("1.250,50")).toBe("R$ 1.250,50");
     expect(formatLeadBill("1.250")).toBe("R$ 1.250,00");
     expect(formatLeadBill("R$ 300,00")).toBe("R$ 300,00");
+  });
+
+  it("mostra máscara monetária durante a digitação e completa centavos ao sair", () => {
+    expect(formatLeadBillInput("1000")).toBe("R$ 1.000");
+    expect(formatLeadBillInput("R$ 1.000,5")).toBe("R$ 1.000,5");
+    expect(formatLeadBill("R$ 1.000,5")).toBe("R$ 1.000,50");
   });
 
   it("passa dados apenas ao formulário e envia ao analytics só evento e origem", () => {

@@ -33,6 +33,8 @@ describe("REGRESSÃO: máscara de WhatsApp e portfólio (Fase 2)", () => {
     expect(formatarWhatsapp("31")).toBe("(31")
     expect(formatarWhatsapp("3199999")).toBe("(31) 99999")
     expect(formatarWhatsapp("31999998888")).toBe("(31) 99999-8888")
+    expect(formatarWhatsapp("3133334444")).toBe("(31) 3333-4444")
+    expect(formatarWhatsapp("3199917036460000")).toBe("(31) 99917-0364")
   })
 
   it("ignora caracteres não numéricos e trunca em 11 dígitos", () => {

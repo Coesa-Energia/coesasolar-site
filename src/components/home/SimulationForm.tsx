@@ -19,13 +19,14 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ThankYouModal } from "./ThankYouModal";
-import { trackLeadEvent, type LeadPrefill } from "@/lib/lead-funnel";
+import { formatLeadBill, formatLeadBillInput, parseLeadBill, trackLeadEvent, type LeadPrefill } from "@/lib/lead-funnel";
+import { formatarWhatsapp } from "@/lib/carreiras/form-utils";
 
 export const simulationFormSchema = z.object({
   nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
   telefone: z.string().refine((value) => /^\d{10,11}$/.test(value.replace(/\D/g, "")), "Telefone inválido"),
   email: z.string().email("E-mail inválido"),
-  valorConta: z.string().min(1, "Informe o valor da conta").refine((value) => Number(value.replace(/\D/g, "")) >= 30000, "Conta mínima de R$ 300,00 por mês"),
+  valorConta: z.string().min(1, "Informe o valor da conta").refine((value) => parseLeadBill(value) >= 300, "Conta mínima de R$ 300,00 por mês"),
   concessionaria: z.string().min(1, "Selecione a concessionária"),
 });
 
@@ -73,7 +74,7 @@ export function SimulationForm({ compact = false, prefill, source = "inline_form
   const concessionariaValue = watch("concessionaria");
 
   useEffect(() => {
-    if (prefill?.telefone) setValue("telefone", prefill.telefone);
+    if (prefill?.telefone) setValue("telefone", formatarWhatsapp(prefill.telefone));
     if (prefill?.valorConta) setValue("valorConta", prefill.valorConta);
   }, [prefill, setValue]);
 
@@ -99,23 +100,6 @@ export function SimulationForm({ compact = false, prefill, source = "inline_form
 
     fetchConcessionarias();
   }, []);
-
-  const formatPhone = (value: string) => {
-    const digits = value.replace(/\D/g, "");
-    if (digits.length <= 2) return `(${digits}`;
-    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
-  };
-
-  const formatCurrency = (value: string) => {
-    const digits = value.replace(/\D/g, "");
-    if (!digits) return "";
-    const number = parseInt(digits) / 100;
-    return number.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-  };
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
@@ -228,7 +212,7 @@ export function SimulationForm({ compact = false, prefill, source = "inline_form
             placeholder="(00) 00000-0000"
             {...register("telefone")}
             onChange={(e) => {
-              const formatted = formatPhone(e.target.value);
+              const formatted = formatarWhatsapp(e.target.value);
               setValue("telefone", formatted);
             }}
             className={`bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white rounded-sm h-12 ${
@@ -263,9 +247,10 @@ export function SimulationForm({ compact = false, prefill, source = "inline_form
             placeholder="R$ 0,00"
             {...register("valorConta")}
             onChange={(e) => {
-              const formatted = formatCurrency(e.target.value);
+              const formatted = formatLeadBillInput(e.target.value);
               setValue("valorConta", formatted);
             }}
+            onBlur={(event) => setValue("valorConta", formatLeadBill(event.target.value))}
             className={`bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white rounded-sm h-12 ${
               errors.valorConta ? "border-red-500" : ""
             }`}

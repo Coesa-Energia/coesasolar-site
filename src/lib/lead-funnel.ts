@@ -10,13 +10,27 @@ export function openLeadForm(source: string, prefill: LeadPrefill = {}) {
   window.dispatchEvent(new CustomEvent("coesa:open-lead-form", { detail: { source, prefill } }));
 }
 
-export function formatLeadBill(value: string) {
+export function parseLeadBill(value: string) {
   const clean = value.replace(/[^\d,.]/g, "");
   const normalized = clean.includes(",")
     ? clean.replace(/\./g, "").replace(",", ".")
     : /^\d{1,3}(\.\d{3})+$/.test(clean) ? clean.replace(/\./g, "") : clean;
-  const amount = Number(normalized);
+  return normalized ? Number(normalized) : NaN;
+}
+
+export function formatLeadBill(value: string) {
+  const amount = parseLeadBill(value);
   return Number.isFinite(amount) && amount > 0
     ? amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
     : "";
+}
+
+export function formatLeadBillInput(value: string) {
+  const clean = value.replace(/[^\d,.]/g, "");
+  if (!clean) return "";
+  const localized = !clean.includes(",") && /^\d+\.\d{1,2}$/.test(clean)
+    ? clean.replace(".", ",") : clean;
+  const [reais, cents = ""] = localized.split(",");
+  const integer = Number(reais.replace(/\D/g, "")).toLocaleString("pt-BR");
+  return `R$ ${integer}${localized.includes(",") ? `,${cents.replace(/\D/g, "").slice(0, 2)}` : ""}`;
 }

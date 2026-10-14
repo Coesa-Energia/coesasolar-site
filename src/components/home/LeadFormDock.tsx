@@ -4,7 +4,8 @@ import { FormEvent, useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { SimulationForm } from "./SimulationForm";
-import { formatLeadBill, openLeadForm, trackLeadEvent, type LeadPrefill } from "@/lib/lead-funnel";
+import { formatLeadBill, formatLeadBillInput, openLeadForm, trackLeadEvent, type LeadPrefill } from "@/lib/lead-funnel";
+import { formatarWhatsapp } from "@/lib/carreiras/form-utils";
 
 export function CompactLeadForm() {
   const [whatsapp, setWhatsapp] = useState("");
@@ -20,9 +21,9 @@ export function CompactLeadForm() {
       <p className="mb-3 text-base font-medium text-white">Comece sua simulação</p>
       <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
         <label className="sr-only" htmlFor="hero-whatsapp">WhatsApp</label>
-        <input id="hero-whatsapp" value={whatsapp} onChange={(event) => setWhatsapp(event.target.value)} placeholder="Seu WhatsApp" inputMode="tel" required className="h-11 rounded-md border border-white/15 bg-white/[0.06] px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-[#ded7c5]" />
+        <input id="hero-whatsapp" value={whatsapp} onChange={(event) => setWhatsapp(formatarWhatsapp(event.target.value))} placeholder="(00) 00000-0000" inputMode="tel" autoComplete="tel" required className="h-11 rounded-md border border-white/15 bg-white/[0.06] px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-[#ded7c5]" />
         <label className="sr-only" htmlFor="hero-valor">Valor da conta</label>
-        <input id="hero-valor" value={valor} onChange={(event) => setValor(event.target.value)} placeholder="Valor da conta" inputMode="decimal" required className="h-11 rounded-md border border-white/15 bg-white/[0.06] px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-[#ded7c5]" />
+        <input id="hero-valor" value={valor} onChange={(event) => setValor(formatLeadBillInput(event.target.value))} onBlur={() => setValor(formatLeadBill(valor))} placeholder="R$ 0,00" inputMode="decimal" required className="h-11 rounded-md border border-white/15 bg-white/[0.06] px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-[#ded7c5]" />
         <button type="submit" className="h-11 rounded-md border border-[#f3eee3] bg-[#f3eee3] px-5 text-sm font-semibold text-[#11130f] transition hover:bg-white">Continuar →</button>
       </div>
       <p className="pt-2 text-[11px] text-white/65">Seus dados seguem preenchidos na próxima etapa.</p>
