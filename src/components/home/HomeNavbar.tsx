@@ -80,8 +80,8 @@ export function HomeNavbar() {
       </motion.header>
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div initial={{}} animate={{}} exit={{}} className="fixed inset-0 z-40 bg-black pt-20 lg:hidden">
-            <div className="container mx-auto px-4 py-8 flex flex-col gap-6">
+          <motion.div initial={{}} animate={{}} exit={{}} className="fixed inset-0 z-40 overflow-y-auto bg-black pt-20 lg:hidden">
+            <div className="container mx-auto px-4 py-8 pb-12 flex flex-col gap-6">
               {navLinks.map((link) => (
                 <a key={link.href} href={link.href} className="text-2xl text-white/80 hover:text-white py-2" onClick={() => setIsMobileMenuOpen(false)}>
                   {link.label}
