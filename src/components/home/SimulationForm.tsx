@@ -22,7 +22,7 @@ import { ThankYouModal } from "./ThankYouModal";
 
 export const simulationFormSchema = z.object({
   nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
-  telefone: z.string().min(10, "Telefone inválido"),
+  telefone: z.string().refine((value) => /^\d{10,11}$/.test(value.replace(/\D/g, "")), "Telefone inválido"),
   email: z.string().email("E-mail inválido"),
   valorConta: z.string().min(1, "Informe o valor da conta").refine((value) => Number(value.replace(/\D/g, "")) >= 30000, "Conta mínima de R$ 300,00 por mês"),
   concessionaria: z.string().min(1, "Selecione a concessionária"),
@@ -260,7 +260,7 @@ export function SimulationForm({ compact = false }: { compact?: boolean } = {}) 
           <Label htmlFor={`${formId}-concessionaria`} className="text-white/80 text-sm">Concessionária</Label>
           <Select
             value={concessionariaValue}
-            onValueChange={(value) => setValue("concessionaria", value)}
+            onValueChange={(value) => setValue("concessionaria", value, { shouldValidate: true })}
           >
             <SelectTrigger 
               id={`${formId}-concessionaria`}
@@ -304,7 +304,7 @@ export function SimulationForm({ compact = false }: { compact?: boolean } = {}) 
         </Button>
 
         <p className={`pt-2 text-center text-xs text-white/40 ${compact ? "sm:col-span-2" : ""}`}>
-          Sua proposta será enviada por WhatsApp e E-mail
+          A COESA entrará em contato por WhatsApp ou e-mail
         </p>
       </form>
 

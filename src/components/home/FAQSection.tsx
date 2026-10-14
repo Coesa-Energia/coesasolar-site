@@ -13,24 +13,18 @@ export function FAQSection() {
   const [openItem, setOpenItem] = useState("");
 
   return (
-    <section id="faq" className="py-20 lg:py-32 bg-neutral-50">
-      <div className="container mx-auto px-4">
+    <section id="faq" aria-labelledby="faq-titulo" className="scroll-mt-20 bg-[#e9eee9] text-[#17251b]">
+      <div className="mx-auto grid max-w-[1600px] gap-10 px-5 py-14 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:grid-cols-[0.7fr_1fr] lg:items-center lg:gap-16 lg:px-14 lg:py-8 xl:px-20">
         <motion.div
           initial={{ y: 20 }}
           whileInView={{ y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="lg:self-start lg:pt-10"
         >
-          <p className="text-sm font-medium text-muted-foreground tracking-widest uppercase mb-4">
-            FAQ
-          </p>
-          <h2 
-            className="text-3xl md:text-4xl lg:text-5xl font-medium text-foreground"
-            style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
-          >
-            Perguntas frequentes
-          </h2>
+          <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.25em] text-[#617b64]">16 · Dúvidas frequentes</p>
+          <h2 id="faq-titulo" className="text-[clamp(3.2rem,5vw,6rem)] font-medium leading-[0.94] tracking-[-0.07em]">Tudo mais <span className="text-[#467653]">claro.</span></h2>
+          <p className="mt-6 max-w-sm text-base leading-relaxed text-[#5c695d]">Respostas diretas sobre sua conta, a assinatura e a energia que chega pela rede.</p>
         </motion.div>
 
         <motion.div
@@ -38,22 +32,22 @@ export function FAQSection() {
           whileInView={{ y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="max-w-3xl mx-auto"
+          className="min-w-0 border-t border-[#b9c8b9]"
         >
           {/* Sem esqueleto: DEFAULT_FAQS já é o estado inicial, então perguntas e respostas
               saem no HTML do servidor. forceMount mantém a resposta fechada no DOM; o hidden
               controlado é obrigatório porque o Radix não esconde conteúdo forçado. */}
-            <Accordion type="single" collapsible value={openItem} onValueChange={setOpenItem} className="space-y-4">
+            <Accordion type="single" collapsible value={openItem} onValueChange={setOpenItem}>
               {faqs.map((faq, index) => (
                 <AccordionItem
                   key={index}
                   value={`item-${index}`}
-                  className="bg-white border-0 px-6 data-[state=open]:shadow-sm"
+                  className="border-b border-[#b9c8b9] px-1"
                 >
-                  <AccordionTrigger className="text-left font-medium text-foreground hover:no-underline py-6 text-base">
+                  <AccordionTrigger className="py-5 text-left text-base font-medium tracking-[-0.02em] hover:no-underline sm:text-lg">
                     {faq.question}
                   </AccordionTrigger>
-                  <AccordionContent forceMount hidden={openItem !== `item-${index}`} className="text-muted-foreground pb-6">
+                  <AccordionContent forceMount hidden={openItem !== `item-${index}`} className="pb-5 text-sm leading-relaxed text-[#5c695d]">
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>
