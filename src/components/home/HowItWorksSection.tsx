@@ -1,3 +1,4 @@
+import { openLeadForm } from "@/lib/lead-funnel";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { responsiveImageProps } from "@/lib/responsive-image";
@@ -81,7 +82,7 @@ export function HowItWorksSection() {
 
         <button
           type="button"
-          onClick={() => window.dispatchEvent(new Event("coesa:open-lead-form"))}
+          onClick={() => openLeadForm("how_it_works")}
           className="group mt-6 inline-flex min-h-12 items-center justify-between gap-8 self-start rounded-full bg-[#e9ece3] px-6 py-3 text-sm font-medium text-[#203b2b] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9cfb0] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101c16] lg:mt-10 lg:min-h-14 lg:py-4"
         >
           Começar minha simulação

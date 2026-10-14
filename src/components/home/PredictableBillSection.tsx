@@ -1,5 +1,6 @@
 "use client";
 
+import { openLeadForm } from "@/lib/lead-funnel";
 import { useRef, useState } from "react";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
@@ -33,7 +34,7 @@ export function PredictableBillSection() {
             <div className="flex items-center justify-between border-b border-[#d5cbb7] pb-5"><span className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#657367]">Sua conta, mês a mês</span><span className="text-sm text-[#657367]">{months[Math.min(months.length - 1, Math.floor(progress * months.length))]}</span></div>
             <div className="mt-4 flex items-end justify-between gap-5 lg:mt-8"><div><span className="block text-sm text-[#657367]">Desconto aplicado</span><strong className="mt-1 block text-5xl font-medium tracking-[-0.07em] text-[#345d3f]">20%</strong></div><div className="text-right"><span className="block text-sm text-[#657367]">Valor mínimo da fatura</span><strong className="mt-1 block text-4xl font-medium tracking-[-0.07em]">R$ 350</strong></div></div>
             <div className="mt-4 lg:mt-8"><div className="mb-2 flex justify-between text-xs text-[#657367]"><span>Distribuidora</span><span>COESA</span></div><ProgressiveFluxBar scrollProgress={scrollYProgress} /></div>
-            <button type="button" onClick={() => window.dispatchEvent(new Event("coesa:open-lead-form"))} className="group mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#1d271f] transition hover:text-[#345d3f] lg:mt-8">Calcular minha economia <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></button>
+            <button type="button" onClick={() => openLeadForm("predictable_bill")} className="group mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#1d271f] transition hover:text-[#345d3f] lg:mt-8">Calcular minha economia <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></button>
           </div>
         </div>
         <div className="mt-3 border-t border-[#d5cbb7] pt-3 text-xs text-[#697066] lg:mt-8 lg:pt-4">O consumo varia. O desconto continua.</div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { openLeadForm } from "@/lib/lead-funnel";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ export function HomeNavbar() {
   }, []);
 
   const scrollToForm = () => {
-    window.dispatchEvent(new Event("coesa:open-lead-form"));
+    openLeadForm("navbar");
     setIsMobileMenuOpen(false);
   };
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { openLeadForm } from "@/lib/lead-funnel";
 import { useEffect, useRef, useState } from "react";
 import { useMotionValueEvent, useScroll } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
@@ -207,7 +208,7 @@ export function ConnectionSceneSection() {
     {scenes.map((scene, index) => <section key={scene.label} aria-label={scene.label} className="relative z-10 flex min-h-[calc(100svh-80px)] flex-col justify-end px-5 pb-8 pt-6 sm:px-8 lg:px-14 lg:pb-12 xl:px-20">
       <div className="w-full max-w-[1600px] mx-auto">
         <div className="max-w-3xl"><p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/48">{scene.label}</p><h2 className="mt-4 text-[clamp(2.8rem,5vw,5rem)] font-medium leading-[0.9] tracking-[-0.075em] text-white">{scene.title}</h2><p className="mt-5 max-w-md text-base leading-relaxed text-white/62 sm:text-lg">{scene.body}</p><div className="mt-7 grid max-w-md grid-cols-2 border-t border-white/15 pt-4"><div><strong className="block text-3xl font-medium tracking-[-0.05em] text-white">+2.000</strong><span className="mt-1 block text-sm text-white/48">clientes COESA</span></div><div><strong className="block text-3xl font-medium tracking-[-0.05em] text-white">R$ 0</strong><span className="mt-1 block text-sm text-white/48">de adesão</span></div></div></div>
-        <div className="mt-6 flex items-end justify-between gap-6 border-t border-white/10 pt-4 text-xs text-white/42"><span>{index === 0 ? "As usinas entram na rede." : index === 1 ? "O fluxo chega até você." : "A conta fica mais simples."}</span>{index === 0 && <span>Role para acompanhar</span>}{index === 2 && <button type="button" onClick={() => window.dispatchEvent(new Event("coesa:open-lead-form"))} className="inline-flex items-center gap-2 text-white/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4efe2]">Simular minha conta <ArrowUpRight className="h-4 w-4" /></button>}</div>
+        <div className="mt-6 flex items-end justify-between gap-6 border-t border-white/10 pt-4 text-xs text-white/42"><span>{index === 0 ? "As usinas entram na rede." : index === 1 ? "O fluxo chega até você." : "A conta fica mais simples."}</span>{index === 0 && <span>Role para acompanhar</span>}{index === 2 && <button type="button" onClick={() => openLeadForm("connection_scene")} className="inline-flex items-center gap-2 text-white/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4efe2]">Simular minha conta <ArrowUpRight className="h-4 w-4" /></button>}</div>
       </div>
     </section>)}
   </div>;

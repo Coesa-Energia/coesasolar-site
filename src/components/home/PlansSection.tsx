@@ -48,7 +48,7 @@ export function PlansSection() {
               </strong>
             </div>
             <p className="mt-2 max-w-xs text-xs leading-relaxed text-[#566359] sm:mt-6 sm:text-sm">
-              O percentual contratado permanece. O valor economizado acompanha seu consumo.
+              Desconto na energia compensada. A economia na fatura total varia com consumo, encargos e tributos.
             </p>
           </div>
 

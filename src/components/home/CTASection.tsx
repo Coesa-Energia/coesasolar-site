@@ -1,3 +1,4 @@
+import { openLeadForm } from "@/lib/lead-funnel";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { responsiveImageProps } from "@/lib/responsive-image";
@@ -21,7 +22,7 @@ export function CTASection() {
           <div className="mt-12 flex flex-col gap-8 border-t border-white/25 pt-7 lg:flex-row lg:items-end lg:justify-between">
             <p className="max-w-md text-base leading-relaxed text-white/70 sm:text-lg">Comece com o valor médio da sua conta. A COESA entra em contato para continuar a simulação.</p>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <button type="button" onClick={() => window.dispatchEvent(new Event("coesa:open-lead-form"))} className="inline-flex min-h-14 items-center justify-between gap-8 rounded-full bg-[#f5f0e5] px-6 py-4 text-sm font-medium text-[#203b2b] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9cfb0] focus-visible:ring-offset-2 focus-visible:ring-offset-[#10251d]">Começar minha simulação <ArrowUpRight className="h-5 w-5" aria-hidden="true" /></button>
+              <button type="button" onClick={() => openLeadForm("final_cta")} className="inline-flex min-h-14 items-center justify-between gap-8 rounded-full bg-[#f5f0e5] px-6 py-4 text-sm font-medium text-[#203b2b] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9cfb0] focus-visible:ring-offset-2 focus-visible:ring-offset-[#10251d]">Começar minha simulação <ArrowUpRight className="h-5 w-5" aria-hidden="true" /></button>
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-14 items-center justify-between gap-8 rounded-full border border-white/45 px-6 py-4 text-sm font-medium text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9cfb0] focus-visible:ring-offset-2 focus-visible:ring-offset-[#10251d]">Falar com a COESA <ArrowUpRight className="h-5 w-5" aria-hidden="true" /></a>
             </div>
           </div>

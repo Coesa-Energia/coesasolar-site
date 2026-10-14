@@ -91,7 +91,7 @@ export function EconomyCalculator() {
       <div className="space-y-2">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <label htmlFor="valor-conta-simulacao" className="block text-sm font-medium text-[#425547]">Quanto você paga de luz por mês?</label>
-          <span className="text-xs text-[#345d3f]">{PUBLIC_DISCOUNT_LABEL} de desconto</span>
+          <span className="text-xs text-[#345d3f]">{PUBLIC_DISCOUNT_LABEL} na energia compensada</span>
         </div>
         <div className="relative">
           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl text-[#5e6b5f]">R$</span>
@@ -255,6 +255,7 @@ export function EconomyCalculator() {
             </div>
             <span className="pb-1 text-sm text-[#345d3f]">{resultado.economiaPercentual.toFixed(1)}% da fatura total</span>
           </div>
+          <p className="mt-2 text-xs leading-relaxed text-[#6b7168]">O desconto incide na energia compensada. Encargos, tributos e consumo mínimo reduzem a economia sobre a fatura total.</p>
 
           <div className="mt-3 grid grid-cols-2 gap-x-5 border-t border-[#ded8ca] py-3">
             <div><span className="block text-xs text-[#6b7168]">Conta atual</span><strong className="mt-1 block text-lg font-medium tracking-[-0.03em]">{formatCurrency(resultado.valorAtual)}</strong></div>

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useConfiguracoes } from "@/hooks/useConfiguracoes";
 import { PUBLIC_DISCOUNT_LABEL } from "@/lib/public-discount";
 import { CompactLeadForm } from "./LeadFormDock";
+import { openLeadForm } from "@/lib/lead-funnel";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 const iconMap: Record<string, LucideIcon> = { Zap, Leaf, Shield, DollarSign, Clock: DollarSign };
@@ -13,10 +14,10 @@ export function HeroSection() {
   const stats = useMemo(() => {
     try {
       const parsed = JSON.parse(configs.hero_stats) as Array<{ icon: string; value: string; label: string }>;
-      return parsed.map((stat) => ({ ...stat, value: stat.label.toLowerCase() === "economia" ? PUBLIC_DISCOUNT_LABEL : stat.value, Icon: iconMap[stat.icon] || Zap }));
+      return parsed.map((stat) => ({ ...stat, value: stat.label.toLowerCase() === "economia" ? PUBLIC_DISCOUNT_LABEL : stat.value, label: stat.label.toLowerCase() === "economia" ? "Desconto na energia" : stat.label, Icon: iconMap[stat.icon] || Zap }));
     } catch {
       return [
-        { value: PUBLIC_DISCOUNT_LABEL, label: "Economia", Icon: Zap },
+        { value: PUBLIC_DISCOUNT_LABEL, label: "Desconto na energia", Icon: Zap },
         { value: "100%", label: "Energia Limpa", Icon: Leaf },
         { value: "5 anos", label: "Garantia", Icon: Shield },
         { value: "0", label: "Investimento", Icon: DollarSign },
@@ -24,7 +25,7 @@ export function HeroSection() {
     }
   }, [configs.hero_stats]);
 
-  const openForm = () => window.dispatchEvent(new Event("coesa:open-lead-form"));
+  const openForm = () => openLeadForm("hero_full_form");
   const scrollToStory = () => document.querySelector("#beneficios")?.scrollIntoView({ behavior: "smooth" });
 
   return (
@@ -46,12 +47,11 @@ export function HeroSection() {
             <motion.div initial={{ y: 24 }} animate={{ y: 0 }} transition={{ duration: 0.8, ease }} className="max-w-3xl">
               <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.24em] text-white/50">Energia inteligente</p>
               <h1 className="max-w-3xl text-[clamp(3.2rem,6.2vw,6.8rem)] font-medium leading-[0.9] tracking-[-0.07em] text-white">Energia Solar por Assinatura</h1>
-              <p className="mt-7 max-w-xl text-base leading-relaxed text-white/65 sm:text-lg">Economize {PUBLIC_DISCOUNT_LABEL} na sua conta de luz sem investir nada. Energia limpa direto para sua casa.</p>
+              <p className="mt-7 max-w-xl text-base leading-relaxed text-white/65 sm:text-lg">{PUBLIC_DISCOUNT_LABEL} de desconto na energia compensada pela COESA. Sem placas, obras ou investimento.</p>
               <button type="button" onClick={scrollToStory} className="mt-7 inline-flex items-center gap-2 text-sm text-white/55 transition hover:text-white"><ChevronDown className="h-4 w-4" /> Como funciona</button>
             </motion.div>
 
             <motion.div initial={{ y: 24 }} animate={{ y: 0 }} transition={{ duration: 0.8, delay: 0.14, ease }} className="lg:justify-self-end lg:max-w-[34rem]">
-              <div className="mb-5 max-w-md lg:ml-auto"><p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/40">Comece agora</p></div>
               <CompactLeadForm />
               <div className="mt-4 flex items-center justify-between gap-4 text-xs text-white/45 lg:justify-end"><span className="flex items-center gap-1.5"><MessageCircle className="h-3.5 w-3.5 text-[#6f8b72]" /> Resposta pelo WhatsApp</span><button type="button" onClick={openForm} className="hidden items-center gap-1 text-white/65 transition hover:text-white sm:inline-flex">Prefiro preencher tudo <span aria-hidden="true">↗</span></button></div>
             </motion.div>

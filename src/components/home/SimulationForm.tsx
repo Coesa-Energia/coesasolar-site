@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useId } from "react";
+import { useState, useEffect, useId, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -19,6 +19,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ThankYouModal } from "./ThankYouModal";
+import { trackLeadEvent, type LeadPrefill } from "@/lib/lead-funnel";
 
 export const simulationFormSchema = z.object({
   nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
@@ -49,8 +50,9 @@ function isConcessionariaAtendida(nome: string): boolean {
   );
 }
 
-export function SimulationForm({ compact = false }: { compact?: boolean } = {}) {
+export function SimulationForm({ compact = false, prefill, source = "inline_form" }: { compact?: boolean; prefill?: LeadPrefill; source?: string } = {}) {
   const formId = useId();
+  const started = useRef(false);
   const [concessionarias, setConcessionarias] = useState<Concessionaria[]>(
     CONCESSIONARIAS_ATENDIDAS.map((nome) => ({ id: nome, nome }))
   );
@@ -69,6 +71,11 @@ export function SimulationForm({ compact = false }: { compact?: boolean } = {}) 
   });
 
   const concessionariaValue = watch("concessionaria");
+
+  useEffect(() => {
+    if (prefill?.telefone) setValue("telefone", prefill.telefone);
+    if (prefill?.valorConta) setValue("valorConta", prefill.valorConta);
+  }, [prefill, setValue]);
 
   useEffect(() => {
     async function fetchConcessionarias() {
@@ -126,6 +133,7 @@ export function SimulationForm({ compact = false }: { compact?: boolean } = {}) 
       });
 
       if (error) {
+        trackLeadEvent("lead_submit_error", source);
         console.error('Error creating lead:', error);
         toast.error('Erro ao enviar simulação. Tente novamente.');
         setIsSubmitting(false);
@@ -133,6 +141,7 @@ export function SimulationForm({ compact = false }: { compact?: boolean } = {}) 
       }
 
       if (!result?.success) {
+        trackLeadEvent("lead_submit_error", source);
         console.error('Lead creation failed:', result);
         toast.error(result?.error || 'Erro ao processar simulação');
         setIsSubmitting(false);
@@ -144,6 +153,7 @@ export function SimulationForm({ compact = false }: { compact?: boolean } = {}) 
       setIsRegionNotSupported(regionNotSupported);
 
       // Success! Show thank you modal
+      trackLeadEvent("generate_lead", source);
       setSubmittedName(data.nome);
       setShowThankYou(true);
       
@@ -155,6 +165,7 @@ export function SimulationForm({ compact = false }: { compact?: boolean } = {}) 
       setValue("concessionaria", "");
       
     } catch (err) {
+      trackLeadEvent("lead_submit_error", source);
       console.error('Submit error:', err);
       toast.error(
         !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
@@ -186,7 +197,15 @@ export function SimulationForm({ compact = false }: { compact?: boolean } = {}) 
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className={compact ? "grid gap-4 sm:grid-cols-2" : "space-y-5"}>
+      <form
+        onFocusCapture={() => {
+          if (started.current) return;
+          started.current = true;
+          trackLeadEvent("lead_form_start", source);
+        }}
+        onSubmit={handleSubmit(onSubmit, () => trackLeadEvent("lead_validation_error", source))}
+        className={compact ? "grid gap-4 sm:grid-cols-2" : "space-y-5"}
+      >
         <div className="space-y-2">
           <Label htmlFor={`${formId}-nome`} className="text-white/80 text-sm">Nome completo</Label>
           <Input

@@ -1,11 +1,12 @@
 "use client";
 
+import { openLeadForm } from "@/lib/lead-funnel";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { PUBLIC_DISCOUNT_LABEL } from "@/lib/public-discount";
 
 const benefits = [
-  { number: "01", title: `${PUBLIC_DISCOUNT_LABEL} de desconto`, detail: "Economia na conta, todo mês." },
+  { number: "01", title: `${PUBLIC_DISCOUNT_LABEL} de desconto`, detail: "Na energia compensada; a economia total varia." },
   { number: "02", title: "Sem instalar painéis", detail: "Sem obras na sua casa." },
   { number: "03", title: "Sem investimento inicial", detail: "Sem comprar equipamentos." },
   { number: "04", title: "Adesão digital", detail: "Comece de onde estiver." },
@@ -26,7 +27,7 @@ export function BenefitsSection() {
             Economize sem <span className="text-[#3b6948]">complicação.</span>
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-[#566359] sm:mt-5 sm:text-base">
-            Energia solar por assinatura para reduzir sua conta de luz em {PUBLIC_DISCOUNT_LABEL}. Sem placas no telhado, sem obras e sem investimento inicial.
+            Energia solar por assinatura com {PUBLIC_DISCOUNT_LABEL} de desconto na energia compensada. A economia na fatura varia conforme os encargos. Sem placas, obras ou investimento inicial.
           </p>
 
           <div className="mt-4 grid grid-cols-2 border-t border-[#bdc9bc] sm:mt-6">
@@ -56,12 +57,12 @@ export function BenefitsSection() {
             <div className="mt-3 border-y border-white/20 py-2 sm:mt-6 sm:py-4">
               <span className="block font-mono text-[10px] uppercase tracking-[0.22em] text-[#a6cbb0]">Desconto COESA</span>
               <strong className="mt-1 block text-[clamp(3.2rem,8vw,7rem)] font-medium leading-none tracking-[-0.09em]">{PUBLIC_DISCOUNT_LABEL}</strong>
-              <p className="mt-1 text-xs text-white/60 sm:mt-3 sm:text-sm">na conta de luz, sem instalar nada</p>
+              <p className="mt-1 text-xs text-white/60 sm:mt-3 sm:text-sm">na energia compensada, sem instalar nada</p>
             </div>
             <p className="mt-3 max-w-sm text-xs leading-relaxed text-white/70 sm:mt-5 sm:text-sm">Informe sua distribuidora e o valor médio da fatura. A COESA continua a conversa pelo WhatsApp.</p>
             <button
               type="button"
-              onClick={() => window.dispatchEvent(new Event("coesa:open-lead-form"))}
+              onClick={() => openLeadForm("benefits")}
               className="group mt-3 flex w-full items-center justify-between rounded-full bg-[#e9ece3] px-5 py-3 text-sm font-medium text-[#203b2b] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b9e6c3] focus-visible:ring-offset-2 focus-visible:ring-offset-[#203b2b] sm:mt-5"
             >
               Simular minha economia

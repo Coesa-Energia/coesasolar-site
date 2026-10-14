@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { SimulationForm } from "./SimulationForm";
+import { formatLeadBill, openLeadForm, trackLeadEvent, type LeadPrefill } from "@/lib/lead-funnel";
 
 export function CompactLeadForm() {
   const [whatsapp, setWhatsapp] = useState("");
@@ -11,19 +12,20 @@ export function CompactLeadForm() {
 
   const abrirFormularioCompleto = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    window.dispatchEvent(new Event("coesa:open-lead-form"));
+    openLeadForm("hero_form", { telefone: whatsapp, valorConta: formatLeadBill(valor) });
   };
 
   return (
-    <form onSubmit={abrirFormularioCompleto} className="mx-auto mt-6 w-full max-w-xl border-t border-white/15 pt-4 text-left">
+    <form onSubmit={abrirFormularioCompleto} className="mx-auto w-full max-w-xl rounded-2xl border border-white/25 bg-[#101c16]/90 p-4 text-left shadow-[0_16px_50px_rgba(0,0,0,0.3)] backdrop-blur-sm sm:p-5">
+      <p className="mb-3 text-base font-medium text-white">Comece sua simulação</p>
       <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
         <label className="sr-only" htmlFor="hero-whatsapp">WhatsApp</label>
-        <input id="hero-whatsapp" value={whatsapp} onChange={(event) => setWhatsapp(event.target.value)} placeholder="Seu WhatsApp" inputMode="tel" className="h-11 rounded-md border border-white/15 bg-white/[0.06] px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-[#ded7c5]" />
+        <input id="hero-whatsapp" value={whatsapp} onChange={(event) => setWhatsapp(event.target.value)} placeholder="Seu WhatsApp" inputMode="tel" required className="h-11 rounded-md border border-white/15 bg-white/[0.06] px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-[#ded7c5]" />
         <label className="sr-only" htmlFor="hero-valor">Valor da conta</label>
-        <input id="hero-valor" value={valor} onChange={(event) => setValor(event.target.value)} placeholder="Valor da conta" inputMode="decimal" className="h-11 rounded-md border border-white/15 bg-white/[0.06] px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-[#ded7c5]" />
-        <button type="submit" className="h-11 rounded-md border border-[#f3eee3] bg-[#f3eee3] px-5 text-sm font-medium text-[#11130f] transition hover:bg-white">Continuar</button>
+        <input id="hero-valor" value={valor} onChange={(event) => setValor(event.target.value)} placeholder="Valor da conta" inputMode="decimal" required className="h-11 rounded-md border border-white/15 bg-white/[0.06] px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-[#ded7c5]" />
+        <button type="submit" className="h-11 rounded-md border border-[#f3eee3] bg-[#f3eee3] px-5 text-sm font-semibold text-[#11130f] transition hover:bg-white">Continuar →</button>
       </div>
-      <p className="pt-2 text-[11px] text-white/45">Só precisamos desses dois dados para começar.</p>
+      <p className="pt-2 text-[11px] text-white/65">Seus dados seguem preenchidos na próxima etapa.</p>
     </form>
   );
 }
@@ -31,9 +33,17 @@ export function CompactLeadForm() {
 /** Opção B: formulário em tela inteira, aberto somente pelo CTA principal. */
 export function LeadFormDock() {
   const [open, setOpen] = useState(false);
+  const [prefill, setPrefill] = useState<LeadPrefill>({});
+  const [source, setSource] = useState("site");
 
   useEffect(() => {
-    const openForm = () => setOpen(true);
+    const openForm = (event: Event) => {
+      const detail = (event as CustomEvent<{ source?: string; prefill?: LeadPrefill }>).detail;
+      setPrefill(detail?.prefill ?? {});
+      setSource(detail?.source ?? "site");
+      trackLeadEvent("lead_form_open", detail?.source ?? "site");
+      setOpen(true);
+    };
     window.addEventListener("coesa:open-lead-form", openForm);
     return () => window.removeEventListener("coesa:open-lead-form", openForm);
   }, []);
@@ -70,7 +80,7 @@ export function LeadFormDock() {
                   </div>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/20 shadow-2xl">
-                  <SimulationForm />
+                  <SimulationForm prefill={prefill} source={source} />
                 </div>
               </div>
             </div>
