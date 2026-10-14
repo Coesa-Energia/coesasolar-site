@@ -19,4 +19,10 @@ describe("SimulationForm", () => {
     expect(simulationFormSchema.safeParse({ ...validSubmission, valorConta: "R$ 300,00", telefone: "(31) 123456" }).success).toBe(false);
     expect(simulationFormSchema.safeParse({ ...validSubmission, valorConta: "R$ 300,00", telefone: "(31) 3333-4444" }).success).toBe(true);
   });
+
+  it("orienta a seleção da concessionária quando o campo está vazio", () => {
+    const result = simulationFormSchema.safeParse({ ...validSubmission, valorConta: "R$ 300,00", concessionaria: undefined });
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error.flatten().fieldErrors.concessionaria).toEqual(["Selecione a concessionária"]);
+  });
 });

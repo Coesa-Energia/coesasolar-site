@@ -27,7 +27,7 @@ export const simulationFormSchema = z.object({
   telefone: z.string().refine((value) => /^\d{10,11}$/.test(value.replace(/\D/g, "")), "Telefone inválido"),
   email: z.string().email("E-mail inválido"),
   valorConta: z.string().min(1, "Informe o valor da conta").refine((value) => parseLeadBill(value) >= 300, "Conta mínima de R$ 300,00 por mês"),
-  concessionaria: z.string().min(1, "Selecione a concessionária"),
+  concessionaria: z.string({ required_error: "Selecione a concessionária" }).min(1, "Selecione a concessionária"),
 });
 
 type FormData = z.infer<typeof simulationFormSchema>;
