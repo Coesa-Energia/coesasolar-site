@@ -109,9 +109,9 @@ export default function MinasGeraisPage() {
             são compensados direto na sua fatura.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/#simulacao" className="rounded-md bg-[#064A36] px-6 py-3 text-center font-medium text-white hover:bg-[#064A36]/90">
+            <a href="/#simulacao" className="rounded-md bg-[#064A36] px-6 py-3 text-center font-medium text-white hover:bg-[#064A36]/90">
               Simular minha economia
-            </Link>
+            </a>
             <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="rounded-md border border-[#B8B5AA] px-6 py-3 text-center font-medium text-[#064A36] hover:bg-white">
               Falar no WhatsApp
             </a>

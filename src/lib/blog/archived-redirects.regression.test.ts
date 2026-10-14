@@ -25,6 +25,14 @@ describe('REGRESSÃO: redirects dos artigos arquivados por duplicidade', () => {
     for (const to of Object.values(ARCHIVED_ARTICLE_REDIRECTS)) expect(archived.has(to)).toBe(false)
   })
 
+  it('resolve links antigos publicados fora de /blog', () => {
+    expect(buildArchivedRedirects()).toEqual(expect.arrayContaining([
+      { source: '/desconto-na-conta-de-luz-minas-gerais', destination: '/blog/desconto-na-conta-de-luz-minas-gerais', permanent: true },
+      { source: '/como-verificar-conta-de-energia', destination: '/blog/creditos-energia-solar-conta-luz', permanent: true },
+      { source: '/distribuidoras', destination: '/blog/o-que-e-geracao-distribuida-de-energia', permanent: true },
+    ]))
+  })
+
   it('a migration arquiva exatamente os slugs redirecionados', () => {
     const sql = readFileSync(join(__dirname, '../../../supabase/migrations/20261002230000_archive_duplicate_blog_articles.sql'), 'utf-8')
     const slugs = [...sql.matchAll(/^\s*'([a-z0-9-]+)',?$/gm)].map(m => m[1])
