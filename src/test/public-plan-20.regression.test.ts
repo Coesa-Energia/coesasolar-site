@@ -22,10 +22,10 @@ describe("public 20% plan", () => {
     expect(plans).not.toMatch(/15%|25%|30%/);
     expect(plans).not.toMatch(/>\s*Plano\s*</);
     expect(plans).not.toContain("Seu desconto é");
-    expect(plans).toContain("Desconto transparente:");
+    expect(plans).toMatch(/Desconto\s*<span[^>]*>transparente:<\/span>/);
     expect(plans).toContain("Sem obras ou instalação de painéis");
     expect(plans).toContain("Sem investimento inicial");
-    expect(calculator).toContain("const descontoSelecionado = PUBLIC_DISCOUNT_PERCENT");
+    expect(calculator).toContain("calcular(valorNumerico, PUBLIC_DISCOUNT_PERCENT");
     expect(calculator).not.toContain("setDescontoSelecionado");
     expect(calculator).not.toContain("planOptions");
     expect(calculator).not.toMatch(/15%|25%|30%/);

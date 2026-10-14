@@ -9,11 +9,16 @@ const ARCHIVED_ARTICLE_REDIRECTS = {
 }
 
 function buildArchivedRedirects() {
-  return Object.entries(ARCHIVED_ARTICLE_REDIRECTS).map(([from, to]) => ({
-    source: `/blog/${from}`,
-    destination: `/blog/${to}`,
-    permanent: true,
-  }))
+  return [
+    ...Object.entries(ARCHIVED_ARTICLE_REDIRECTS).map(([from, to]) => ({
+      source: `/blog/${from}`,
+      destination: `/blog/${to}`,
+      permanent: true,
+    })),
+    { source: '/desconto-na-conta-de-luz-minas-gerais', destination: '/blog/desconto-na-conta-de-luz-minas-gerais', permanent: true },
+    { source: '/como-verificar-conta-de-energia', destination: '/blog/creditos-energia-solar-conta-luz', permanent: true },
+    { source: '/distribuidoras', destination: '/blog/o-que-e-geracao-distribuida-de-energia', permanent: true },
+  ]
 }
 
 module.exports = { ARCHIVED_ARTICLE_REDIRECTS, buildArchivedRedirects }

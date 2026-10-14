@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect, useId, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,16 +19,18 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ThankYouModal } from "./ThankYouModal";
+import { formatLeadBill, formatLeadBillInput, parseLeadBill, trackLeadEvent, type LeadPrefill } from "@/lib/lead-funnel";
+import { formatarWhatsapp } from "@/lib/carreiras/form-utils";
 
-const formSchema = z.object({
+export const simulationFormSchema = z.object({
   nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
-  telefone: z.string().min(10, "Telefone inválido"),
+  telefone: z.string().refine((value) => /^\d{10,11}$/.test(value.replace(/\D/g, "")), "Telefone inválido"),
   email: z.string().email("E-mail inválido"),
-  valorConta: z.string().min(1, "Informe o valor da conta"),
-  concessionaria: z.string().min(1, "Selecione a concessionária"),
+  valorConta: z.string().min(1, "Informe o valor da conta").refine((value) => parseLeadBill(value) >= 300, "Conta mínima de R$ 300,00 por mês"),
+  concessionaria: z.string({ required_error: "Selecione a concessionária" }).min(1, "Selecione a concessionária"),
 });
 
-type FormData = z.infer<typeof formSchema>;
+type FormData = z.infer<typeof simulationFormSchema>;
 
 interface Concessionaria {
   id: string;
@@ -36,7 +40,6 @@ interface Concessionaria {
 // Concessionárias atendidas pela COESA (sincronizado com distribuidoras_config)
 const CONCESSIONARIAS_ATENDIDAS = [
   'CEMIG',
-  'CEMIG-D',
   'ENERGISA MG',
   'ENERGISA',
 ];
@@ -48,9 +51,12 @@ function isConcessionariaAtendida(nome: string): boolean {
   );
 }
 
-export function SimulationForm() {
-  const [concessionarias, setConcessionarias] = useState<Concessionaria[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+export function SimulationForm({ compact = false, prefill, source = "inline_form" }: { compact?: boolean; prefill?: LeadPrefill; source?: string } = {}) {
+  const formId = useId();
+  const started = useRef(false);
+  const [concessionarias, setConcessionarias] = useState<Concessionaria[]>(
+    CONCESSIONARIAS_ATENDIDAS.map((nome) => ({ id: nome, nome }))
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
   const [submittedName, setSubmittedName] = useState("");
@@ -62,44 +68,38 @@ export function SimulationForm() {
     watch,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(simulationFormSchema),
   });
 
   const concessionariaValue = watch("concessionaria");
 
   useEffect(() => {
-    async function fetchConcessionarias() {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from("concessionarias")
-        .select("id, nome")
-        .order("nome");
+    if (prefill?.telefone) setValue("telefone", formatarWhatsapp(prefill.telefone));
+    if (prefill?.valorConta) setValue("valorConta", prefill.valorConta);
+  }, [prefill, setValue]);
 
-      if (!error && data) {
-        setConcessionarias(data);
+  useEffect(() => {
+    async function fetchConcessionarias() {
+      try {
+        const { data, error } = await supabase
+          .from("concessionarias")
+          .select("id, nome")
+          .order("nome");
+
+        if (error) throw error;
+        if (data) {
+          setConcessionarias((current) => [
+            ...current,
+            ...data.filter((item) => item.nome.toUpperCase().trim() !== 'CEMIG-D' && !current.some((option) => option.nome === item.nome)),
+          ]);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar concessionárias:", error);
       }
-      setIsLoading(false);
     }
 
     fetchConcessionarias();
   }, []);
-
-  const formatPhone = (value: string) => {
-    const digits = value.replace(/\D/g, "");
-    if (digits.length <= 2) return `(${digits}`;
-    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
-  };
-
-  const formatCurrency = (value: string) => {
-    const digits = value.replace(/\D/g, "");
-    if (!digits) return "";
-    const number = parseInt(digits) / 100;
-    return number.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-  };
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
@@ -117,6 +117,7 @@ export function SimulationForm() {
       });
 
       if (error) {
+        trackLeadEvent("lead_submit_error", source);
         console.error('Error creating lead:', error);
         toast.error('Erro ao enviar simulação. Tente novamente.');
         setIsSubmitting(false);
@@ -124,6 +125,7 @@ export function SimulationForm() {
       }
 
       if (!result?.success) {
+        trackLeadEvent("lead_submit_error", source);
         console.error('Lead creation failed:', result);
         toast.error(result?.error || 'Erro ao processar simulação');
         setIsSubmitting(false);
@@ -135,6 +137,7 @@ export function SimulationForm() {
       setIsRegionNotSupported(regionNotSupported);
 
       // Success! Show thank you modal
+      trackLeadEvent("generate_lead", source);
       setSubmittedName(data.nome);
       setShowThankYou(true);
       
@@ -146,8 +149,13 @@ export function SimulationForm() {
       setValue("concessionaria", "");
       
     } catch (err) {
+      trackLeadEvent("lead_submit_error", source);
       console.error('Submit error:', err);
-      toast.error('Erro de conexão. Verifique sua internet.');
+      toast.error(
+        !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+          ? 'Envio indisponível nesta prévia. Seus dados não foram enviados.'
+          : 'Não foi possível enviar sua simulação. Tente novamente.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -159,9 +167,9 @@ export function SimulationForm() {
       whileInView={{ y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay: 0.2 }}
-      className="bg-black text-white p-8 lg:p-10"
+      className={compact ? "bg-[#17251c] p-6 text-white sm:p-8" : "bg-black p-8 text-white lg:p-10"}
     >
-      <div className="mb-8">
+      <div className={compact ? "mb-5" : "mb-8"}>
         <h3 
           className="text-2xl lg:text-3xl font-medium mb-3"
           style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
@@ -173,11 +181,19 @@ export function SimulationForm() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form
+        onFocusCapture={() => {
+          if (started.current) return;
+          started.current = true;
+          trackLeadEvent("lead_form_start", source);
+        }}
+        onSubmit={handleSubmit(onSubmit, () => trackLeadEvent("lead_validation_error", source))}
+        className={compact ? "grid gap-4 sm:grid-cols-2" : "space-y-5"}
+      >
         <div className="space-y-2">
-          <Label htmlFor="nome" className="text-white/80 text-sm">Nome completo</Label>
+          <Label htmlFor={`${formId}-nome`} className="text-white/80 text-sm">Nome completo</Label>
           <Input
-            id="nome"
+            id={`${formId}-nome`}
             placeholder="Seu nome"
             {...register("nome")}
             className={`bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white rounded-sm h-12 ${
@@ -190,13 +206,13 @@ export function SimulationForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="telefone" className="text-white/80 text-sm">Telefone (WhatsApp)</Label>
+          <Label htmlFor={`${formId}-telefone`} className="text-white/80 text-sm">Telefone (WhatsApp)</Label>
           <Input
-            id="telefone"
+            id={`${formId}-telefone`}
             placeholder="(00) 00000-0000"
             {...register("telefone")}
             onChange={(e) => {
-              const formatted = formatPhone(e.target.value);
+              const formatted = formatarWhatsapp(e.target.value);
               setValue("telefone", formatted);
             }}
             className={`bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white rounded-sm h-12 ${
@@ -209,9 +225,9 @@ export function SimulationForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-white/80 text-sm">E-mail</Label>
+          <Label htmlFor={`${formId}-email`} className="text-white/80 text-sm">E-mail</Label>
           <Input
-            id="email"
+            id={`${formId}-email`}
             type="email"
             placeholder="seu@email.com"
             {...register("email")}
@@ -225,15 +241,16 @@ export function SimulationForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="valorConta" className="text-white/80 text-sm">Valor médio da conta</Label>
+          <Label htmlFor={`${formId}-valorConta`} className="text-white/80 text-sm">Valor médio da conta</Label>
           <Input
-            id="valorConta"
+            id={`${formId}-valorConta`}
             placeholder="R$ 0,00"
             {...register("valorConta")}
             onChange={(e) => {
-              const formatted = formatCurrency(e.target.value);
+              const formatted = formatLeadBillInput(e.target.value);
               setValue("valorConta", formatted);
             }}
+            onBlur={(event) => setValue("valorConta", formatLeadBill(event.target.value))}
             className={`bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white rounded-sm h-12 ${
               errors.valorConta ? "border-red-500" : ""
             }`}
@@ -243,18 +260,19 @@ export function SimulationForm() {
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="concessionaria" className="text-white/80 text-sm">Concessionária</Label>
+        <div className={`space-y-2 ${compact ? "sm:col-span-2" : ""}`}>
+          <Label htmlFor={`${formId}-concessionaria`} className="text-white/80 text-sm">Concessionária</Label>
           <Select
             value={concessionariaValue}
-            onValueChange={(value) => setValue("concessionaria", value)}
+            onValueChange={(value) => setValue("concessionaria", value, { shouldValidate: true })}
           >
             <SelectTrigger 
+              id={`${formId}-concessionaria`}
               className={`bg-white/10 border-white/20 text-white rounded-sm h-12 ${
                 errors.concessionaria ? "border-red-500" : ""
               }`}
             >
-              <SelectValue placeholder={isLoading ? "Carregando..." : "Selecione"} />
+              <SelectValue placeholder="Selecione" />
             </SelectTrigger>
             <SelectContent className="bg-neutral-900 border-white/20">
               {concessionarias.map((c) => (
@@ -277,7 +295,7 @@ export function SimulationForm() {
           type="submit"
           size="lg"
           disabled={isSubmitting}
-          className="w-full bg-white text-black hover:bg-white/90 font-medium h-14 rounded-sm mt-6"
+          className={`h-14 w-full rounded-sm bg-white font-medium text-black hover:bg-white/90 ${compact ? "sm:col-span-2" : "mt-6"}`}
         >
           {isSubmitting ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -289,8 +307,8 @@ export function SimulationForm() {
           )}
         </Button>
 
-        <p className="text-xs text-center text-white/40 pt-2">
-          Sua proposta será enviada por WhatsApp e E-mail
+        <p className={`pt-2 text-center text-xs text-white/40 ${compact ? "sm:col-span-2" : ""}`}>
+          A COESA entrará em contato por WhatsApp ou e-mail
         </p>
       </form>
 

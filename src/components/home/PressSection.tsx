@@ -84,24 +84,24 @@ const mediaLabel = {
 
 export function PressSection() {
   return (
-    <section id="imprensa" className="overflow-hidden bg-[#f2f0ea] py-20 lg:py-32">
-      <div className="container mx-auto px-4">
+    <section id="imprensa" aria-labelledby="imprensa-titulo" className="scroll-mt-20 overflow-hidden bg-[#e8ede5] text-[#17251b]">
+      <div className="mx-auto flex max-w-[1600px] flex-col justify-center px-5 py-14 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:px-14 lg:py-8 xl:px-20">
         <motion.div
           initial={{ y: 20 }}
           whileInView={{ y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mb-12 flex flex-col justify-between gap-6 border-b border-black/15 pb-8 md:flex-row md:items-end lg:mb-16"
+          className="mb-9 flex flex-col justify-between gap-6 border-b border-[#b9c8b9] pb-6 md:flex-row md:items-end"
         >
           <div>
-            <p className="mb-4 text-sm font-medium uppercase tracking-[0.22em] text-muted-foreground">
-              Na imprensa
+            <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.25em] text-[#617b64]">
+              14 · Na imprensa
             </p>
-            <h2 className="max-w-3xl text-3xl font-medium leading-tight text-foreground md:text-4xl lg:text-5xl">
-              Energia inteligente em pauta
+            <h2 id="imprensa-titulo" className="max-w-3xl text-[clamp(3rem,5.2vw,6rem)] font-medium leading-[0.96] tracking-[-0.07em]">
+              Energia em <span className="text-[#467653]">pauta.</span>
             </h2>
           </div>
-          <p className="max-w-sm text-sm leading-relaxed text-muted-foreground md:text-right">
+          <p className="max-w-sm text-sm leading-relaxed text-[#5c695d] md:text-right">
             Notícias, entrevistas e conversas sobre a transformação do mercado de energia.
           </p>
         </motion.div>
@@ -126,9 +126,9 @@ export function PressSection() {
                   whileInView={{ y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.5, delay: (index % 3) * 0.08 }}
-                  className="group block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-4 focus-visible:ring-offset-[#f2f0ea]"
+                  className="group block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#244433] focus-visible:ring-offset-4 focus-visible:ring-offset-[#e8ede5]"
                 >
-                  <div className="relative mb-5 aspect-[16/10] overflow-hidden border border-black/10 bg-white">
+                  <div className="relative mb-5 aspect-[16/9] overflow-hidden rounded-[1.2rem] border border-[#b9c8b9] bg-white">
                     <img
                       src={item.logo}
                       alt={`Logomarca ${item.source}`}
@@ -146,14 +146,14 @@ export function PressSection() {
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between gap-4 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                  <div className="flex items-center justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.12em] text-[#617b64]">
                     <span>{item.source}</span>
                     <span className="flex shrink-0 items-center gap-1.5">
                       {mediaLabel[item.type]}
                       <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                     </span>
                   </div>
-                  <h3 className="mt-3 text-xl font-medium leading-snug text-foreground decoration-1 underline-offset-4 group-hover:underline">
+                  <h3 className="mt-3 text-xl font-medium leading-snug tracking-[-0.035em] decoration-1 underline-offset-4 group-hover:underline">
                     {item.title}
                   </h3>
                 </motion.a>
@@ -161,7 +161,7 @@ export function PressSection() {
             ))}
           </CarouselContent>
 
-          <div className="mt-10 flex justify-end gap-3">
+          <div className="mt-8 flex justify-end gap-3">
             <CarouselPrevious
               aria-label="Notícias anteriores"
               className="static h-11 w-11 translate-y-0 border-black/20 bg-transparent hover:bg-black hover:text-white"

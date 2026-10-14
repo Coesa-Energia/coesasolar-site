@@ -54,6 +54,10 @@ export interface CalculoResult {
 
 export type TipoInstalacao = 'Monofásico' | 'Bifásico' | 'Trifásico';
 
+export function meetsCalculatorMinimums(valorConta: number, cip: number, tarifa: number) {
+  return valorConta >= 300 && tarifa > 0 && (valorConta - cip) / tarifa >= 300;
+}
+
 const defaultConfig: EconomyConfig = {
   disponibilidadeMonofasico: 30,
   disponibilidadeBifasico: 50,
@@ -256,11 +260,11 @@ export function useEconomyCalculator() {
       tipoInstalacaoCustom?: TipoInstalacao,
       tarifaCustom?: number
     ): CalculoResult | null => {
-      if (valorConta <= 0) return null;
-
       // Use custom values or defaults
       const cip = cipCustom ?? config.cipDefault;
       const tarifa = tarifaCustom ?? config.tarifaFallback;
+
+      if (!meetsCalculatorMinimums(valorConta, cip, tarifa)) return null;
 
       // 1. Estima consumo
       const consumo = Math.max(0, (valorConta - cip) / tarifa);

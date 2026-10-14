@@ -62,34 +62,23 @@ export function HomeBlogSection({ initialArticles }: { initialArticles?: BlogArt
   if (!loading && articles.length === 0) return null;
 
   return (
-    <section id="blog" className="py-20 lg:py-32 bg-white">
-      <div className="container mx-auto px-4">
+    <section id="blog" aria-labelledby="blog-titulo" className="scroll-mt-20 bg-[#f4efe3] text-[#17251b]">
+      <div className="mx-auto flex max-w-[1600px] flex-col justify-center px-5 py-8 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:px-14 lg:py-8 xl:px-20">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ y: 20 }}
+          whileInView={{ y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="mb-5 grid items-end gap-4 border-b border-[#c4ccbf] pb-5 lg:mb-9 lg:grid-cols-[1fr_0.55fr] lg:gap-6 lg:pb-6"
         >
-          <p className="text-sm font-medium text-muted-foreground tracking-widest uppercase mb-4">
-            Blog
-          </p>
-          <h2
-            className="text-3xl md:text-4xl lg:text-5xl font-medium text-foreground"
-            style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
-          >
-            Energia solar sem dor de cabeça
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mt-4">
-            Guias e explicações para quem quer economizar na conta de luz sem
-            obras, sem instalação e sem investimento.
-          </p>
+          <div><p className="mb-3 font-mono text-[10px] uppercase tracking-[0.25em] text-[#617b64] lg:mb-4">15 · Conteúdo</p><h2 id="blog-titulo" className="text-[clamp(2.7rem,5.2vw,6rem)] font-medium leading-[0.96] tracking-[-0.07em]">Energia sem <span className="text-[#467653]">dúvidas.</span></h2></div>
+          <p className="max-w-md text-sm leading-relaxed text-[#5c695d] sm:text-base lg:pb-2">Guias para entender sua conta e a energia solar por assinatura.</p>
         </motion.div>
 
         {loading ? (
-          <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto">
+          <div className="grid gap-4 md:grid-cols-3">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="rounded-sm border border-border p-6 space-y-3">
+              <div key={i} className="space-y-3 rounded-[1.2rem] border border-[#c4ccbf] bg-white p-6">
                 <Skeleton className="h-3 w-24" />
                 <Skeleton className="h-5 w-full" />
                 <Skeleton className="h-4 w-5/6" />
@@ -97,30 +86,29 @@ export function HomeBlogSection({ initialArticles }: { initialArticles?: BlogArt
             ))}
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto">
+          <div className="grid gap-4 md:grid-cols-3">
             {articles.map((article) => (
               <a
                 key={article.slug}
                 href={`/blog/${article.slug}`}
-                className="group block rounded-sm border border-border p-6 hover:border-primary/40 transition-colors bg-background"
+                className="group flex min-h-[235px] flex-col rounded-[1.2rem] border border-[#c4ccbf] bg-white p-5 transition-colors hover:border-[#467653] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#467653] sm:min-h-[280px] sm:p-6"
               >
                 {article.keyword && (
-                  <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3 line-clamp-1">
+                  <p className="mb-5 line-clamp-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[#467653]">
                     {article.keyword}
                   </p>
                 )}
                 <h3
-                  className="text-lg font-medium text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-3 mb-2"
-                  style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
+                  className="mb-3 line-clamp-3 text-2xl font-medium leading-tight tracking-[-0.04em] transition-colors group-hover:text-[#467653]"
                 >
                   {article.title}
                 </h3>
                 {article.meta_desc && (
-                  <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                  <p className="line-clamp-3 text-sm leading-relaxed text-[#667369]">
                     {article.meta_desc}
                   </p>
                 )}
-                <p className="text-xs text-muted-foreground mt-3">
+                <p className="mt-auto pt-6 font-mono text-[10px] uppercase tracking-[0.12em] text-[#667369]">
                   {formatDate(article.published_at)}
                 </p>
               </a>
@@ -128,10 +116,10 @@ export function HomeBlogSection({ initialArticles }: { initialArticles?: BlogArt
           </div>
         )}
 
-        <div className="text-center mt-10">
+        <div className="mt-8 text-right">
           <a
             href="/blog"
-            className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            className="inline-flex min-h-11 items-center rounded-full border border-[#b9c8b9] px-5 text-sm font-medium text-[#244433] transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#467653]"
           >
             Ver todos os artigos →
           </a>

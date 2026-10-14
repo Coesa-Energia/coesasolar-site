@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowUpRight } from "lucide-react";
 import { WHATSAPP_5192 } from "@/lib/whatsapp-numbers";
 import { PUBLIC_DISCOUNT_LABEL } from "@/lib/public-discount";
 
@@ -14,63 +13,59 @@ const features = [
 ];
 
 export function PlansSection() {
-  const whatsappUrl = `https://wa.me/${WHATSAPP_5192}?text=Olá! Vim pelo site e gostaria de contratar o plano com ${PUBLIC_DISCOUNT_LABEL} de desconto.`;
+  const whatsappUrl = `https://wa.me/${WHATSAPP_5192}?text=${encodeURIComponent(`Olá! Vim pelo site e gostaria de contratar o plano com ${PUBLIC_DISCOUNT_LABEL} de desconto.`)}`;
 
   return (
-    <section id="planos" className="bg-white py-20 lg:py-32">
-      <div className="container mx-auto px-4">
+    <section id="planos" aria-labelledby="planos-titulo" className="scroll-mt-20 bg-[#e9ece3] text-[#172019]">
+      <div className="mx-auto flex max-w-[1600px] flex-col justify-center px-5 py-8 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:px-14 lg:py-12 xl:px-20">
         <motion.div
-          initial={{ y: 20 }}
+          initial={{ y: 24 }}
           whileInView={{ y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-12 text-center lg:mb-16"
+          transition={{ duration: 0.7 }}
         >
-          <h2
-            className="mb-6 text-3xl font-medium text-foreground md:text-4xl lg:text-5xl"
-            style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
-          >
-            Desconto transparente:
+          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#526b55]">06 · Plano COESA</p>
+          <h2 id="planos-titulo" className="mt-3 max-w-5xl text-[clamp(2.7rem,5.7vw,6.5rem)] font-medium leading-[0.95] tracking-[-0.075em] sm:mt-5">
+            Desconto <span className="text-[#3b6948]">transparente:</span>
           </h2>
-          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            Uma condição simples, transparente e igual para todos.
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#566359] sm:mt-5 sm:text-lg">
+            Uma condição simples para quem consome de 300 a 1.000 kWh/mês.
           </p>
         </motion.div>
 
         <motion.div
-          initial={{ y: 30 }}
+          initial={{ y: 28 }}
           whileInView={{ y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="mx-auto grid max-w-5xl overflow-hidden rounded-sm border border-gray-200 bg-white md:grid-cols-[0.85fr_1.15fr]"
+          transition={{ duration: 0.7, delay: 0.1 }}
+          className="mt-5 grid border-t border-[#aebfac] pt-4 lg:mt-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:pt-10"
         >
-          <div className="flex flex-col justify-center border-b border-gray-200 p-10 md:border-b-0 md:border-r lg:p-14">
-            <p
-              className="mb-2 text-7xl font-medium text-foreground lg:text-8xl"
-              style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
-            >
-              {PUBLIC_DISCOUNT_LABEL}
-            </p>
-            <p className="mb-8 text-base text-muted-foreground">de desconto</p>
-            <p className="border-t border-gray-200 pt-6 text-base text-muted-foreground">
-              301 a 1.000 kWh/mês
+          <div className="flex flex-col justify-between border-b border-[#aebfac] pb-4 lg:border-b-0 lg:pb-0">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#526b55]">Desconto COESA</p>
+              <strong className="mt-2 block text-[clamp(5rem,14vw,12rem)] font-medium leading-[0.85] tracking-[-0.105em] text-[#315e3d]">
+                {PUBLIC_DISCOUNT_LABEL}
+              </strong>
+            </div>
+            <p className="mt-2 max-w-xs text-xs leading-relaxed text-[#566359] sm:mt-6 sm:text-sm">
+              Desconto na energia compensada. A economia na fatura total varia com consumo, encargos e tributos.
             </p>
           </div>
 
-          <div className="flex flex-col justify-between p-10 lg:p-14">
-            <ul className="mb-10 grid gap-5 sm:grid-cols-2">
-              {features.map((feature) => (
-                <li key={feature} className="flex items-start gap-3 text-base text-foreground">
-                  <Check className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
+          <div className="pt-4 lg:pt-0">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#526b55]">O que está incluído</p>
+            <ul className="mt-3 grid grid-cols-2 gap-x-3 sm:mt-4 sm:gap-x-8">
+              {features.map((feature, index) => (
+                <li key={feature} className="flex items-start gap-2 border-t border-[#c5d0c3] py-2 text-xs leading-snug sm:min-h-14 sm:gap-4 sm:py-4 sm:text-base">
+                  <span aria-hidden="true" className="mt-0.5 font-mono text-[10px] text-[#4d7955]">0{index + 1}</span>
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
 
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-              <Button className="h-14 w-full rounded-sm bg-black text-base font-medium text-white hover:bg-black/90">
-                Contratar com {PUBLIC_DISCOUNT_LABEL} de desconto
-              </Button>
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="group mt-3 flex min-h-12 items-center justify-between gap-4 rounded-full bg-[#203b2b] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#315e3d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315e3d] focus-visible:ring-offset-2 focus-visible:ring-offset-[#e9ece3] sm:mt-6 sm:min-h-14 sm:px-6 sm:py-4 sm:text-base">
+              Contratar com {PUBLIC_DISCOUNT_LABEL} de desconto
+              <ArrowUpRight aria-hidden="true" className="h-5 w-5 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </a>
           </div>
         </motion.div>

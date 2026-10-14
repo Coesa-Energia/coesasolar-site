@@ -55,6 +55,7 @@ test("vaga tem marca, CTA focável e formulário progressivo", async ({ page }) 
   for (const campo of await page.locator('[data-etapa="4"] input[required], [data-etapa="4"] textarea[required]').all()) {
     if (await campo.inputValue()) continue
     if (await campo.getAttribute("type") === "file") await campo.setInputFiles({ name: "anexo.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.4 test") })
+    else if (await campo.getAttribute("type") === "url") await campo.fill("https://linkedin.com/in/coesa-e2e-test")
     else await campo.fill("Resposta E2E")
   }
   for (const campo of await page.locator('[data-etapa="4"] select[required]').all()) await campo.selectOption({ index: 1 })

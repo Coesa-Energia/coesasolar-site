@@ -1,93 +1,74 @@
 import { motion } from "framer-motion";
+import { ArrowDownRight, FileCheck2, HeartHandshake, ReceiptText } from "lucide-react";
 import { responsiveImageProps } from "@/lib/responsive-image";
-import { Shield, TrendingUp, HeartHandshake } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useConfiguracoes } from "@/hooks/useConfiguracoes";
 
 const reasons = [
   {
-    icon: Shield,
-    title: "Segurança Garantida",
-    description: "Usinas próprias e contratos transparentes. Sua economia garantida.",
+    icon: FileCheck2,
+    title: "Contrato claro",
+    description: "Condições de desconto explicadas antes da assinatura.",
   },
   {
-    icon: TrendingUp,
-    title: "Economia Real",
-    description: "Desconto garantido todos os meses. Quanto mais consome, mais economiza.",
+    icon: ReceiptText,
+    title: "Economia acompanhada",
+    description: "O desconto aplicado aparece mês a mês na sua conta.",
   },
   {
     icon: HeartHandshake,
-    title: "Atendimento Premium",
-    description: "Equipe dedicada do primeiro contato à assinatura.",
+    title: "Atendimento próximo",
+    description: "Uma equipe acompanha você da simulação à adesão.",
   },
 ];
 
 export function WhyChooseSection() {
   const { configs } = useConfiguracoes();
-  
+
   return (
-    <section className="relative min-h-screen flex items-center bg-black text-white overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0">
+    <section id="por-que-coesa" aria-labelledby="por-que-coesa-titulo" className="relative isolate overflow-hidden bg-[#101c16] text-[#f4f1e8]">
+      <div className="absolute inset-0 -z-10">
         <img
           {...responsiveImageProps(configs.home_bg_why_choose, "100vw")}
           loading="lazy"
           decoding="async"
           alt=""
-          className="w-full h-full object-cover opacity-40"
+          className="h-full w-full object-cover object-center opacity-60"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#101c16] via-[#101c16]/90 to-[#101c16]/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#101c16] via-transparent to-[#101c16]/30" />
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-20 lg:py-32">
-        <div className="max-w-2xl">
-          <motion.div
-            initial={{ y: 30 }}
-            whileInView={{ y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <p className="text-sm font-medium text-white/60 tracking-widest uppercase mb-4">
-              Por que COESA
-            </p>
-            <h2 
-              className="text-3xl md:text-4xl lg:text-5xl font-medium mb-8 leading-tight"
-              style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
-            >
-              Proteção contra<br />
-              aumentos de tarifa
-            </h2>
-            <p className="text-lg text-white/70 leading-relaxed mb-12 max-w-lg">
-              Enquanto as tarifas de energia sobem ano após ano, você mantém seu desconto garantido 
-              por contrato. É segurança e economia a longo prazo.
-            </p>
+      <div className="mx-auto flex max-w-[1600px] flex-col justify-center gap-7 px-5 py-8 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:gap-8 lg:px-14 lg:py-7 xl:px-20">
+        <motion.div
+          initial={{ y: 30 }}
+          whileInView={{ y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="max-w-4xl"
+        >
+          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#a9cfb0]">04 · Por que COESA</p>
+          <h2 id="por-que-coesa-titulo" className="mt-4 max-w-3xl text-[clamp(2.7rem,5.2vw,6rem)] font-medium leading-[0.92] tracking-[-0.075em]">
+            Proteção contra <span className="text-[#a7cbaa]">aumentos de tarifa.</span>
+          </h2>
+          <p className="mt-5 max-w-xl text-sm leading-relaxed text-white/75 sm:text-base">
+            A tarifa de energia pode mudar. Na COESA, você acompanha o desconto contratado na sua conta e tem uma equipe para entender cada etapa.
+          </p>
+          <a href="#calculadora" className="group mt-5 inline-flex items-center gap-3 rounded-full border border-white/50 px-5 py-3 text-sm font-medium transition hover:border-white hover:bg-white hover:text-[#172019] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9cfb0]">
+            Ver minha economia
+            <ArrowDownRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:translate-y-0.5" />
+          </a>
+        </motion.div>
 
-            {/* Features Grid */}
-            <div className="grid sm:grid-cols-3 gap-8 mb-12">
-              {reasons.map((reason, index) => (
-                <motion.div
-                  key={reason.title}
-                  initial={{ y: 20 }}
-                  whileInView={{ y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="text-center sm:text-left"
-                >
-                  <reason.icon className="w-8 h-8 mb-4 text-white/80 mx-auto sm:mx-0" />
-                  <h3 className="font-medium mb-2">{reason.title}</h3>
-                  <p className="text-sm text-white/60">{reason.description}</p>
-                </motion.div>
-              ))}
+        <div className="grid border-t border-white/30 bg-[#101c16]/45 backdrop-blur-sm sm:grid-cols-3">
+          {reasons.map((reason) => (
+            <div key={reason.title} className="flex gap-4 border-b border-white/20 py-3 sm:block sm:border-b-0 sm:pr-8 lg:py-5">
+              <reason.icon aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-[#a9cfb0] sm:mb-3" strokeWidth={1.5} />
+              <div>
+                <h3 className="text-base font-medium tracking-[-0.03em]">{reason.title}</h3>
+                <p className="mt-1 max-w-xs text-xs leading-relaxed text-white/65 sm:text-sm">{reason.description}</p>
+              </div>
             </div>
-
-            <Button 
-              size="lg"
-              className="bg-white text-black hover:bg-white/90 font-medium px-8 py-6 rounded-sm"
-              onClick={() => document.querySelector("#beneficios")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              Saiba Mais
-            </Button>
-          </motion.div>
+          ))}
         </div>
       </div>
     </section>

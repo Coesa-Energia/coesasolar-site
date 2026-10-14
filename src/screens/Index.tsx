@@ -12,6 +12,13 @@ import {
   HomeFooter,
   WhatsAppFloatingButton,
   CalculatorSection,
+  LeadFormDock,
+  ConnectionIntroSection,
+  ConnectionSceneSection,
+  PredictableBillSection,
+  SolarDaySection,
+  ClientAreaSection,
+  SimulationSection,
 } from "@/components/home";
 import { HomeBlogSection, type BlogArticle } from "@/components/blog/HomeBlogSection";
 
@@ -21,11 +28,17 @@ const Index = ({ latestArticles }: { latestArticles?: BlogArticle[] } = {}) => {
       <HomeNavbar />
       <main>
         <HeroSection />
+        <ConnectionIntroSection />
+        <ConnectionSceneSection />
+        <PredictableBillSection />
         <BenefitsSection />
         <WhyChooseSection />
         <CalculatorSection />
         <PlansSection />
         <HowItWorksSection />
+        <SolarDaySection />
+        <ClientAreaSection />
+        <SimulationSection />
         <AboutSection />
         <PressSection />
         <HomeBlogSection initialArticles={latestArticles} />
@@ -34,6 +47,7 @@ const Index = ({ latestArticles }: { latestArticles?: BlogArticle[] } = {}) => {
       </main>
       <HomeFooter />
       <WhatsAppFloatingButton />
+      <LeadFormDock />
     </div>
   );
 };
