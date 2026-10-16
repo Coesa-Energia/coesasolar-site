@@ -216,7 +216,7 @@ export function ConnectionSceneSection() {
     setProgress(Math.round((0.35 + value * 0.65) * 100) / 100);
   });
 
-  return <section id="rede" ref={sectionRef} aria-labelledby="rede-titulo" className="relative bg-[#090b09] text-[#f3f0e7] lg:h-[200svh] motion-reduce:lg:h-auto">
+  return <section id="rede" ref={sectionRef} aria-labelledby="rede-titulo" className="relative bg-[#090b09] text-[#f3f0e7] lg:h-[300svh] motion-reduce:lg:h-auto">
     <div className="relative isolate flex min-h-[calc(100svh-80px)] flex-col justify-between overflow-hidden px-5 py-5 sm:px-8 sm:py-8 lg:sticky lg:top-20 lg:h-[calc(100svh-80px)] lg:min-h-0 lg:px-14 lg:py-12 xl:px-20 motion-reduce:lg:static">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_72%_38%,rgba(214,204,177,0.12),transparent_30%),linear-gradient(120deg,#080a08,#171c17_56%,#0a0d0a)]" />
       <FlowCanvas progress={reducedMotion ? 0.8 : progress} />
