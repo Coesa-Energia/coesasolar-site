@@ -4,6 +4,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@media (prefers-reduced-motion: no-preference) {
+  html:has(main > #inicio) {
+    scroll-snap-type: y proximity;
+  }
+
+  main:has(> #inicio) > * {
+    scroll-snap-align: start;
+    scroll-margin-top: 5rem;
+  }
+}
+
 /* COESA Energia Design System
    Professional/Corporate visual style with full COESA branding
    All colors MUST be HSL
