@@ -58,7 +58,7 @@ describe("ConnectionSceneSection", () => {
     act(() => scroll.onChange(0.5))
     expect(screen.getByRole("heading", { name: /A energia circula/i })).toBeInTheDocument()
 
-    act(() => scroll.onChange(1))
+    act(() => scroll.onChange(0.71))
     expect(screen.getByRole("heading", { name: /Do outro lado/i })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Simular minha conta/i })).toBeInTheDocument()
     expect(onRender).toHaveBeenCalledTimes(4)

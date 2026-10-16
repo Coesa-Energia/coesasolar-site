@@ -236,7 +236,7 @@ export function ConnectionSceneSection() {
         <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/48">{scene.label}</p>
         <h2 id="rede-titulo" className="mt-4 max-w-3xl text-[clamp(2.4rem,5vw,5.5rem)] font-medium leading-[0.92] tracking-[-0.075em] text-white">{scene.title}</h2>
         <p className="mt-3 max-w-md text-base leading-relaxed text-white/66 sm:mt-5 sm:text-lg">{scene.body}</p>
-        {displayProgress > 0.82 && <button type="button" onClick={() => openLeadForm("connection_scene")} className="mt-4 inline-flex items-center gap-2 text-sm text-white/85 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4efe2] sm:mt-7">Simular minha conta <ArrowUpRight className="h-4 w-4" /></button>}
+        {sceneIndex === 2 && <button type="button" onClick={() => openLeadForm("connection_scene")} className="mt-4 inline-flex items-center gap-2 text-sm text-white/85 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4efe2] sm:mt-7">Simular minha conta <ArrowUpRight className="h-4 w-4" /></button>}
       </div>
       <div className="relative z-10 mx-auto mt-5 grid w-full max-w-[1600px] gap-3 border-t border-white/20 pt-4 sm:mt-10 sm:grid-cols-3 sm:gap-7 sm:pt-5">
         {steps.map((step) => <div key={step.label} className="last:pr-16 sm:last:pr-0"><h3 className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#b4cbb0]">{step.label}</h3><p className="mt-2 max-w-xs text-sm leading-snug text-white/70">{step.body}</p></div>)}
