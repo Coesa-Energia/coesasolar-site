@@ -31,7 +31,7 @@ export function HeroSection() {
   return (
     <section id="inicio" className="relative flex min-h-[calc(100svh-80px)] flex-col overflow-hidden bg-[#090b09] text-white">
       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(https://i.ytimg.com/vi/${configs.hero_video_youtube_id}/maxresdefault.jpg)` }}>
-        <video autoPlay muted loop playsInline preload="auto" aria-hidden="true" tabIndex={-1} onLoadedMetadata={(event) => { event.currentTarget.playbackRate = 0.25; }} className="pointer-events-none absolute inset-0 h-full w-full object-cover">
+        <video autoPlay muted loop playsInline preload="auto" aria-hidden="true" tabIndex={-1} ref={(video) => { if (video) video.playbackRate = 0.25; }} className="pointer-events-none absolute inset-0 h-full w-full object-cover">
           <source src="/media/hero-clouds-timelapse.webm?v=3" type="video/webm" />
           <source src="/media/hero-clouds-timelapse.mp4?v=3" type="video/mp4" />
           <img src="/media/hero-clouds-timelapse.gif?v=4" alt="" aria-hidden="true" />
