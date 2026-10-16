@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { ExternalLink } from 'lucide-react';
-import { useEconomyCalculator, CalculoResult } from '@/hooks/useEconomyCalculator';
+import { ChevronDown, ExternalLink } from 'lucide-react';
+import { useEconomyCalculator, CalculoResult, TipoInstalacao } from '@/hooks/useEconomyCalculator';
 import { PUBLIC_DISCOUNT_LABEL, PUBLIC_DISCOUNT_PERCENT } from '@/lib/public-discount';
 
 export function EconomyCalculator() {
@@ -9,16 +9,20 @@ export function EconomyCalculator() {
   // Main inputs
   const [valorConta, setValorConta] = useState<string>('');
   const [valorNumerico, setValorNumerico] = useState<number>(0);
+  const [cipCustom, setCipCustom] = useState('');
+  const [tipoInstalacao, setTipoInstalacao] = useState<TipoInstalacao>('Bifásico');
+  const [distribuidora, setDistribuidora] = useState('CEMIG-D');
+  const cipNumerica = cipCustom.trim() ? Number(cipCustom.replace(',', '.')) : undefined;
   const tarifaSelecionada = useMemo(() => {
-    return concessionarias.find(c => c.nome === 'CEMIG-D')?.tarifa || config.tarifaFallback;
-  }, [concessionarias, config.tarifaFallback]);
+    return concessionarias.find(c => c.nome === distribuidora)?.tarifa || config.tarifaFallback;
+  }, [concessionarias, config.tarifaFallback, distribuidora]);
 
   // Calculate result with custom params
   const resultado: CalculoResult | null = useMemo(() => {
     if (valorNumerico <= 0) return null;
     
-    return calcular(valorNumerico, PUBLIC_DISCOUNT_PERCENT, undefined, 'Bifásico', tarifaSelecionada);
-  }, [valorNumerico, tarifaSelecionada, calcular]);
+    return calcular(valorNumerico, PUBLIC_DISCOUNT_PERCENT, cipNumerica, tipoInstalacao, tarifaSelecionada);
+  }, [valorNumerico, cipNumerica, tipoInstalacao, tarifaSelecionada, calcular]);
 
   // Handle input change with currency mask
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,6 +82,31 @@ export function EconomyCalculator() {
           />
         </div>
       </div>
+
+      <details className="group border-t border-[#ded8ca] pt-2">
+        <summary className="flex cursor-pointer list-none items-center justify-between py-2 text-sm font-medium text-[#425547] [&::-webkit-details-marker]:hidden">
+          Ajustar dados da fatura <ChevronDown aria-hidden="true" className="h-4 w-4 transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="grid gap-3 pb-3 sm:grid-cols-3">
+          <div>
+            <label htmlFor="cip-simulacao" className="block text-xs text-[#425547]">Iluminação pública (R$)</label>
+            <input id="cip-simulacao" type="text" inputMode="decimal" value={cipCustom} onChange={(event) => setCipCustom(event.target.value.replace(/[^\d,.]/g, ''))} placeholder={String(config.cipDefault)} className="mt-1 w-full rounded-md border border-[#b9c8ba] bg-white px-3 py-2 text-sm text-[#172019]" />
+          </div>
+          <div>
+            <label htmlFor="instalacao-simulacao" className="block text-xs text-[#425547]">Tipo de instalação</label>
+            <select id="instalacao-simulacao" aria-label="Tipo de instalação" value={tipoInstalacao} onChange={(event) => setTipoInstalacao(event.target.value as TipoInstalacao)} className="mt-1 w-full rounded-md border border-[#b9c8ba] bg-white px-3 py-2 text-sm text-[#172019]">
+              <option>Monofásico</option><option>Bifásico</option><option>Trifásico</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="distribuidora-simulacao" className="block text-xs text-[#425547]">Distribuidora</label>
+            <select id="distribuidora-simulacao" aria-label="Distribuidora" value={distribuidora} onChange={(event) => setDistribuidora(event.target.value)} className="mt-1 w-full rounded-md border border-[#b9c8ba] bg-white px-3 py-2 text-sm text-[#172019]">
+              {concessionarias.map((item) => <option key={item.id} value={item.nome}>{item.nome}{item.uf ? ` (${item.uf})` : ''}</option>)}
+            </select>
+          </div>
+        </div>
+        <p className="pb-3 text-xs text-[#6b7168]">CIP padrão: R$ {config.cipDefault}. Tarifa usada: R$ {tarifaSelecionada.toFixed(4)}/kWh.</p>
+      </details>
 
       {resultado ? (
         <div aria-live="polite" className="border-t border-[#ded8ca] pt-3">

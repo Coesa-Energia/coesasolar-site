@@ -41,7 +41,7 @@ export function HeroSection() {
       </div>
       <div className="pointer-events-none absolute inset-0 opacity-[0.045] [background-image:linear-gradient(rgba(255,255,255,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:96px_96px] [mask-image:linear-gradient(to_bottom,transparent,black_32%,black_72%,transparent)]" />
 
-      <div className="relative z-10 flex flex-1 flex-col justify-end px-5 pb-6 pt-8 sm:px-8 lg:px-14 lg:pb-8 xl:px-20">
+      <div className="relative z-10 flex flex-1 flex-col justify-start px-5 pb-6 pt-24 sm:px-8 lg:justify-end lg:px-14 lg:pb-8 lg:pt-8 xl:px-20">
         <div className="mx-auto w-full max-w-[1500px]">
           <div className="grid items-end gap-7 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
             <motion.div initial={{ y: 24 }} animate={{ y: 0 }} transition={{ duration: 0.8, ease }} className="max-w-3xl">

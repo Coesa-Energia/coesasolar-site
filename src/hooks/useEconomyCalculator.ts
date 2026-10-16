@@ -16,18 +16,6 @@ export interface EconomyConfig {
   fidelidadeDefault: number;
 }
 
-export interface PlanoComercial {
-  id: string;
-  nome: string;
-  desconto_percentual: number;
-  fidelidade_anos: number;
-  consumo_minimo_kwh: number;
-  ativo: boolean;
-  destaque: boolean;
-  unlock: boolean;
-  ordem: number;
-}
-
 export interface Concessionaria {
   id: string;
   nome: string;
@@ -73,7 +61,6 @@ const defaultConfig: EconomyConfig = {
 
 // Cache for configs
 let cachedConfig: EconomyConfig | null = null;
-let cachedPlanos: PlanoComercial[] | null = null;
 let cachedConcessionarias: Concessionaria[] | null = null;
 let cacheTimestamp = 0;
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
@@ -87,7 +74,6 @@ const DEFAULT_MAIN_DISTRIBUIDORAS = [
 
 export function useEconomyCalculator() {
   const [config, setConfig] = useState<EconomyConfig>(defaultConfig);
-  const [planos, setPlanos] = useState<PlanoComercial[]>([]);
   const [concessionarias, setConcessionarias] = useState<Concessionaria[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -97,9 +83,8 @@ export function useEconomyCalculator() {
       const now = Date.now();
       
       // Use cache if valid
-      if (cachedConfig && cachedPlanos && cachedConcessionarias && now - cacheTimestamp < CACHE_TTL_MS) {
+      if (cachedConfig && cachedConcessionarias && now - cacheTimestamp < CACHE_TTL_MS) {
         setConfig(cachedConfig);
-        setPlanos(cachedPlanos);
         setConcessionarias(cachedConcessionarias);
         setLoading(false);
         return;
@@ -134,12 +119,7 @@ export function useEconomyCalculator() {
         const mainNomes = mainDistribuidoras.map(d => d.nome);
 
         // Load rest in parallel
-        const [planosResult, concessionariasResult, icmsResult] = await Promise.all([
-          supabase
-            .from('planos_comerciais')
-            .select('*')
-            .eq('ativo', true)
-            .order('ordem', { ascending: true }),
+        const [concessionariasResult, icmsResult] = await Promise.all([
           supabase
             .from('concessionarias')
             .select('id, nome, uf, tarifa_com_impostos, tarifa_media')
@@ -149,7 +129,6 @@ export function useEconomyCalculator() {
             .select('uf, icms_percentual'),
         ]);
 
-        if (planosResult.error) throw planosResult.error;
         if (concessionariasResult.error) throw concessionariasResult.error;
 
         const loadedConfig: EconomyConfig = {
@@ -214,23 +193,10 @@ export function useEconomyCalculator() {
 
         // Update cache
         cachedConfig = loadedConfig;
-        const loadedPlanos: PlanoComercial[] = (planosResult.data || []).map((plano) => ({
-          id: plano.id,
-          nome: plano.nome,
-          desconto_percentual: plano.desconto_percentual,
-          fidelidade_anos: plano.fidelidade_anos ?? 0,
-          consumo_minimo_kwh: plano.consumo_minimo_kwh ?? 0,
-          ativo: plano.ativo ?? false,
-          destaque: plano.destaque ?? false,
-          unlock: plano.unlock ?? false,
-          ordem: plano.ordem ?? 0,
-        }));
-        cachedPlanos = loadedPlanos;
         cachedConcessionarias = loadedConcessionarias;
         cacheTimestamp = now;
 
         setConfig(loadedConfig);
-        setPlanos(loadedPlanos);
         setConcessionarias(loadedConcessionarias);
       } catch (err) {
         console.error('Error loading economy configs:', err);
@@ -312,9 +278,8 @@ export function useEconomyCalculator() {
       const economiaPercentual = valorConta > 0 ? (economiaMensal / valorConta) * 100 : 0;
       const economiaAnual = economiaMensal * 12;
 
-      // 7. Determina fidelidade baseado no plano
-      const plano = planos.find((p) => p.desconto_percentual === descontoPercentual);
-      const fidelidadeAnos = plano?.fidelidade_anos || config.fidelidadeDefault;
+      // 7. Projeção pelo prazo configurado para o plano público
+      const fidelidadeAnos = config.fidelidadeDefault;
 
       // 8. Economia acumulada (com inflação)
       let economiaAcumulada = 0;
@@ -342,7 +307,7 @@ export function useEconomyCalculator() {
         tarifaUtilizada: tarifa,
       };
     },
-    [config, planos]
+    [config]
   );
 
   const getWhatsAppLink = useCallback((mensagem?: string) => {
@@ -352,7 +317,6 @@ export function useEconomyCalculator() {
 
   return {
     config,
-    planos,
     concessionarias,
     loading,
     error,

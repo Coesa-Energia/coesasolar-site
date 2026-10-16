@@ -34,8 +34,7 @@ export function FAQSection() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="min-w-0 border-t border-[#b9c8b9]"
         >
-          {/* Sem esqueleto: DEFAULT_FAQS já é o estado inicial, então perguntas e respostas
-              saem no HTML do servidor. forceMount mantém a resposta fechada no DOM; o hidden
+          {/* As perguntas e respostas saem no HTML do servidor. forceMount mantém a resposta fechada no DOM; o hidden
               controlado é obrigatório porque o Radix não esconde conteúdo forçado. */}
             <Accordion type="single" collapsible value={openItem} onValueChange={setOpenItem}>
               {faqs.map((faq, index) => (
