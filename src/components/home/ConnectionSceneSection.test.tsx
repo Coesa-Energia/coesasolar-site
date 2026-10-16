@@ -26,7 +26,7 @@ describe("ConnectionSceneSection", () => {
   it("mostra as três cenas e mantém a seção fixa também no celular", () => {
     const onRender = vi.fn()
     const { container } = render(<Profiler id="connection" onRender={onRender}><ConnectionSceneSection /></Profiler>)
-    expect(container.querySelector("#rede")?.className).toContain("h-[300svh]")
+    expect(container.querySelector("#rede")?.className).toContain("h-[400svh]")
     expect(container.querySelector("#rede > div")?.className).toContain("sticky top-20")
     expect(onRender).toHaveBeenCalledTimes(1)
 

@@ -225,7 +225,7 @@ export function ConnectionSceneSection() {
   const sceneIndex = displayProgress < 0.34 ? 0 : displayProgress < 0.7 ? 1 : 2;
   const scene = scenes[sceneIndex];
 
-  return <section id="rede" ref={sectionRef} aria-labelledby="rede-titulo" className="relative h-[300svh] bg-[#090b09] text-[#f3f0e7] motion-reduce:h-auto">
+  return <section id="rede" ref={sectionRef} aria-labelledby="rede-titulo" className="relative h-[400svh] bg-[#090b09] text-[#f3f0e7] motion-reduce:h-auto">
     <div className="sticky top-20 isolate flex h-[calc(100svh-80px)] flex-col justify-between overflow-hidden px-5 py-5 sm:px-8 sm:py-8 lg:px-14 lg:py-12 xl:px-20 motion-reduce:static motion-reduce:min-h-[calc(100svh-80px)] motion-reduce:h-auto">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_72%_38%,rgba(214,204,177,0.12),transparent_30%),linear-gradient(120deg,#080a08,#171c17_56%,#0a0d0a)]" />
       <FlowCanvas progress={displayProgress} />
