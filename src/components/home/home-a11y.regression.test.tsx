@@ -56,10 +56,18 @@ describe("REGRESSÃO: animação ambiente do hero sem player visível", () => {
     const html = renderToString(<HeroSection />)
     expect(html).toContain('/media/hero-clouds-timelapse.webm?v=3')
     expect(html).toContain('/media/hero-clouds-timelapse.mp4?v=3')
-    expect(html).toContain('/media/hero-clouds-timelapse.gif?v=3')
+    expect(html).toContain('/media/hero-clouds-timelapse.gif?v=4')
     expect(html).toContain('<video')
     expect(html).not.toContain('<iframe')
     expect(html).toMatch(/i\.ytimg\.com\/vi\/[\w-]+\/maxresdefault\.jpg/)
+  })
+
+  it("reproduz o vídeo de fundo em um quarto da velocidade", async () => {
+    let container!: HTMLElement
+    await act(async () => { container = render(<HeroSection />).container })
+    const video = container.querySelector("video")!
+    fireEvent.loadedMetadata(video)
+    expect(video.playbackRate).toBe(0.25)
   })
 })
 

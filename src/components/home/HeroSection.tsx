@@ -31,10 +31,10 @@ export function HeroSection() {
   return (
     <section id="inicio" className="relative flex min-h-[calc(100svh-80px)] flex-col overflow-hidden bg-[#090b09] text-white">
       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(https://i.ytimg.com/vi/${configs.hero_video_youtube_id}/maxresdefault.jpg)` }}>
-        <video autoPlay muted loop playsInline preload="auto" aria-hidden="true" tabIndex={-1} className="pointer-events-none absolute inset-0 h-full w-full object-cover">
+        <video autoPlay muted loop playsInline preload="auto" aria-hidden="true" tabIndex={-1} onLoadedMetadata={(event) => { event.currentTarget.playbackRate = 0.25; }} className="pointer-events-none absolute inset-0 h-full w-full object-cover">
           <source src="/media/hero-clouds-timelapse.webm?v=3" type="video/webm" />
           <source src="/media/hero-clouds-timelapse.mp4?v=3" type="video/mp4" />
-          <img src="/media/hero-clouds-timelapse.gif?v=3" alt="" aria-hidden="true" />
+          <img src="/media/hero-clouds-timelapse.gif?v=4" alt="" aria-hidden="true" />
         </video>
         <div className="absolute inset-0 bg-black/42" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_32%,rgba(226,216,188,0.08),transparent_28%),linear-gradient(115deg,rgba(8,10,9,0.76)_0%,rgba(8,10,9,0.42)_48%,rgba(8,10,9,0.52)_100%)]" />
