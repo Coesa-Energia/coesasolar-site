@@ -216,12 +216,14 @@ const steps = [
 export function ConnectionSceneSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [progress, setProgress] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const reducedMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   useMotionValueEvent(scrollYProgress, "change", (value) => {
     setProgress(Math.round(value * 100) / 100);
   });
-  const displayProgress = reducedMotion ? 1 : progress;
+  const displayProgress = reducedMotion && mounted ? 1 : progress;
   const sceneIndex = displayProgress < 0.34 ? 0 : displayProgress < 0.7 ? 1 : 2;
   const scene = scenes[sceneIndex];
 
