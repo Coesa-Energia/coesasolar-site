@@ -1,6 +1,7 @@
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, it, expect } from "vitest"
 import { HomeNavbar } from "./HomeNavbar"
+import { WhatsAppFloatingButton } from "./WhatsAppFloatingButton"
 
 describe("HomeNavbar", () => {
   it("tem o link Carreiras apontando para /carreiras", () => {
@@ -32,5 +33,15 @@ describe("HomeNavbar", () => {
       const links = screen.getAllByRole("link", { name: "Acesso" })
       expect(links[0].className).toContain("bg-transparent")
     })
+  })
+
+  it("mantém o WhatsApp atrás do menu móvel para não cobrir Acesso", () => {
+    render(<><HomeNavbar /><WhatsAppFloatingButton /></>)
+    fireEvent.click(screen.getByRole("button", { name: "Abrir menu" }))
+    const menu = screen.getAllByRole("link", { name: "Acesso" }).at(-1)?.closest(".fixed")
+    const whatsapp = screen.getByRole("link", { name: "Fale conosco no WhatsApp" })
+    const menuLayer = Number(menu?.className.match(/\bz-(\d+)\b/)?.[1])
+    const whatsappLayer = Number(whatsapp.className.match(/\bz-(\d+)\b/)?.[1])
+    expect(whatsappLayer).toBeLessThan(menuLayer)
   })
 })

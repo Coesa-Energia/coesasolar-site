@@ -1,10 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion, useTransform, type MotionValue } from "framer-motion";
 
 // Adapted from https://ruixen.com/docs/components/progressive-flux-loader
 export function ProgressiveFluxBar({ scrollProgress }: { scrollProgress: MotionValue<number> }) {
   const reducedMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const fillWidth = useTransform(scrollProgress, (value) => `${Math.max(0, Math.min(1, value)) * 20}%`);
 
   return (
@@ -25,7 +28,7 @@ export function ProgressiveFluxBar({ scrollProgress }: { scrollProgress: MotionV
           boxShadow: "0 0 18px rgba(115, 187, 105, 0.6), inset 0 1px 0 rgba(255,255,255,0.55)",
         }}
       >
-        {!reducedMotion && (
+        {mounted && !reducedMotion && (
           <motion.span
             aria-hidden="true"
             className="pointer-events-none absolute inset-y-0 left-0 w-1/2 rounded-full"

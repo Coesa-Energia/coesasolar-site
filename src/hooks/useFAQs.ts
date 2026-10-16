@@ -1,6 +1,4 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { normalizePublicDiscountClaim, PUBLIC_DISCOUNT_LABEL } from '@/lib/public-discount';
+import { PUBLIC_DISCOUNT_LABEL } from '@/lib/public-discount';
 
 export interface FAQ {
   question: string;
@@ -19,7 +17,7 @@ const DEFAULT_FAQS: FAQ[] = [
   },
   {
     question: "Quanto vou economizar na minha conta de luz?",
-    answer: `Você economiza ${PUBLIC_DISCOUNT_LABEL} na conta de luz. Faça uma simulação gratuita e descubra o valor exato para o seu caso.`,
+    answer: `O desconto é de ${PUBLIC_DISCOUNT_LABEL} sobre a energia compensada. A economia na fatura total varia conforme consumo, encargos e tributos. Faça uma simulação para obter uma estimativa.`,
   },
   {
     question: "Existe algum custo de adesão ou mensalidade?",
@@ -36,84 +34,5 @@ const DEFAULT_FAQS: FAQ[] = [
 ];
 
 export function useFAQs() {
-  const [faqs, setFaqs] = useState<FAQ[]>(DEFAULT_FAQS);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadFAQs() {
-      try {
-        // Tentar carregar FAQs das KB sources com type='faq'
-        const { data, error } = await supabase
-          .from('ai_agents')
-          .select('kb_sources')
-          .eq('agent_id', 'sofia')
-          .eq('status', 'active')
-          .single();
-
-        if (error || !data?.kb_sources) {
-          setFaqs(DEFAULT_FAQS);
-          return;
-        }
-
-        const kbSources = Array.isArray(data.kb_sources) ? data.kb_sources : [];
-        const faqSource = kbSources.find((kb) => {
-          if (typeof kb !== 'object' || kb === null || Array.isArray(kb)) return false;
-          const source = kb as Record<string, unknown>;
-          return source.type === 'faq' || (
-            typeof source.name === 'string' && source.name.toLowerCase().includes('faq')
-          );
-        });
-
-        if (faqSource && typeof faqSource === 'object' && 'content' in faqSource && faqSource.content) {
-          // Parsear FAQs do content (formato Q: ... A: ...)
-          const parsedFaqs = parseFAQContent(String(faqSource.content)).map((faq) => ({
-            ...faq,
-            answer: normalizePublicDiscountClaim(faq.answer),
-          }));
-          if (parsedFaqs.length > 0) {
-            setFaqs(parsedFaqs);
-            return;
-          }
-        }
-
-        // Fallback para FAQs padrão
-        setFaqs(DEFAULT_FAQS);
-      } catch (err) {
-        console.error('Erro ao carregar FAQs:', err);
-        setFaqs(DEFAULT_FAQS);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadFAQs();
-  }, []);
-
-  return { faqs, loading };
-}
-
-// Parseia content no formato "Q: pergunta\nA: resposta\n\n..."
-function parseFAQContent(content: string): FAQ[] {
-  const faqs: FAQ[] = [];
-  const blocks = content.split(/\n\n+/);
-
-  for (const block of blocks) {
-    const lines = block.trim().split('\n');
-    let question = '';
-    let answer = '';
-
-    for (const line of lines) {
-      if (line.startsWith('Q:') || line.startsWith('P:')) {
-        question = line.substring(2).trim();
-      } else if (line.startsWith('A:') || line.startsWith('R:')) {
-        answer = line.substring(2).trim();
-      }
-    }
-
-    if (question && answer) {
-      faqs.push({ question, answer });
-    }
-  }
-
-  return faqs;
+  return { faqs: DEFAULT_FAQS, loading: false };
 }

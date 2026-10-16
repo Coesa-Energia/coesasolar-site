@@ -198,8 +198,14 @@ export function FlowCanvas({ progress, theme = "dark" }: { progress: number; the
     if (process.env.NODE_ENV === "test" || !canvasRef.current) return undefined;
     return drawNetwork(canvasRef.current, progressRef, theme);
   }, [theme]);
-  return <div role="img" aria-label="Fluxo de energia entre usinas, rede e clientes" className="pointer-events-none absolute inset-0 opacity-20 sm:opacity-75"><canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" /></div>;
+  return <div role="img" aria-label="Fluxo de energia entre usinas, rede e clientes" className="pointer-events-none absolute inset-0 opacity-75"><canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" /></div>;
 }
+
+const scenes = [
+  { label: "01 · A conexão", title: <>A energia encontra<br /><span className="text-[#b4cbb0]">um caminho só.</span></>, body: "Usinas e clientes passam a fazer parte da mesma rede. A distribuidora continua cuidando dos fios." },
+  { label: "02 · O fluxo", title: <>A energia circula.<br /><span className="text-[#b4cbb0]">Você acompanha.</span></>, body: "A energia sai de uma usina, atravessa a rede e chega até sua conta. Sem obra ou troca de medidor." },
+  { label: "03 · A conta", title: <>Do outro lado,<br /><span className="text-[#b4cbb0]">uma conta simples.</span></>, body: "A COESA organiza a compensação. Você vê a economia, acompanha no app e entende cada fatura." },
+];
 
 const steps = [
   { label: "01 / Usina", body: "Usinas parceiras geram energia." },
@@ -209,23 +215,28 @@ const steps = [
 
 export function ConnectionSceneSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [progress, setProgress] = useState(0.35);
+  const [progress, setProgress] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const reducedMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   useMotionValueEvent(scrollYProgress, "change", (value) => {
-    setProgress(Math.round((0.35 + value * 0.65) * 100) / 100);
+    setProgress(Math.round(value * 100) / 100);
   });
+  const displayProgress = reducedMotion && mounted ? 1 : progress;
+  const sceneIndex = displayProgress < 0.34 ? 0 : displayProgress < 0.7 ? 1 : 2;
+  const scene = scenes[sceneIndex];
 
-  return <section id="rede" ref={sectionRef} aria-labelledby="rede-titulo" className="relative bg-[#090b09] text-[#f3f0e7] lg:h-[300svh] motion-reduce:lg:h-auto">
-    <div className="relative isolate flex min-h-[calc(100svh-80px)] flex-col justify-between overflow-hidden px-5 py-5 sm:px-8 sm:py-8 lg:sticky lg:top-20 lg:h-[calc(100svh-80px)] lg:min-h-0 lg:px-14 lg:py-12 xl:px-20 motion-reduce:lg:static">
+  return <section id="rede" ref={sectionRef} aria-labelledby="rede-titulo" className="relative h-[400svh] bg-[#090b09] text-[#f3f0e7] motion-reduce:h-auto">
+    <div className="sticky top-20 isolate flex h-[calc(100svh-80px)] flex-col justify-between overflow-hidden px-5 py-5 sm:px-8 sm:py-8 lg:px-14 lg:py-12 xl:px-20 motion-reduce:static motion-reduce:min-h-[calc(100svh-80px)] motion-reduce:h-auto">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_72%_38%,rgba(214,204,177,0.12),transparent_30%),linear-gradient(120deg,#080a08,#171c17_56%,#0a0d0a)]" />
-      <FlowCanvas progress={reducedMotion ? 0.8 : progress} />
+      <FlowCanvas progress={displayProgress} />
       <div className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(90deg,rgba(9,11,9,0.96)_0%,rgba(9,11,9,0.76)_35%,transparent_80%),linear-gradient(0deg,rgba(9,11,9,0.82)_0%,transparent_42%)]" />
       <div className="relative z-10 mx-auto w-full max-w-[1600px]">
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/48">01 · A conexão</p>
-        <h2 id="rede-titulo" className="mt-4 max-w-3xl text-[clamp(2.6rem,5vw,5.5rem)] font-medium leading-[0.92] tracking-[-0.075em] text-white">Energia em movimento.<br /><span className="text-[#b4cbb0]">Economia na sua conta.</span></h2>
-        <p className="mt-3 max-w-md text-base leading-relaxed text-white/66 sm:mt-5 sm:text-lg">Usinas, rede e clientes conectados em um fluxo simples de acompanhar. Sem obra ou troca de medidor.</p>
-        <button type="button" onClick={() => openLeadForm("connection_scene")} className="mt-4 inline-flex items-center gap-2 text-sm text-white/85 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4efe2] sm:mt-7">Simular minha conta <ArrowUpRight className="h-4 w-4" /></button>
+        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/48">{scene.label}</p>
+        <h2 id="rede-titulo" className="mt-4 max-w-3xl text-[clamp(2.4rem,5vw,5.5rem)] font-medium leading-[0.92] tracking-[-0.075em] text-white">{scene.title}</h2>
+        <p className="mt-3 max-w-md text-base leading-relaxed text-white/66 sm:mt-5 sm:text-lg">{scene.body}</p>
+        {sceneIndex === 2 && <button type="button" onClick={() => openLeadForm("connection_scene")} className="mt-4 inline-flex items-center gap-2 text-sm text-white/85 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4efe2] sm:mt-7">Simular minha conta <ArrowUpRight className="h-4 w-4" /></button>}
       </div>
       <div className="relative z-10 mx-auto mt-5 grid w-full max-w-[1600px] gap-3 border-t border-white/20 pt-4 sm:mt-10 sm:grid-cols-3 sm:gap-7 sm:pt-5">
         {steps.map((step) => <div key={step.label} className="last:pr-16 sm:last:pr-0"><h3 className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#b4cbb0]">{step.label}</h3><p className="mt-2 max-w-xs text-sm leading-snug text-white/70">{step.body}</p></div>)}

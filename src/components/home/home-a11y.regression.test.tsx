@@ -44,8 +44,8 @@ describe("REGRESSÃO: controles da home com nome acessível", () => {
     const html = renderToString(<El />)
     if (_ === "EconomyCalculator") {
       expect(html).toContain('id="valor-conta-simulacao"')
-      expect(html).not.toContain('<select')
-      expect(html).not.toContain('Ajustar dados da fatura')
+      expect(html).toContain('<select')
+      expect(html).toContain('Ajustar dados da fatura')
     }
     for (const tag of ["button", "a", "select"] as const) expect(semNome(html, tag), tag).toEqual([])
   })
