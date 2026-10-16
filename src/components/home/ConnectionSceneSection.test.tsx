@@ -27,7 +27,7 @@ describe("ConnectionSceneSection", () => {
   it("atualiza a cena 3D ao avançar o scroll durante a seção fixa", () => {
     const onRender = vi.fn()
     const { container } = render(<Profiler id="connection" onRender={onRender}><ConnectionSceneSection /></Profiler>)
-    expect(container.querySelector("#rede")?.className).toContain("lg:h-[200svh]")
+    expect(container.querySelector("#rede")?.className).toContain("lg:h-[300svh]")
     expect(onRender).toHaveBeenCalledTimes(1)
 
     act(() => scroll.onChange(1))
