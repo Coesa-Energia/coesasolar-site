@@ -66,7 +66,6 @@ describe("REGRESSÃO: animação ambiente do hero sem player visível", () => {
     let container!: HTMLElement
     await act(async () => { container = render(<HeroSection />).container })
     const video = container.querySelector("video")!
-    fireEvent.loadedMetadata(video)
     expect(video.playbackRate).toBe(0.25)
   })
 })
