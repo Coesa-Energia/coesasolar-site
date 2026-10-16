@@ -1,17 +1,17 @@
-# Graph Report - coesasolar-site  (2026-10-14)
+# Graph Report - coesasolar-site  (2026-10-16)
 
 ## Corpus Check
-- 574 files · ~361,850 words
+- 577 files · ~377,565 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 10 file(s) not represented in the graph (top: (none) 3, .css 2, .example 1)
 
 ## Summary
-- 3287 nodes · 5013 edges · 510 communities (242 shown, 268 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 44 edges (avg confidence: 0.88)
+- 3251 nodes · 5288 edges · 501 communities (222 shown, 279 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 42 edges (avg confidence: 0.88)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2284b56c`
+- Built from commit: `93516f33`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -19,10 +19,10 @@
 - dependencies
 - client.ts
 - package.json
-- cn
+- react
 - blog/[slug]/page.tsx
 - PropostaPublica.tsx
-- useConfiguracoes
+- index.ts
 - 📊 LOGS, ANALYTICS E MONITORING
 - deepseek.ts
 - calculations.ts
@@ -32,41 +32,41 @@
 - vitest
 - carreiras/[slug]/page.tsx
 - 🔒 Plano de Remediação RLS - Políticas USING(true)
-- useEconomyCalculator.ts
+- @testing-library/react
 - getServiceClient
 - generate-article.ts
 - Guia: Adicionar Novo Catálogo
 - autoblog-profile.ts
 - 🔄 SISTEMA DE ESTADOS (FSM) - SOFIA BOT
-- next
+- supabase-blog.ts
 - useConfiguracoes.ts
 - 🧠 LÓGICA DE CONVERSAÇÃO - SOFIA BOT V2
 - compilerOptions
 - metrics.ts
 - Sofia WhatsApp message flow (z-api-webhook → sofia-webhook)
 - 20260107203600_6dea1edc-e1a8-41c7-8ec8-10791a04f0ce.sql
-- calculations-constants.ts
+- PlanSelector.tsx
 - components.json
-- deepseek.regression.test.ts
+- Autoblog Workflow Step Isolation (plan)
 - devDependencies
-- obrigado/page.tsx
-- index.ts
+- banco-de-talentos/page.tsx
+- SimulationForm
 - use-toast.ts
 - distribution.ts
 - 🗄️ DATABASE SCHEMA COMPLETO - SOFIA BOT V2
 - 📡 ENDPOINTS DE API - SOFIA BOT V2
-- supabase-blog.ts
-- useDataComparison.ts
+- blog/page.tsx
+- SolicitarPropostaDefinitiva.tsx
 - generate-article.regression.test.ts
-- [[...slug]]/page.tsx
+- App.tsx
 - agents-md-scenarios.test.ts
 - SOFIA - Regras de Negócio Consolidadas v3.5
 - 🔵 INTEGRAÇÃO BITRIX24
 - Memory: monitoring/unanswered-message-detector-v1
 - 20260107233428_b9ffc8aa-f15a-4bb9-9e4c-1549484044e6.sql
 - lead-capture.ts
-- react
-- src_components_home_index_aboutsection
+- FAQSection.tsx
+- useDataComparison.ts
 - carousel.tsx
 - validate.ts
 - quality-gate.ts
@@ -84,7 +84,7 @@
 - 📦 ARMAZENAMENTO E SINCRONIZAÇÃO DE LEADS
 - Análise de Segurança Etapa 1.3 (Score 85/100)
 - scripts
-- Auth.tsx
+- ProposalChatbot.tsx
 - Credenciais
 - ArticleBody.tsx
 - 20260126195214_f2e8b698-4f65-4ba9-b1a2-ec25aed3f0c3.sql
@@ -95,10 +95,10 @@
 - Memory: bug-fix/promessa-vazia-proposta-bloqueada
 - investimentos/page.tsx
 - 20260107230151_0922e0d1-e2b6-4154-812d-db862f33dcf1.sql
-- ClientAreaSection.tsx
+- types.ts
 - DocumentUploadPJ.tsx
-- EndCta.tsx
-- DataDivergenceAlert.tsx
+- editorial-calendar.ts
+- cn
 - learning-conversation-processor Edge Function
 - Global Constraints
 - 🔌 EDGE FUNCTIONS (74 Total)
@@ -111,7 +111,7 @@
 - Sistema Unificado de Configuração por Agente
 - Plano: Remover envio de link de proposta inicial via WhatsApp do Lovable
 - 20260112122643_1642678e-5b79-42c6-8ef8-f05137d534d3.sql
-- 20260122181431_666c3359-0349-43c7-ae58-0c0ba583ae8b.sql
+- public.track_pattern_change
 - ConnectionSceneSection.tsx
 - 20260118005351_2dfdf780-affd-4616-9859-5b875176ff83.sql
 - 20260202003041_1d29336c-502d-442a-911a-94f19c5e471a.sql
@@ -124,7 +124,7 @@
 - Memory: bug-fix/consumo-baixo-hard-stop-imediato
 - Causa Raiz: Leads em IN_PROCESS Nunca Avançam
 - Fase 5 & 6 "Caso Edson" - Geração e Entrega Determinística de Proposta
-- 20260128162201_443c0185-6397-475c-821b-01f1624240ff.sql
+- public.rag_sync_queue
 - PredictableBillSection.tsx
 - 🏢 CRM / BITRIX24
 - 🤖 AI AGENTS (Multi-Agente)
@@ -135,9 +135,9 @@
 - 20260208002547_69e8d2cd-004f-48d5-83ed-5e9d84b9fc02.sql
 - COESA Structure Retry Boundary Implementation Plan
 - setup/page.tsx
-- Index.tsx
+- framer-motion
 - internal-links.ts
-- calcularFaturaGD2
+- claim-route.regression.test.ts
 - 20260122180426_a4c4f38b-d30f-4735-a4ed-e0bd06534307.sql
 - 20260203013024_b79345a7-b3ee-4d93-8b4b-4258ad8383e2.sql
 - 📋 SOFIA - Regras de Negócio Consolidadas
@@ -161,14 +161,14 @@
 - 🟢 Z-API (WhatsApp Gateway)
 - public.get_rag_stats
 - public.user_roles
-- 20260112161148_85a7e22a-45f7-4b94-9310-644dbf8441c2.sql
-- 20260113010648_8d87e505-3dcb-4d47-a5c8-c282366d555d.sql
-- 20260118005641_23817152-49c9-4535-bc6e-73a604fdcb01.sql
+- public.solicitacoes_proposta_definitiva
+- public.dados_empresa_pj
+- public.agent_secrets
 - 20260126214747_b51e43f8-962e-4f01-92b1-734811b6e6eb.sql
 - 20260127010718_1405daa2-aa28-4d6b-bb6a-fbdb2945bea3.sql
 - public.claim_email_processing_if_no_proposal
 - 20260128134935_e3674445-9e60-4bd9-abe6-2ecf9f5fb3a6.sql
-- 20260128154341_84661cfc-268e-4d2d-9783-99a65e843e99.sql
+- public.sofia_guardrail_events
 - 20260202195010_f91673c8-1720-479a-b5c7-624b7596cb40.sql
 - 20260203153812_f1d4b5eb-4f10-4bd6-9fdc-9ba535548f78.sql
 - AGENTS.md P4: Narrative Principles
@@ -187,7 +187,7 @@
 - 🔴 ELEVENLABS (Text-to-Speech)
 - check-retired-claude-models.mjs
 - tailwind.config.ts
-- fallback-cover/route.tsx
+- next
 - UtmCatcher.tsx
 - public.coesa_blog_success_rate_90d
 - 20260107225650_4ae90329-a3fe-484f-8e56-7fb36530a410.sql
@@ -225,9 +225,8 @@
 - 🟢 ENVIO DE MENSAGENS
 - public.add_to_message_buffer
 - public.add_to_message_buffer
-- propostas_assinantes
 - googleapis
-- criarMetadataPropostaInicial
+- deepseek.regression.test.ts
 - 001_autoblog.sql
 - public.employee_goals
 - 20260108003131_384c855f-e007-4c98-a93d-f38bbe0adedf.sql
@@ -259,17 +258,16 @@
 - agent_configurations table
 - handleConsumoBaixoDisqualification() Function
 - buildArticleFromSections (pure assembler)
-- pre-push
 - elevenlabs-tts edge function
 - google-sheets-evaluation-dataset-v1.md
 - agents-md-few-shot-injection-v1.md
 - agents-md-training-system-v1.md
 - solar-excess-opportunity-detection-v1.md
 - .mcp.json
-- next-env.d.ts
 - engines
 - install-hooks.sh
-- calcularPropostaUsineiro
+- app/layout.tsx
+- 20260112122919_76d7b792-cbc9-4f9d-a214-80725cb1877c.sql
 - 20260114191204_a62dfa26-46c2-4d4e-aa0b-a8da912e899e.sql
 - 20260117155614_5526bd7a-4cb5-46ed-ac62-57e481c6167c.sql
 - 20260119184549_3576a17f-51f0-494c-a2db-59bc54fa5449.sql
@@ -282,13 +280,11 @@
 - 20260131235622_af867b1b-3a08-4ae9-b0ec-1743b29c28ff.sql
 - 20260208210532_19547e79-74d8-4e20-9c77-a0be8f038048.sql
 - rag_documents table
-- SOFIA_CLAUSULAS_PETREAS Narrative Rules
 - SOFIA_REASONING_EXAMPLES constant
 - validateProposalReadiness() Function
 - chatbot_mensagens table
 - Message Bus Unified Persistence
 - Sofia Bom Senso Humano (P4 Reasoning Hierarchy)
-- Retrieval-Led Reasoning Hierarchy (P1-P5)
 - checkTriageLock() Function
 - shouldSkipTriageByCRM() Function
 - getAgentConfigLoader() Function
@@ -297,127 +293,76 @@
 - handleProposalPromiseFlow() Function
 - Proposal Generation Rescue & Manual Endpoint
 - syncToBitrix() Function
-- Anti-Spam Protections (4 Layers)
 - Unanswered Message Detector
 - Triagem Inteligente (LLM Classification)
 - Plan: Remove WhatsApp Proposal Link Send
 - idx_mensagens_handler_type
 - idx_crm_contatos_bitrix24_lead_id
-- distribuidoras_config
-- icms_estados
-- Off-script detection (blocks skipping FSM steps)
 - Resend integration (transactional email)
 - Retell AI integration (voice calls)
 - SofiaMetrics component (leads/updates/moves)
 - @playwright/test
-- playwright-fixture.ts
 - Site verification token file (68766eafd2c356feafa6e54916978875.txt)
 - CF Gauss Horizontal Logo
 - MOVA Wordmark Logo
-- public.chatbot_followups
 - Example electricity bill line-items table (CIP / Energia SCEE / GD II)
 - idx_crm_contatos_bitrix24_stage
-- public.daily_report_recipients
 - Generic placeholder image graphic
-- public.planos_comerciais
 - Example electricity bill classification table (Classe/Subclasse/Modalidade Tarifária)
-- src_components_home_index_benefitssection
+- react-dom
 - robots.txt — allow geral para Googlebot, Bingbot, Twitterbot, facebookexternalhit e demais
-- src_components_home_index_calculatorsection
+- generate-status/route.ts
 - public.unanswered_detection_attempts
-- solicitacoes_proposta_definitiva
-- src_components_home_index_ctasection
-- src_components_home_index_faqsection
-- [slug]/page.test.tsx
-- propostas_assinantes
+- sitemap.ts
+- rpc-schema.regression.test.ts
+- openrouter-selector.regression.test.ts
 - idx_propostas_assinantes_bitrix24_lead_id_unique
 - idx_concessionarias_sigla_aneel
-- src_components_home_index_herosection
-- public.concessionarias
-- public.concessionarias
-- public.concessionarias
-- public.propostas_assinantes
-- src_components_home_index_homefooter
-- propostas_assinantes
 - 20260113172648_e0ed8bfa-d837-4119-bd90-c9d799c399a4.sql
-- src_components_home_index_homenavbar
 - 20260113174208_555785e7-54e4-43c3-9dbe-2df1856b78cc.sql
-- src_components_home_index_howitworkssection
-- chatbot_conversas
-- src_components_home_index_planssection
 - idx_chatbot_conversas_bitrix24_lead_id
-- src_components_home_index_presssection
 - idx_chatbot_conversas_needs_human
-- src_components_home_index_whatsappfloatingbutton
 - idx_chatbot_conversas_nudge_scheduling
-- src_components_home_index_whychoosesection
 - idx_chatbot_conversas_contract_nudge
-- src_lib_blog_validate_min_acceptable_article_words
-- public.chatbot_conversas
-- public.chatbot_conversas
-- public.propostas_assinantes
-- public.chatbot_conversas
 - 20260114174209_faec65f3-55e5-4942-8104-9fa3915b43f3.sql
-- src_lib_blog_validate_min_article_words
-- public.whatsapp_atendentes
-- public.whatsapp_atendentes
-- public.chatbot_conversas
-- public.whatsapp_atendentes
 - idx_chatbot_conversas_docs_source
-- public.coesa_blog_run_log
 - 20260116020136_706ac217-3043-447a-90ac-df98de0580da.sql
-- public.coesa_articles
-- public.chatbot_conversas
-- propostas_assinantes
-- public.chatbot_conversas
 - idx_propostas_crm_contato
-- public.propostas_assinantes
-- public.ai_agents
-- public.ai_agents
 - 20260119185321_973f662e-2386-4510-bca7-ea55b915950e.sql
-- public.ai_agents
 - 20260119202424_0cc176e0-2bee-4ae3-ada5-90aec1e1c603.sql
 - idx_unique_active_conversation_per_phone_agent
 - idx_chatbot_conversas_last_human_message
-- public.sofia_detection_patterns
-- public.sofia_detection_patterns
 - 20260127133800_b0f4772e-b970-48d7-bd0d-2f5e8ef0712f.sql
 - 20260128155616_fc30f1e4-73b4-4549-a434-6c866816dc00.sql
-- public.chatbot_conversas
 - 20260202145137_064868ce-bc72-4592-8080-ffaec7b71a64.sql
 - idx_rag_chunks_embedding_optimized
 - idx_chatbot_mensagens_handler_type
 - idx_chatbot_mensagens_conversa_created
-- rule_memory
-- rule_memory
-- public.ai_agents
-- rag_chunks
-- public.proposal_views
 - coesa_articles_one_published_per_brt_day_idx
 
 ## God Nodes (most connected - your core abstractions)
-1. `cn()` - 79 edges
-2. `vitest` - 77 edges
-3. `react` - 60 edges
+1. `vitest` - 80 edges
+2. `cn()` - 79 edges
+3. `react` - 62 edges
 4. `lucide-react` - 54 edges
 5. `next` - 40 edges
-6. `framer-motion` - 36 edges
-7. `AUTOBLOG_PROFILE` - 25 edges
-8. `generateArticleWorkflow()` - 22 edges
-9. `useConfiguracoes()` - 20 edges
-10. `getServiceClient()` - 19 edges
+6. `framer-motion` - 37 edges
+7. `SolicitarPropostaDefinitiva()` - 35 edges
+8. `Button` - 30 edges
+9. `Index()` - 26 edges
+10. `PropostaPublica()` - 26 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `COESA Structure Retry Boundary Implementation Plan` --references--> `generateArticleStructure()`  [INFERRED]
   docs/superpowers/plans/2026-10-10-coesa-structure-retry-boundary.md → src/lib/blog/deepseek.ts
+- `ArticleStructure (título, slug, meta_desc, 7-9 sections, FAQ 7 itens)` --references--> `writeSection()`  [EXTRACTED]
+  docs/superpowers/plans/2026-08-25-motor-padrao-cfgauss.md → src/lib/blog/deepseek.ts
+- `max_tokens explícito obrigatório em toda chamada de geração de seção` --rationale_for--> `writeSection()`  [EXTRACTED]
+  docs/superpowers/plans/2026-08-25-motor-padrao-cfgauss.md → src/lib/blog/deepseek.ts
+- `Decisão: regenerar só seções com issue (opção A) em vez de artigo inteiro (opção B)` --rationale_for--> `regenerateSectionsWithFeedback()`  [EXTRACTED]
+  docs/superpowers/plans/2026-08-25-motor-padrao-cfgauss.md → src/lib/blog/deepseek.ts
 - `Concerns` --references--> `montarLinkWhatsapp()`  [INFERRED]
   .superpowers/sdd/cards-site-report.md → src/lib/carreiras/form-utils.ts
-- `Entrega` --references--> `montarLinkWhatsapp()`  [INFERRED]
-  .superpowers/sdd/cards-site-report.md → src/lib/carreiras/form-utils.ts
-- `Testes` --references--> `montarLinkWhatsapp()`  [INFERRED]
-  .superpowers/sdd/cards-site-report.md → src/lib/carreiras/form-utils.ts
-- `Entrega` --references--> `ConfigRhPublica`  [INFERRED]
-  .superpowers/sdd/cards-site-report.md → src/lib/carreiras/supabase.ts
 
 ## Import Cycles
 - None detected.
@@ -433,35 +378,35 @@
 - **Coesa Energia Inteligente logo/favicon variant family** — public_favicon, src_assets_logos_coesa_black, src_assets_logos_coesa_green, src_assets_logos_coesa_white [INFERRED 0.85]
 - **Cláusulas Pétreas documentadas de forma redundante em 3 arquivos (regras de negócio, constituição comprimida AGENTS.md, persona SOFIA.md)** — docs_sofia_regras_de_negocio_clausulas_petreas [INFERRED 0.95]
 
-## Communities (510 total, 268 thin omitted)
+## Communities (501 total, 279 thin omitted)
 
 ### Community 0 - "dependencies"
 Cohesion: 0.03
 Nodes (78): dependencies, class-variance-authority, clsx, cmdk, date-fns, @dnd-kit/core, @dnd-kit/sortable, @dnd-kit/utilities (+70 more)
 
 ### Community 1 - "client.ts"
-Cohesion: 0.07
-Nodes (32): DocumentUploadPJ(), DocumentUploadWithAI(), FALLBACK_CONFIG, UIConfig, useUIConfig(), supabase, CompositeTypes, Constants (+24 more)
+Cohesion: 0.11
+Nodes (20): @supabase/supabase-js, AuthContext, AuthContextType, FALLBACK_CONFIG, UIConfig, supabase, buildDocReceivedMessage(), DocReceivedPage (+12 more)
 
 ### Community 2 - "package.json"
 Cohesion: 0.03
-Nodes (61): name, private, version, autoprefixer, clsx, cmdk, date-fns, @dnd-kit/core (+53 more)
+Nodes (58): name, private, version, autoprefixer, clsx, cmdk, date-fns, @dnd-kit/core (+50 more)
 
-### Community 3 - "cn"
-Cohesion: 0.07
-Nodes (46): sonner, zod, ChatInput(), ChatInputProps, ChatMessage(), ChatMessageProps, Message, ProposalChatbot() (+38 more)
+### Community 3 - "react"
+Cohesion: 0.10
+Nodes (28): class-variance-authority, @hookform/resolvers, react, react-hook-form, zod, ChatInput(), ChatInputProps, Concessionaria (+20 more)
 
 ### Community 4 - "blog/[slug]/page.tsx"
-Cohesion: 0.10
-Nodes (23): ArticlePage(), generateMetadata(), Props, article, revalidate, ArticleMetrics(), onScroll(), send() (+15 more)
+Cohesion: 0.08
+Nodes (34): ArticlePage(), generateMetadata(), Props, revalidate, ArticleMetrics(), onScroll(), send(), CommentForm() (+26 more)
 
 ### Community 5 - "PropostaPublica.tsx"
-Cohesion: 0.07
-Nodes (42): framer-motion, lucide-react, PlanoConfig, PLANOS_DISPONIVEIS, PlanSelector(), PlanSelectorProps, UNLOCK_THRESHOLD, ComoFunciona() (+34 more)
+Cohesion: 0.11
+Nodes (26): lucide-react, ComoFunciona(), Confianca(), CTAFinal, CTAFinalProps, EconomiaDetalhes(), EconomiaDetalhesProps, FABButton() (+18 more)
 
-### Community 6 - "useConfiguracoes"
-Cohesion: 0.20
-Nodes (12): AboutSection(), stats, CTASection(), HowItWorksSection(), steps, StatsCounter(), StatsCounterProps, reasons (+4 more)
+### Community 6 - "index.ts"
+Cohesion: 0.15
+Nodes (24): AboutSection(), stats, BenefitsSection(), CalculatorSection(), benefits, ConnectionIntroSection(), ConnectionSceneSection(), CTASection() (+16 more)
 
 ### Community 7 - "📊 LOGS, ANALYTICS E MONITORING"
 Cohesion: 0.04
@@ -469,67 +414,67 @@ Nodes (47): ✅ 10. REGRESSION TEST SUITE, 📈 1. ANALYTICS DE CONVERSÃO, 📊
 
 ### Community 8 - "deepseek.ts"
 Cohesion: 0.07
-Nodes (47): ArticleStructure (título, slug, meta_desc, 7-9 sections, FAQ 7 itens), Padrão IMG_SLOT:N — placeholder de imagem por seção substituído pós-upload, max_tokens explícito obrigatório em toda chamada de geração de seção, Decisão: regenerar só seções com issue (opção A) em vez de artigo inteiro (opção B), Geração por seção em vez de artigo inteiro numa chamada, ArticleContent, ArticleFaqItem, ArticleOutline (+39 more)
+Nodes (39): ArticleStructure (título, slug, meta_desc, 7-9 sections, FAQ 7 itens), ArticleContent, ArticleFaqItem, ArticleOutline, ArticleSection, ArticleStructure, ArticleWithSections, askDeepseek() (+31 more)
 
 ### Community 9 - "calculations.ts"
-Cohesion: 0.06
-Nodes (25): AssinanteInputGD2, AssinanteOutput, AssinanteOutputGD2, BANDEIRAS_VALORES, BandeiraTarifaria, CalculoGD2Input, CalculoGD2Output, ComposicaoTarifaria (+17 more)
+Cohesion: 0.04
+Nodes (54): AssinanteInputGD2, AssinanteOutput, AssinanteOutputGD2, BANDEIRAS_VALORES, BandeiraTarifaria, calcularConsumoReverso(), calcularEconomiaGD2(), calcularFaturaConcessionaria() (+46 more)
 
 ### Community 10 - "🔒 ETAPA 1.3 - PARTE 2: ANÁLISE DE SEGURANÇA"
 Cohesion: 0.06
 Nodes (32): 1. Response Helpers (`_shared/response-helpers.ts`), ✅ 1. SECRETS MANAGEMENT (10/10), ✅ 2. INPUT VALIDATION (9/10), 2. Message Helpers (`_shared/message-helpers.ts`), 3. Lock Helpers (`_shared/lock-helpers.ts`), ✅ 3. SQL INJECTION PROTECTION (9/10), ✅ 4. CORS CONFIGURATION (10/10), ✅ 5. RATE LIMITING (9/10) (+24 more)
 
 ### Community 11 - "CandidaturaForm.tsx"
-Cohesion: 0.16
-Nodes (26): CandidaturaForm(), avancar(), enviar(), extrairCv(), irParaEtapa(), mostrarErros(), validarEtapa(), ETAPAS (+18 more)
+Cohesion: 0.15
+Nodes (28): CandidaturaForm(), avancar(), enviar(), extrairCv(), irParaEtapa(), mostrarErros(), validarEtapa(), ETAPAS (+20 more)
 
 ### Community 12 - "link-audit.ts"
-Cohesion: 0.22
-Nodes (13): GET(), maxDuration, AuditArticle, auditArticleLinks(), AuditReport, BrokenLink, checkExternalLink(), extractMarkdownLinks() (+5 more)
+Cohesion: 0.14
+Nodes (21): GET(), maxDuration, POST(), extractGuestBacklinks(), GuestPostInput, GuestPostValidation, isValidHttpUrl(), ALLOWED (+13 more)
 
 ### Community 13 - "vitest"
-Cohesion: 0.10
-Nodes (14): ref_node_fs, ref_node_path, ref_path, react-dom, vitest, { ARCHIVED_ARTICLE_REDIRECTS, buildArchivedRedirects }, migration, client (+6 more)
+Cohesion: 0.16
+Nodes (4): vitest, { ARCHIVED_ARTICLE_REDIRECTS, buildArchivedRedirects }, migration, FILES_WITHOUT_OPACITY_FADE
 
 ### Community 14 - "carreiras/[slug]/page.tsx"
-Cohesion: 0.20
-Nodes (12): EMPLOYMENT_TYPE, generateMetadata(), Lista(), PageProps, revalidate, VagaDetalhePage(), CandidateButton(), normalizarDiferenciais() (+4 more)
+Cohesion: 0.22
+Nodes (13): EMPLOYMENT_TYPE, generateMetadata(), Lista(), Metadado(), PageProps, revalidate, VagaDetalhePage(), CandidateButton() (+5 more)
 
 ### Community 15 - "🔒 Plano de Remediação RLS - Políticas USING(true)"
 Cohesion: 0.07
 Nodes (26): Migração SQL Sugerida (Fase 1):, Migração SQL Sugerida (Fase 2):, Migração SQL Sugerida (Fase 3):, 📝 Notas de Implementação, 📋 Ordem de Execução Recomendada, Pattern para admin-only:, Pattern para service_role:, Pattern para user_id: (+18 more)
 
-### Community 16 - "useEconomyCalculator.ts"
-Cohesion: 0.17
-Nodes (12): CalculatorSection(), EconomyCalculator(), CalculoResult, Concessionaria, DEFAULT_MAIN_DISTRIBUIDORAS, defaultConfig, EconomyConfig, meetsCalculatorMinimums() (+4 more)
+### Community 16 - "@testing-library/react"
+Cohesion: 0.13
+Nodes (14): @testing-library/react, calcular, HomeNavbar(), navLinks, CalculoResult, Concessionaria, DEFAULT_MAIN_DISTRIBUIDORAS, defaultConfig (+6 more)
 
 ### Community 17 - "getServiceClient"
-Cohesion: 0.11
-Nodes (27): GET(), isAuthorized(), POST(), POST(), Comments(), Comment, CommentInput, CommentValidation (+19 more)
+Cohesion: 0.19
+Nodes (19): GET(), isAuthorized(), POST(), POST(), Comment, CommentInput, CommentValidation, deleteComment() (+11 more)
 
 ### Community 18 - "generate-article.ts"
-Cohesion: 0.13
-Nodes (24): assembleArticleMarkdown(), buildArticleFromSections(), enrichSectionBriefs(), injectSectionImages(), BodyImage, injectBodyImages(), injectInfographic(), injectInlineCtas() (+16 more)
+Cohesion: 0.10
+Nodes (34): Padrão IMG_SLOT:N — placeholder de imagem por seção substituído pós-upload, assembleArticleMarkdown(), buildArticleFromSections(), enrichSectionBriefs(), generateArticleWithSections(), injectSectionImages(), regenerateSectionsWithFeedback(), writeSection() (+26 more)
 
 ### Community 19 - "Guia: Adicionar Novo Catálogo"
 Cohesion: 0.08
 Nodes (24): 1. Alterar Etapa (changeStage), 2. Atribuir Fila (assignQueue), 3. Atribuir Responsável (assignOwner), 4. Disparar Automação (triggerAutomation), Arquitetura, Checklist de Implementação, Componentes de UI, Componentes Existentes (+16 more)
 
 ### Community 20 - "autoblog-profile.ts"
-Cohesion: 0.14
-Nodes (13): metadata, RootLayout(), revalidate, AI_CRAWLERS, robots(), LeadFormProps, src_index, shouldLoadAnalytics() (+5 more)
+Cohesion: 0.20
+Nodes (9): revalidate, AI_CRAWLERS, robots(), LeadFormProps, AUTOBLOG_PROFILE, fetchTopKeyword(), getSeedSkippingPublished(), getNextSeedKeyword() (+1 more)
 
 ### Community 21 - "🔄 SISTEMA DE ESTADOS (FSM) - SOFIA BOT"
 Cohesion: 0.09
 Nodes (22): Arquivo: `guided-script-fsm.ts`, 📁 ARQUIVOS PRINCIPAIS, 🔄 AUTO-TRANSIÇÕES, ✅ CONDIÇÕES DE TRANSIÇÃO, 🔢 CONTAGEM DE TENTATIVAS, 🚫 DETECÇÃO DE OFF-SCRIPT, Deterministic Router (Bypass LLM), 📊 DIAGRAMA DE ESTADOS (+14 more)
 
-### Community 22 - "next"
-Cohesion: 0.08
-Nodes (25): next, workflow, alertCanaryFailure(), dynamic, GET(), { sendFailureAlertEmail }, alertOnFirstFailureToday(), dynamic (+17 more)
+### Community 22 - "supabase-blog.ts"
+Cohesion: 0.13
+Nodes (19): alertOnFirstFailureToday(), dynamic, GET(), claimBlogRunToday, markAlertedIfFirstFailureToday, mockStart, sendFailureAlertEmail, FailureAlertInput (+11 more)
 
 ### Community 23 - "useConfiguracoes.ts"
 Cohesion: 0.17
-Nodes (14): distribuidoras, jsonLd(), leituras, metadata, MinasGeraisPage(), passos, dynamic, HomeFooter() (+6 more)
+Nodes (13): distribuidoras, jsonLd(), leituras, MinasGeraisPage(), passos, dynamic, benefits, ConfiguracoesSistema (+5 more)
 
 ### Community 24 - "🧠 LÓGICA DE CONVERSAÇÃO - SOFIA BOT V2"
 Cohesion: 0.10
@@ -548,40 +493,40 @@ Cohesion: 0.11
 Nodes (18): llm-guardrails.ts (applyAllGuards, post-LLM validation), llm-client.ts (orchestrateLLMFlow, model fallback), message-buffer.ts (orchestrateMessageBuffer, 4s debounce), Pipeline V2, rag-search-client.ts (orchestrateRAGSearch), Sofia WhatsApp message flow (z-api-webhook → sofia-webhook), zapi-client.ts (sendWhatsAppMessage), rag-search edge function (semantic search) (+10 more)
 
 ### Community 28 - "20260107203600_6dea1edc-e1a8-41c7-8ec8-10791a04f0ce.sql"
-Cohesion: 0.15
-Nodes (15): public.handle_new_user, on_auth_user_created, public.cidades, public.concessionarias, public.fluxo_caixa, public.parametros_macro, public.profiles, public.propostas_assinantes (+7 more)
+Cohesion: 0.23
+Nodes (14): on_auth_user_created, public.cidades, public.concessionarias, public.fluxo_caixa, public.handle_new_user(), public.parametros_macro, public.profiles, public.propostas_assinantes (+6 more)
 
-### Community 29 - "calculations-constants.ts"
-Cohesion: 0.11
-Nodes (17): ADICIONAL_IRPJ, CSLL_ALIQUOTA, DEGRADACAO_ANUAL, DISPONIBILIDADE_MINIMA, INFLACAO_ENERGETICA_ANUAL, INFLACAO_ENERGETICA_ANUAL_DEFAULT, IRPJ_ADICIONAL_THRESHOLD, IRPJ_ALIQUOTA (+9 more)
+### Community 29 - "PlanSelector.tsx"
+Cohesion: 0.14
+Nodes (14): PlanoConfig, PLANOS_DISPONIVEIS, PlanSelectorProps, UNLOCK_THRESHOLD, PlanoRecomendado(), PlanoRecomendadoProps, convertToPlanoConfig(), getDefaultPlanos() (+6 more)
 
 ### Community 30 - "components.json"
 Cohesion: 0.12
 Nodes (16): aliases, components, hooks, lib, ui, utils, rsc, $schema (+8 more)
 
-### Community 31 - "deepseek.regression.test.ts"
-Cohesion: 0.10
-Nodes (21): Fail-closed contract fix for writeSection, Incident article e92e1a3b-d38c-4989-bb6a-4a5521a4d991, mac-gate (preflight local gate), Sentinel: seção curta no autoblog Coesa (plan), Validador final (contagem de H2/total), writeSection (src/lib/blog/deepseek.ts), generateStructureAndSectionsStep (monolithic, removed), generateStructureStep (+13 more)
+### Community 31 - "Autoblog Workflow Step Isolation (plan)"
+Cohesion: 0.15
+Nodes (15): Incident article e92e1a3b-d38c-4989-bb6a-4a5521a4d991, mac-gate (preflight local gate), Sentinel: seção curta no autoblog Coesa (plan), Validador final (contagem de H2/total), writeSection (src/lib/blog/deepseek.ts), generateStructureAndSectionsStep (monolithic, removed), generateStructureStep, Incident: deepseek_structure_failed (30/09/2026) (+7 more)
 
 ### Community 32 - "devDependencies"
 Cohesion: 0.11
 Nodes (18): devDependencies, autoprefixer, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals, lovable-tagger (+10 more)
 
-### Community 33 - "obrigado/page.tsx"
-Cohesion: 0.31
-Nodes (5): metadata, PageProps, CandidaturaSucesso(), dataFeedback(), CareersHeader()
+### Community 33 - "banco-de-talentos/page.tsx"
+Cohesion: 0.27
+Nodes (8): BancoDeTalentosPage(), metadata, metadata, ObrigadoPage(), PageProps, CandidaturaSucesso(), dataFeedback(), CareersHeader()
 
-### Community 34 - "index.ts"
-Cohesion: 0.12
-Nodes (23): src_assets_logos_coesa_white_new, benefits, BenefitsSection(), benefits, ConnectionIntroSection(), ease, HeroSection(), iconMap (+15 more)
+### Community 34 - "SimulationForm"
+Cohesion: 0.31
+Nodes (11): ease, iconMap, CompactLeadForm(), LeadFormDock(), SimulationForm(), formatLeadBill(), formatLeadBillInput(), LeadPrefill (+3 more)
 
 ### Community 35 - "use-toast.ts"
-Cohesion: 0.11
-Nodes (26): @radix-ui/react-toast, Toast, ToastAction, ToastActionElement, ToastClose, ToastDescription, ToastProps, src_components_ui_toast_toastprovider (+18 more)
+Cohesion: 0.12
+Nodes (25): @radix-ui/react-toast, Toast, ToastAction, ToastActionElement, ToastClose, ToastDescription, ToastProps, ToastTitle (+17 more)
 
 ### Community 36 - "distribution.ts"
-Cohesion: 0.13
-Nodes (24): POST(), buildDistributionArticle(), buildEmailDigestPayload(), buildSocialPost(), distributeArticle(), DISTRIBUTION_CHANNELS, DistributionArticle, DistributionChannel (+16 more)
+Cohesion: 0.19
+Nodes (16): buildDistributionArticle(), buildEmailDigestPayload(), buildSocialPost(), distributeArticle(), DISTRIBUTION_CHANNELS, DistributionArticle, DistributionChannel, DistributionResult (+8 more)
 
 ### Community 37 - "🗄️ DATABASE SCHEMA COMPLETO - SOFIA BOT V2"
 Cohesion: 0.12
@@ -591,21 +536,21 @@ Nodes (15): `activity_logs`, 📊 ANALYTICS / LOGS, 🔄 APRENDIZADO, `client_be
 Cohesion: 0.12
 Nodes (15): 51. `extrair-dados-documentos`, 52. `extrair-dados-contrato-social`, 56. `agent-source-export`, 57. `agent-source-upload`, 61. `sofia-regression-tests`, 62. `zapi-credentials-check`, 63. `retroactive-learning-processor`, 🟢 AI GYM / AGENTES (+7 more)
 
-### Community 39 - "supabase-blog.ts"
-Cohesion: 0.09
-Nodes (29): BlogPage(), metadata, revalidate, CategoryPage(), generateMetadata(), Props, byCategory, meta() (+21 more)
+### Community 39 - "blog/page.tsx"
+Cohesion: 0.16
+Nodes (16): BlogPage(), metadata, revalidate, CategoryPage(), generateMetadata(), Props, byCategory, meta() (+8 more)
 
-### Community 40 - "useDataComparison.ts"
-Cohesion: 0.09
-Nodes (32): DataDivergenceAlertProps, compareNumber(), compareText(), normalizeCep(), normalizeCpfCnpj(), normalizeNumber(), normalizeText(), useDataComparison() (+24 more)
+### Community 40 - "SolicitarPropostaDefinitiva.tsx"
+Cohesion: 0.11
+Nodes (31): DocumentUploadPJData, RadioGroup, RadioGroupItem, ExtractedDataForValidation, isCnpj(), isCpf(), mascaraCnpjSeguro(), normalizeCpf() (+23 more)
 
 ### Community 41 - "generate-article.regression.test.ts"
 Cohesion: 0.12
 Nodes (15): ARTICLE_STUB, buildArticleFromSections, checkOpenRouterBalance, countArticleWords, generateArticleStructure, getNextPlannedEntry, insertArticle, insertRunLog (+7 more)
 
-### Community 42 - "[[...slug]]/page.tsx"
-Cohesion: 0.11
-Nodes (17): next-themes, HomeClient(), generateMetadata(), Page(), PageProps, revalidate, App, SpaClient() (+9 more)
+### Community 42 - "App.tsx"
+Cohesion: 0.08
+Nodes (28): next-themes, react-router-dom, @tanstack/react-query, App(), AppRoutes(), queryClient, HomeClient(), generateMetadata() (+20 more)
 
 ### Community 43 - "agents-md-scenarios.test.ts"
 Cohesion: 0.13
@@ -613,7 +558,7 @@ Nodes (6): AGENTS_MD_SCENARIOS, ANALOGY_PATTERNS, CORPORATE_PATTERNS, EMOTION_VA
 
 ### Community 44 - "SOFIA - Regras de Negócio Consolidadas v3.5"
 Cohesion: 0.16
-Nodes (14): Automações e Follow-up (Lead Score, Nudge, Follow-up, Rescue), Cálculo de Economia (economia_mensal = valor_fatura × desconto_plano), Cláusulas Pétreas (CP1-CP6): TRIAGEM_ÚNICA, ORDEM_FUNIL, CORTE_R$250, EMAIL_OBRIG, DOCS_VIA_LINK, TERCEIROS_VÁLIDO, Tabelas configuracoes_sistema e rule_memory, Controle Humano (#ASSUMIR, #RESOLVIDO, #CORRIGIR, Kill Switch AI Gym), Desqualificação Automática (baixo consumo, Grupo A, tarifa social, região não atendida, cooldown 30 dias), Distribuidoras Atendidas: apenas CEMIG e Energisa MG, SOFIA - Regras de Negócio Consolidadas v3.5 (+6 more)
+Nodes (12): Automações e Follow-up (Lead Score, Nudge, Follow-up, Rescue), Cálculo de Economia (economia_mensal = valor_fatura × desconto_plano), Tabelas configuracoes_sistema e rule_memory, Controle Humano (#ASSUMIR, #RESOLVIDO, #CORRIGIR, Kill Switch AI Gym), Desqualificação Automática (baixo consumo, Grupo A, tarifa social, região não atendida, cooldown 30 dias), Distribuidoras Atendidas: apenas CEMIG e Energisa MG, SOFIA - Regras de Negócio Consolidadas v3.5, FSM do Funil: TRIAGEM→QUALIFICAÇÃO→COLETA_DADOS→PROPOSTA_INICIAL→DOCS_PLATAFORMA→PROPOSTA_DEFINITIVA→ASSINATURA→FECHADO (+4 more)
 
 ### Community 45 - "🔵 INTEGRAÇÃO BITRIX24"
 Cohesion: 0.14
@@ -624,32 +569,36 @@ Cohesion: 0.14
 Nodes (13): 1. Deduplicação por message_id, 1. Triagem Rápida (Padrões Regex), 2. Limite de Fallbacks por Dia, 2. Triagem LLM (Casos Ambíguos), 3. Cooldown de 60 minutos, 4. Verificação de Resposta Recente, Configurações (configuracoes_sistema), Edge Function (+5 more)
 
 ### Community 47 - "20260107233428_b9ffc8aa-f15a-4bb9-9e4c-1549484044e6.sql"
-Cohesion: 0.16
-Nodes (19): public.handle_proposta_assinante_changes, public.handle_proposta_usineiro_changes, public.user_roles, idx_activity_logs_created_at, idx_activity_logs_entity_type, idx_activity_logs_user_id, idx_notifications_admin, idx_notifications_created_at (+11 more)
+Cohesion: 0.17
+Nodes (14): idx_activity_logs_created_at, idx_activity_logs_entity_type, idx_activity_logs_user_id, idx_notifications_admin, idx_notifications_created_at, idx_notifications_read, on_proposta_assinante_changes, on_proposta_usineiro_changes (+6 more)
 
 ### Community 48 - "lead-capture.ts"
 Cohesion: 0.29
 Nodes (9): POST(), deliverLead(), isHoneypot(), LEAD_PLUGINS, LeadDestination, LeadPayload, LeadValidation, resolveLeadPlugin() (+1 more)
 
-### Community 49 - "react"
-Cohesion: 0.20
-Nodes (12): @radix-ui/react-accordion, react, FAQSection(), src_components_ui_accordion_accordion, AccordionContent, AccordionItem, AccordionTrigger, DEFAULT_FAQS (+4 more)
+### Community 49 - "FAQSection.tsx"
+Cohesion: 0.25
+Nodes (8): @radix-ui/react-accordion, FAQSection(), AccordionContent, AccordionItem, AccordionTrigger, DEFAULT_FAQS, FAQ, useFAQs()
+
+### Community 50 - "useDataComparison.ts"
+Cohesion: 0.19
+Nodes (14): DataDivergenceAlertProps, compareNumber(), compareText(), normalizeCep(), normalizeCpfCnpj(), normalizeNumber(), normalizeText(), useDataComparison() (+6 more)
 
 ### Community 51 - "carousel.tsx"
-Cohesion: 0.17
-Nodes (16): embla-carousel-react, mediaLabel, pressItems, Carousel, CarouselApi, CarouselContent, CarouselContext, CarouselContextProps (+8 more)
+Cohesion: 0.19
+Nodes (17): embla-carousel-react, mediaLabel, pressItems, PressSection(), Carousel, CarouselApi, CarouselContent, CarouselContext (+9 more)
 
 ### Community 52 - "validate.ts"
 Cohesion: 0.20
 Nodes (12): MAX_SECTIONS, MIN_ACCEPTABLE_ARTICLE_WORDS, MIN_ARTICLE_WORDS, MIN_SECTIONS, normalize(), fill(), makeValidInput(), rules() (+4 more)
 
 ### Community 53 - "quality-gate.ts"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (18): openai, canaryPercent(), costTier(), createJevRouterFetch(), JEV_ROUTER_MODEL, JevCostTier, usable(), JudgeCategories (+10 more)
 
 ### Community 54 - "20260120220634_f7436b7b-2f5e-4ed3-aa54-b985bf592097.sql"
-Cohesion: 0.15
-Nodes (21): idx_rag_chunks_document, idx_rag_chunks_embedding, idx_rag_documents_active, idx_rag_documents_category, idx_rag_documents_source_id, idx_rag_documents_source_type, idx_rag_documents_status, idx_rag_search_logs_agent (+13 more)
+Cohesion: 0.16
+Nodes (19): idx_rag_chunks_document, idx_rag_chunks_embedding, idx_rag_documents_active, idx_rag_documents_category, idx_rag_documents_source_id, idx_rag_documents_source_type, idx_rag_documents_status, idx_rag_search_logs_agent (+11 more)
 
 ### Community 55 - "🟢 CORE: CONVERSAS WHATSAPP"
 Cohesion: 0.15
@@ -660,24 +609,24 @@ Cohesion: 0.15
 Nodes (12): 1. `sofia-core-loader.ts`, 2. `SOFIA.md`, Antes (Regra Seca):, Depois (Narrativa):, Exemplos de Transformação, Impacto Esperado, Implementação AGENTS.md: P4 - Narrative Principles, Memory: architecture/agents-md-p4-narrative-principles-v1 (+4 more)
 
 ### Community 57 - "next.config.js"
-Cohesion: 0.29
-Nodes (5): { buildArchivedRedirects }, nextConfig, { withWorkflow }, ARCHIVED_ARTICLE_REDIRECTS, buildArchivedRedirects()
+Cohesion: 0.22
+Nodes (6): { buildArchivedRedirects }, nextConfig, { withWorkflow }, vagaBase, ARCHIVED_ARTICLE_REDIRECTS, buildArchivedRedirects()
 
 ### Community 58 - "CoesaLogo.tsx"
-Cohesion: 0.18
-Nodes (10): Coesa Energia Inteligente logo — green wordmark, orange bolt, Coesa Energia Inteligente logo — white variant, rendered blank on white canvas, COESA_LOGOS, CoesaLogo(), CoesaLogoProps, logoVariants, sizeClasses, PropostaFooter() (+2 more)
+Cohesion: 0.14
+Nodes (20): Coesa Energia Inteligente logo — green wordmark, orange bolt, Coesa Energia Inteligente logo — white variant, rendered blank on white canvas, COESA_LOGOS, CoesaLogo(), CoesaLogoProps, logoVariants, sizeClasses, AppPhone() (+12 more)
 
 ### Community 59 - "supabase.ts"
-Cohesion: 0.17
-Nodes (14): CarreirasPage(), metadata, revalidate, CarreirasList(), unico(), CampoExtraPublico, ConfigRhPublica, getClient() (+6 more)
+Cohesion: 0.16
+Nodes (16): @testing-library/jest-dom, CarreirasPage(), metadata, revalidate, CarreirasList(), Filtro(), unico(), CampoExtraPublico (+8 more)
 
 ### Community 60 - "image-gen.ts"
-Cohesion: 0.26
-Nodes (12): ref_sharp, blockImageApiTemporarily(), fallbackCoverUrl(), generateAndUploadBodyImages(), generateAndUploadCover(), generateAndUploadInfographic(), generateAndUploadOne(), generateImageB64() (+4 more)
+Cohesion: 0.42
+Nodes (8): blockImageApiTemporarily(), fallbackCoverUrl(), generateAndUploadCover(), generateAndUploadInfographic(), generateAndUploadOne(), generateImageB64(), optimizeToWebp(), uploadImageToStorage()
 
 ### Community 61 - "Gerador de Propostas"
 Cohesion: 0.18
-Nodes (11): Checklist do dono 25/08/2026 (4.500 palavras, 8-10 imagens, FAQ 7 perguntas), Plano: Motor do coesasolar.com.br/blog → padrão cfgauss (checklist 25/08), YAGNI: só os 3 alvos do checklist (palavras, imagens, FAQ), sem citability_block/cta_type/has_table do cfgauss, Autoblog — gate de qualidade, Gate de qualidade do Autoblog (LLM score 0-100, opcional via DEEPSEEK_API_KEY), Build with Lovable, Development, README.md do coesasolar-site (Lovable project) (+3 more)
+Nodes (8): Plano: Motor do coesasolar.com.br/blog → padrão cfgauss (checklist 25/08), Autoblog — gate de qualidade, Build with Lovable, Development, README.md do coesasolar-site (Lovable project), Gerador de Propostas, Proposta Assinantes (aba Input Assinantes → Proposta Assinantes), Proposta Usineiro (Invest Teaser + In.Cash Flow + Macroeconomics + Cidades)
 
 ### Community 62 - "🏗️ ARQUITETURA COMPLETA - SOFIA BOT V2"
 Cohesion: 0.17
@@ -697,15 +646,15 @@ Nodes (12): 📦 ARMAZENAMENTO E SINCRONIZAÇÃO DE LEADS, Armazenamento Local (
 
 ### Community 66 - "Análise de Segurança Etapa 1.3 (Score 85/100)"
 Cohesion: 0.17
-Nodes (12): Authentication — validateRequest com Bearer token para endpoints internos, CORS Whitelist — 64 endpoints strict, 4 webhooks públicos, Fix de Empty Catch Block em aneel-bandeiras/index.ts:67, Input Validation via Zod (schemas SofiaWebhook, ZApiWebhook, Bitrix, Proposal, Lead, Phone, Email, CPF, CNPJ), lock-helpers.ts — elimina ~10 repetições de lock/release, message-helpers.ts — elimina ~15 repetições de save message, Rate Limiting — 30/min por telefone, 500/min global, Análise de Segurança Etapa 1.3 (Score 85/100) (+4 more)
+Nodes (4): lock-helpers.ts — elimina ~10 repetições de lock/release, message-helpers.ts — elimina ~15 repetições de save message, Análise de Segurança Etapa 1.3 (Score 85/100), response-helpers.ts — elimina ~50 repetições de Response patterns
 
 ### Community 67 - "scripts"
 Cohesion: 0.17
 Nodes (12): scripts, build, dev, hooks:install, lint, models:retirement:check, preflight, preflight:ci (+4 more)
 
-### Community 68 - "Auth.tsx"
-Cohesion: 0.13
-Nodes (16): react-router-dom, @tanstack/react-query, queryClient, src_components_ui_tabs_tabs, TabsContent, TabsList, TabsTrigger, src_components_ui_tooltip_tooltipprovider (+8 more)
+### Community 68 - "ProposalChatbot.tsx"
+Cohesion: 0.18
+Nodes (12): sonner, ChatMessage(), ChatMessageProps, Message, ProposalChatbot(), ProposalChatbotProps, ProposalContext, QUICK_REPLIES_CLIENTE_GD (+4 more)
 
 ### Community 69 - "Credenciais"
 Cohesion: 0.20
@@ -716,8 +665,8 @@ Cohesion: 0.15
 Nodes (14): github-slugger, react-markdown, rehype-slug, remark-gfm, ArticleBody(), ArticleBodyProps, components, HastElement (+6 more)
 
 ### Community 71 - "20260126195214_f2e8b698-4f65-4ba9-b1a2-ec25aed3f0c3.sql"
-Cohesion: 0.14
-Nodes (23): idx_ip_agent, idx_ip_success, idx_ip_type, idx_pel_conversa, idx_pel_created, idx_pel_success, idx_rm_active, idx_rm_agent (+15 more)
+Cohesion: 0.15
+Nodes (20): idx_ip_agent, idx_ip_success, idx_ip_type, idx_pel_conversa, idx_pel_created, idx_pel_success, idx_rm_active, idx_rm_agent (+12 more)
 
 ### Community 72 - "🟡 ETAPA 3: SUB-FLUXOS NO SOFIA-WEBHOOK"
 Cohesion: 0.20
@@ -744,24 +693,24 @@ Cohesion: 0.24
 Nodes (8): Coesa favicon — orange lightning bolt in green circle, allocation, facts, InvestimentosPage(), metadata, strategicPillars, structuredData, Coesa Energia Inteligente logo — black wordmark, orange bolt
 
 ### Community 78 - "20260107230151_0922e0d1-e2b6-4154-812d-db862f33dcf1.sql"
-Cohesion: 0.23
-Nodes (11): public.sync_crm_from_proposta_assinante, idx_crm_contatos_created_at, idx_crm_contatos_status, idx_crm_contatos_user_id, public.crm_contatos, public.sync_crm_from_proposta_assinante(), auth.users, public.profiles (+3 more)
+Cohesion: 0.29
+Nodes (7): idx_crm_contatos_created_at, idx_crm_contatos_status, idx_crm_contatos_user_id, public.crm_contatos, public.sync_crm_from_proposta_assinante(), sync_crm_on_proposta_assinante, update_crm_contatos_updated_at
 
-### Community 79 - "ClientAreaSection.tsx"
-Cohesion: 0.14
-Nodes (7): @testing-library/react, BancoDeTalentosPage(), metadata, ClientAreaSection(), invoices, navigation, View
+### Community 79 - "types.ts"
+Cohesion: 0.18
+Nodes (10): CompositeTypes, Constants, Database, DatabaseWithoutInternals, DefaultSchema, Enums, Json, Tables (+2 more)
 
 ### Community 80 - "DocumentUploadPJ.tsx"
-Cohesion: 0.08
-Nodes (48): DadosContaLuz, DadosContratoSocial, DadosIdentificacaoAdmin, DocumentUploadPJData, DocumentUploadPJProps, ExtractionResult, ExtractionStep, HistoricoConsumoItem (+40 more)
+Cohesion: 0.10
+Nodes (44): DadosContaLuz, DadosContratoSocial, DadosIdentificacaoAdmin, DocumentUploadPJ(), DocumentUploadPJProps, ExtractionResult, ExtractionStep, HistoricoConsumoItem (+36 more)
 
-### Community 81 - "EndCta.tsx"
-Cohesion: 0.26
-Nodes (10): CtaButton(), CtaButtonProps, EndCta(), EndCtaProps, buildShareUrls(), CtaVariant, getCurrentWeekIndex(), hasPrimaryCta() (+2 more)
+### Community 81 - "editorial-calendar.ts"
+Cohesion: 0.36
+Nodes (7): buildEditorialBriefSection(), EditorialBrief, getNextPlannedEntry(), pickPlannedKeyword(), PlannedEntry, PlannedRow, toBrief()
 
-### Community 82 - "DataDivergenceAlert.tsx"
-Cohesion: 0.19
-Nodes (11): class-variance-authority, DataDivergenceAlert(), DivergenceRow(), formatDisplayValue(), Badge, BadgeProps, badgeVariants, src_components_ui_tooltip_tooltip (+3 more)
+### Community 82 - "cn"
+Cohesion: 0.17
+Nodes (21): @radix-ui/react-select, DataDivergenceAlert(), DivergenceRow(), formatDisplayValue(), PlanSelector(), Badge, BadgeProps, badgeVariants (+13 more)
 
 ### Community 83 - "learning-conversation-processor Edge Function"
 Cohesion: 0.22
@@ -808,32 +757,32 @@ Cohesion: 0.22
 Nodes (8): 1. `bitrix24-link-webhook/index.ts` — Desabilitar envio WhatsApp, 2. `sofia-webhook/index.ts` — Remover reenvio automático de link (linhas ~1118-1169), 3. `proposal-resend.ts` — Simplificar (opcional), Alterações, O que NÃO será alterado, Plano: Remover envio de link de proposta inicial via WhatsApp do Lovable, Resumo, Situação atual
 
 ### Community 94 - "20260112122643_1642678e-5b79-42c6-8ef8-f05137d534d3.sql"
-Cohesion: 0.22
-Nodes (7): public.admin_notifications, public.handle_new_profile_email_preferences, on_profile_created_create_email_preferences, public.email_logs, public.email_preferences, public.update_updated_at_column, update_email_preferences_updated_at
+Cohesion: 0.32
+Nodes (5): on_profile_created_create_email_preferences, public.email_logs, public.email_preferences, public.handle_new_profile_email_preferences(), update_email_preferences_updated_at
 
-### Community 95 - "20260122181431_666c3359-0349-43c7-ae58-0c0ba583ae8b.sql"
-Cohesion: 0.29
-Nodes (9): public.sofia_detection_patterns_versions, public.track_pattern_change, idx_pattern_change_tracker_created_at, pattern_change_delete_trigger, pattern_change_insert_trigger, pattern_change_update_trigger, public.pattern_change_tracker, public.track_pattern_change() (+1 more)
+### Community 95 - "public.track_pattern_change"
+Cohesion: 0.44
+Nodes (6): idx_pattern_change_tracker_created_at, pattern_change_delete_trigger, pattern_change_insert_trigger, pattern_change_update_trigger, public.pattern_change_tracker, public.track_pattern_change()
 
 ### Community 96 - "ConnectionSceneSection.tsx"
-Cohesion: 0.21
-Nodes (11): clamp(), ConnectionSceneSection(), drawNetwork(), FlowCanvas(), project(), ProjectedNode, SpaceEdge, spaceEdges (+3 more)
+Cohesion: 0.16
+Nodes (12): clamp(), drawNetwork(), FlowCanvas(), project(), ProjectedNode, scenes, SpaceEdge, spaceEdges (+4 more)
 
 ### Community 97 - "20260118005351_2dfdf780-affd-4616-9859-5b875176ff83.sql"
-Cohesion: 0.23
-Nodes (13): idx_outbound_queue_campaign, idx_outbound_queue_scheduled, idx_outbound_queue_status, idx_outbound_results_outcome, idx_outbound_results_queue, public.outbound_call_queue, public.outbound_call_results, public.outbound_campaigns (+5 more)
+Cohesion: 0.27
+Nodes (10): idx_outbound_queue_campaign, idx_outbound_queue_scheduled, idx_outbound_queue_status, idx_outbound_results_outcome, idx_outbound_results_queue, public.outbound_call_queue, public.outbound_call_results, public.outbound_campaigns (+2 more)
 
 ### Community 98 - "20260202003041_1d29336c-502d-442a-911a-94f19c5e471a.sql"
-Cohesion: 0.24
-Nodes (8): idx_message_buffers_last_message, idx_message_buffers_phone_agent, idx_message_buffers_processing, public.add_to_message_buffer(), public.check_buffer_ready(), public.message_buffers, public.update_updated_at_column, update_message_buffers_updated_at
+Cohesion: 0.29
+Nodes (7): idx_message_buffers_last_message, idx_message_buffers_phone_agent, idx_message_buffers_processing, public.add_to_message_buffer(), public.check_buffer_ready(), public.message_buffers, update_message_buffers_updated_at
 
 ### Community 99 - "20260202202828_ecdb70f0-d368-4a61-bf04-45e0a7104182.sql"
 Cohesion: 0.39
-Nodes (8): chatbot_conversas, v_funnel_by_source, v_funnel_conversion_rates, v_funnel_daily, v_funnel_dropoff, v_funnel_stage_counts, v_funnel_stage_duration, v_funnel_weekly_comparison
+Nodes (7): v_funnel_by_source, v_funnel_conversion_rates, v_funnel_daily, v_funnel_dropoff, v_funnel_stage_counts, v_funnel_stage_duration, v_funnel_weekly_comparison
 
 ### Community 100 - "20260202212422_71a905f2-a121-47d3-9d7c-8f29c74e57d0.sql"
 Cohesion: 0.39
-Nodes (8): public.v_funnel_by_source, public.v_funnel_conversion_rates, public.v_funnel_daily, public.v_funnel_dropoff, public.v_funnel_stage_counts, public.v_funnel_stage_duration, public.v_funnel_weekly_comparison, chatbot_conversas
+Nodes (7): public.v_funnel_by_source, public.v_funnel_conversion_rates, public.v_funnel_daily, public.v_funnel_dropoff, public.v_funnel_stage_counts, public.v_funnel_stage_duration, public.v_funnel_weekly_comparison
 
 ### Community 101 - "CatalogActionSelector<T> Component"
 Cohesion: 0.29
@@ -863,13 +812,13 @@ Nodes (7): Análise do Código, Arquivos Modificados, Causa Raiz: Leads em IN_PR
 Cohesion: 0.25
 Nodes (7): Endpoint Manual de Resgate (Fase 6), Fase 5 & 6 "Caso Edson" - Geração e Entrega Determinística de Proposta, Flags de Controle (persistidas em `dados_coletados`), Lógica de Rescue Automático (Fase 5), Memory: business-logic/proposal-generation-rescue-e-endpoint-manual, Observabilidade, Sequência Garantida
 
-### Community 108 - "20260128162201_443c0185-6397-475c-821b-01f1624240ff.sql"
-Cohesion: 0.29
-Nodes (10): rag_sync_logs, claim_rag_sync_batch(), get_rag_sync_queue_stats(), idx_rag_sync_queue_pending, idx_rag_sync_queue_status, idx_rag_sync_queue_sync_log, public.rag_sync_queue, rag_documents (+2 more)
+### Community 108 - "public.rag_sync_queue"
+Cohesion: 0.31
+Nodes (8): claim_rag_sync_batch(), get_rag_sync_queue_stats(), idx_rag_sync_queue_pending, idx_rag_sync_queue_status, idx_rag_sync_queue_sync_log, public.rag_sync_queue, trigger_update_sync_log_stats, update_sync_log_stats()
 
 ### Community 109 - "PredictableBillSection.tsx"
-Cohesion: 0.25
-Nodes (6): three, DottedSurface(), DottedSurfaceProps, months, PredictableBillSection(), ProgressiveFluxBar()
+Cohesion: 0.26
+Nodes (7): three, DottedSurface(), DottedSurfaceProps, months, PredictableBillSection(), ProgressiveFluxBar(), reducedMotion
 
 ### Community 110 - "🏢 CRM / BITRIX24"
 Cohesion: 0.29
@@ -889,39 +838,39 @@ Nodes (6): Arquivos Criados/Modificados, Banco de Dados Populado, Estrutura do P
 
 ### Community 114 - "20260127014156_07ebbd2a-70ae-4ea5-a3d1-6b9c606bbc95.sql"
 Cohesion: 0.28
-Nodes (5): normalize_chatbot_conversa_phone, idx_outbound_hashes_cleanup, idx_outbound_hashes_lookup, public.outbound_message_hashes, trg_normalize_conversa_phone
+Nodes (4): idx_outbound_hashes_cleanup, idx_outbound_hashes_lookup, public.outbound_message_hashes, trg_normalize_conversa_phone
 
 ### Community 115 - "SolarDaySection.tsx"
 Cohesion: 0.42
 Nodes (7): formatTime(), presets, SolarDaySection(), moveSun(), solarEnergyMwh(), solarMinuteAtX(), solarPowerKw()
 
 ### Community 116 - "20260208002547_69e8d2cd-004f-48d5-83ed-5e9d84b9fc02.sql"
-Cohesion: 0.29
-Nodes (5): public.validate_evaluation_dataset, public.evaluation_dataset, public.update_updated_at_column, update_evaluation_dataset_updated_at, validate_evaluation_dataset_trigger
+Cohesion: 0.70
+Nodes (4): public.evaluation_dataset, public.validate_evaluation_dataset(), update_evaluation_dataset_updated_at, validate_evaluation_dataset_trigger
 
 ### Community 117 - "COESA Structure Retry Boundary Implementation Plan"
 Cohesion: 0.25
 Nodes (7): COESA Structure Retry Boundary Implementation Plan, Global Constraints, Plan Review Loop, Review Focus, Task 1: Remove duplicate workflow-level structure retries, Task 2: Limit daily recovery to two cron retries, Task 3: Release and verify persisted behavior
 
 ### Community 118 - "setup/page.tsx"
-Cohesion: 0.32
-Nodes (6): @supabase/supabase-js, dynamic, envPresent(), SetupItem, SetupPage(), tableExists()
+Cohesion: 0.43
+Nodes (6): dynamic, envPresent(), SetupGroup(), SetupItem, SetupPage(), tableExists()
 
-### Community 119 - "Index.tsx"
-Cohesion: 0.20
-Nodes (9): formatDate(), HomeBlogSection(), normalizeArticle(), articles, features, PlansSection(), PressSection(), WhatsAppFloatingButton() (+1 more)
+### Community 119 - "framer-motion"
+Cohesion: 0.27
+Nodes (3): framer-motion, features, WHATSAPP_5192
 
 ### Community 120 - "internal-links.ts"
 Cohesion: 0.43
 Nodes (5): LinkCandidate, ARTICLES, scoreInternalLinks(), STOPWORDS, tokenize()
 
-### Community 121 - "calcularFaturaGD2"
-Cohesion: 0.33
-Nodes (7): calcularEconomiaGD2(), calcularFaturaConcessionaria(), calcularFaturaGD2(), calcularPropostaAssinanteGD2(), getPercentualGD2(), getValorBandeira(), projetarEconomiaGD2()
+### Community 121 - "claim-route.regression.test.ts"
+Cohesion: 0.18
+Nodes (3): claimMock, generateMock, uploadMock
 
 ### Community 122 - "20260122180426_a4c4f38b-d30f-4735-a4ed-e0bd06534307.sql"
-Cohesion: 0.29
-Nodes (10): idx_agent_prompt_modules_agent, idx_agent_prompt_modules_enabled, idx_prompt_modules_active, idx_prompt_modules_category, public.agent_prompt_modules, public.prompt_modules, public.ai_agents, public.update_updated_at_column (+2 more)
+Cohesion: 0.36
+Nodes (8): idx_agent_prompt_modules_agent, idx_agent_prompt_modules_enabled, idx_prompt_modules_active, idx_prompt_modules_category, public.agent_prompt_modules, public.prompt_modules, update_agent_prompt_modules_updated_at, update_prompt_modules_updated_at
 
 ### Community 123 - "20260203013024_b79345a7-b3ee-4d93-8b4b-4258ad8383e2.sql"
 Cohesion: 0.28
@@ -951,33 +900,29 @@ Nodes (6): Análise de Imagem, Configurações Dinâmicas, 🟣 LOVABLE AI GATEW
 Cohesion: 0.33
 Nodes (5): Bypass de Locks (triage-phase.ts), Fallback Obrigatório (triage-flow.ts), Impacto, Memory: architecture/triage-resilience-v1, Regra rule_memory
 
-### Community 130 - "public.match_rag_chunks"
-Cohesion: 0.33
-Nodes (4): rag_permissions, public.match_rag_chunks(), rag_chunks, rag_documents
-
 ### Community 131 - "20260128163643_a4c4af66-99ad-40d2-bf07-8b7767aede04.sql"
 Cohesion: 0.39
-Nodes (6): rag_sync_queue, idx_rag_sync_queue_modified, idx_rag_sync_queue_worker, public.claim_rag_sync_batch(), public.claim_rag_sync_batch_for_worker(), public.get_active_rag_workers()
+Nodes (5): idx_rag_sync_queue_modified, idx_rag_sync_queue_worker, public.claim_rag_sync_batch(), public.claim_rag_sync_batch_for_worker(), public.get_active_rag_workers()
 
 ### Community 132 - "montarLinkWhatsapp"
 Cohesion: 0.40
 Nodes (5): montarLinkWhatsapp(), Build, Cards finais — página pública da vaga (coesasolar-site), Concerns, Testes
 
 ### Community 133 - "20260115150412_d0172d57-00ef-4ac3-81a9-e5a3749c2d5e.sql"
-Cohesion: 0.31
-Nodes (10): idx_ai_agent_interactions_agent_id, idx_ai_agent_interactions_created_at, idx_ai_agent_versions_agent_id, idx_ai_agents_agent_id, idx_ai_agents_status, public.ai_agent_interactions, public.ai_agent_versions, public.ai_agents (+2 more)
+Cohesion: 0.38
+Nodes (9): idx_ai_agent_interactions_agent_id, idx_ai_agent_interactions_created_at, idx_ai_agent_versions_agent_id, idx_ai_agents_agent_id, idx_ai_agents_status, public.ai_agent_interactions, public.ai_agent_versions, public.ai_agents (+1 more)
 
 ### Community 134 - "20260122165417_bf7796bf-4ef5-4d18-807c-96f0ca30ab84.sql"
-Cohesion: 0.36
-Nodes (9): idx_distribuidora_typos_distribuidora, idx_distribuidora_typos_typo, idx_distribuidoras_config_atendida, idx_distribuidoras_config_normalizado, public.distribuidora_typos, public.distribuidoras_config, public.find_distribuidora(), public.update_updated_at_column (+1 more)
+Cohesion: 0.44
+Nodes (8): idx_distribuidora_typos_distribuidora, idx_distribuidora_typos_typo, idx_distribuidoras_config_atendida, idx_distribuidoras_config_normalizado, public.distribuidora_typos, public.distribuidoras_config, public.find_distribuidora(), update_distribuidoras_config_updated_at
 
 ### Community 135 - "20260127134719_d10d92ee-fc3e-4255-863e-f43d91e55a2b.sql"
 Cohesion: 0.27
-Nodes (10): idx_rag_conversion_conversa, idx_rag_conversion_type, idx_rag_usage_logs_conversa, idx_rag_usage_logs_phone, public.attribute_rag_conversion(), public.get_rag_impact_analytics(), public.rag_conversion_attribution, public.chatbot_conversas (+2 more)
+Nodes (7): idx_rag_conversion_conversa, idx_rag_conversion_type, idx_rag_usage_logs_conversa, idx_rag_usage_logs_phone, public.attribute_rag_conversion(), public.get_rag_impact_analytics(), public.rag_conversion_attribution
 
 ### Community 136 - "20260202014455_70dd3366-0da1-43a9-8df7-6045715817b7.sql"
 Cohesion: 0.31
-Nodes (10): idx_llm_usage_log_agent, idx_llm_usage_log_created_at, idx_llm_usage_log_model, idx_rate_limit_violations_created_at, idx_rate_limit_violations_phone, public.llm_usage_log, public.rate_limit_violations, public.v_llm_daily_costs (+2 more)
+Nodes (9): idx_llm_usage_log_agent, idx_llm_usage_log_created_at, idx_llm_usage_log_model, idx_rate_limit_violations_created_at, idx_rate_limit_violations_phone, public.llm_usage_log, public.rate_limit_violations, public.v_llm_daily_costs (+1 more)
 
 ### Community 137 - "9. Automações e Follow-up"
 Cohesion: 0.40
@@ -1003,61 +948,41 @@ Nodes (5): 1. `z-api-webhook` (866 linhas), 2. `sofia-webhook` (3881 linhas), 3.
 Cohesion: 0.40
 Nodes (5): Configurações Dinâmicas (configuracoes_sistema), Multi-Agente, URLs Base, Webhook de Entrada (Z-API → Supabase), 🟢 Z-API (WhatsApp Gateway)
 
-### Community 143 - "public.get_rag_stats"
-Cohesion: 0.40
-Nodes (4): rag_onedrive_config, public.get_rag_stats(), rag_chunks, rag_documents
-
 ### Community 144 - "public.user_roles"
 Cohesion: 0.60
-Nodes (4): public.has_role(), public.is_admin(), public.user_roles, auth.users
+Nodes (3): public.has_role(), public.is_admin(), public.user_roles
 
-### Community 145 - "20260112161148_85a7e22a-45f7-4b94-9310-644dbf8441c2.sql"
-Cohesion: 0.40
-Nodes (4): public.solicitacoes_proposta_definitiva, propostas_assinantes, public.update_updated_at_column, update_solicitacoes_updated_at
-
-### Community 146 - "20260113010648_8d87e505-3dcb-4d47-a5c8-c282366d555d.sql"
-Cohesion: 0.40
-Nodes (4): public.dados_empresa_pj, public.propostas_assinantes, public.update_updated_at_column, update_dados_empresa_pj_updated_at
-
-### Community 147 - "20260118005641_23817152-49c9-4535-bc6e-73a604fdcb01.sql"
-Cohesion: 0.40
-Nodes (5): idx_agent_secrets_agent_id, public.agent_secrets, public.ai_agents, public.update_updated_at_column, update_agent_secrets_updated_at
+### Community 147 - "public.agent_secrets"
+Cohesion: 0.60
+Nodes (3): idx_agent_secrets_agent_id, public.agent_secrets, update_agent_secrets_updated_at
 
 ### Community 148 - "20260126214747_b51e43f8-962e-4f01-92b1-734811b6e6eb.sql"
 Cohesion: 0.17
-Nodes (19): public.rule_memory, idx_client_behavioral_profiles_dominant, idx_client_behavioral_profiles_phone, idx_client_behavioral_profiles_updated, idx_operator_feedback_agent, idx_operator_feedback_conversa, idx_operator_feedback_created, idx_operator_feedback_status (+11 more)
+Nodes (17): idx_client_behavioral_profiles_dominant, idx_client_behavioral_profiles_phone, idx_client_behavioral_profiles_updated, idx_operator_feedback_agent, idx_operator_feedback_conversa, idx_operator_feedback_created, idx_operator_feedback_status, idx_operator_feedback_type (+9 more)
 
 ### Community 149 - "20260127010718_1405daa2-aa28-4d6b-bb6a-fbdb2945bea3.sql"
 Cohesion: 0.47
 Nodes (3): idx_message_locks_expires, public.acquire_phone_lock(), public.message_processing_locks
 
-### Community 150 - "public.claim_email_processing_if_no_proposal"
-Cohesion: 0.40
-Nodes (3): public.claim_email_processing_if_no_proposal(), chatbot_conversas, propostas_assinantes
-
 ### Community 151 - "20260128134935_e3674445-9e60-4bd9-abe6-2ecf9f5fb3a6.sql"
 Cohesion: 0.43
 Nodes (4): idx_cross_webhook_locks_expires, idx_cross_webhook_locks_phone_unique, public.acquire_cross_webhook_lock(), public.cross_webhook_locks
 
-### Community 152 - "20260128154341_84661cfc-268e-4d2d-9783-99a65e843e99.sql"
-Cohesion: 0.33
-Nodes (8): idx_guardrail_events_category, idx_guardrail_events_conversa_id, idx_guardrail_events_created_at, idx_guardrail_events_status, public.sofia_guardrail_events, chatbot_conversas, public.update_updated_at_column, update_sofia_guardrail_events_updated_at
+### Community 152 - "public.sofia_guardrail_events"
+Cohesion: 0.43
+Nodes (6): idx_guardrail_events_category, idx_guardrail_events_conversa_id, idx_guardrail_events_created_at, idx_guardrail_events_status, public.sofia_guardrail_events, update_sofia_guardrail_events_updated_at
 
 ### Community 153 - "20260202195010_f91673c8-1720-479a-b5c7-624b7596cb40.sql"
 Cohesion: 0.33
 Nodes (6): idx_infra_metrics_created, idx_infra_metrics_name_created, idx_rate_limit_violations_created, idx_rate_limit_violations_phone, public.infra_metrics, public.rate_limit_violations
 
 ### Community 154 - "20260203153812_f1d4b5eb-4f10-4bd6-9fdc-9ba535548f78.sql"
-Cohesion: 0.38
-Nodes (5): human_takeovers_active_unique, human_takeovers_lookup_idx, public.human_takeovers, public.update_updated_at_column, update_human_takeovers_updated_at
+Cohesion: 0.60
+Nodes (5): human_takeovers_active_unique, human_takeovers_lookup_idx, public.human_takeovers, public.update_updated_at_column(), update_human_takeovers_updated_at
 
 ### Community 155 - "AGENTS.md P4: Narrative Principles"
 Cohesion: 0.50
 Nodes (4): AGENTS.md P2: Few-Shot Injection, AGENTS.md P3: RAG Index, AGENTS.md P4: Narrative Principles, AGENTS.md P1: Reasoning Examples
-
-### Community 156 - "RLS Remediation Plan (USING(true) Policies)"
-Cohesion: 0.50
-Nodes (4): auth.uid() = user_id RLS Pattern, RLS Remediation Plan (USING(true) Policies), is_admin() Function, auth.role() = 'service_role' RLS Pattern
 
 ### Community 157 - "10. Controle Humano"
 Cohesion: 0.50
@@ -1083,10 +1008,6 @@ Nodes (4): 6. Fluxo de Coleta de Dados, Checklist Pré-Proposta, Ordem de Coleta
 Cohesion: 0.50
 Nodes (4): 8. Cálculo de Economia, Fórmula Base, Regras de Cálculo, Taxas Padrão (CEMIG-D)
 
-### Community 163 - "llm_usage_log"
-Cohesion: 0.67
-Nodes (3): llm_usage_log, public.v_llm_daily_costs, public.v_llm_monthly_costs
-
 ### Community 164 - "🔐 SEGURANÇA"
 Cohesion: 0.50
 Nodes (4): Autenticação, RLS (Row Level Security), Secrets Management, 🔐 SEGURANÇA
@@ -1107,109 +1028,61 @@ Nodes (4): 58. `sofia-daily-stats`, 59. `sofia-weekly-stats`, 60. `sofia-hot-lea
 Cohesion: 0.50
 Nodes (4): Configurações, 🔴 ELEVENLABS (Text-to-Speech), Fallback para OpenAI, Gerar Áudio
 
-### Community 169 - "check-retired-claude-models.mjs"
-Cohesion: 0.50
-Nodes (3): ref_node_child_process, result, roots
-
 ### Community 170 - "tailwind.config.ts"
 Cohesion: 0.50
 Nodes (3): tailwindcss, tailwindcss-animate, @tailwindcss/typography
 
-### Community 171 - "fallback-cover/route.tsx"
-Cohesion: 0.67
-Nodes (3): GET(), labelFromSlug(), runtime
+### Community 171 - "next"
+Cohesion: 0.19
+Nodes (9): next, alertCanaryFailure(), dynamic, GET(), { sendFailureAlertEmail }, GET(), labelFromSlug(), runtime (+1 more)
 
-### Community 174 - "20260107225650_4ae90329-a3fe-484f-8e56-7fb36530a410.sql"
-Cohesion: 0.50
-Nodes (3): public.configuracoes_sistema, public.update_updated_at_column, update_configuracoes_sistema_updated_at
-
-### Community 175 - "20260109011822_a1a16279-1ffc-429e-8449-568ba79fc999.sql"
-Cohesion: 0.50
-Nodes (3): public.icms_estados, public.update_updated_at_column, update_icms_estados_updated_at
-
-### Community 176 - "20260109014538_b26a4182-102c-4d8c-9e7a-8a3a7082f692.sql"
-Cohesion: 0.50
-Nodes (3): public.bandeiras_tarifarias, public.update_updated_at_column, update_bandeiras_updated_at
+### Community 172 - "UtmCatcher.tsx"
+Cohesion: 0.70
+Nodes (3): CarreirasLayout(), UtmCatcher(), coletarUtm()
 
 ### Community 177 - "20260113201501_2f6cad4c-f547-413f-a124-4350a40c45a7.sql"
-Cohesion: 0.33
-Nodes (5): idx_chatbot_conversas_chatapp_chat_id, public.chatapp_tokens, public.chatbot_conversas, public.update_updated_at_column, update_chatapp_tokens_updated_at
-
-### Community 178 - "20260114014642_28f8c25f-aac9-488b-9bb7-9d85bd4d2627.sql"
 Cohesion: 0.50
-Nodes (3): public.whatsapp_test_phones, public.update_updated_at_column, update_whatsapp_test_phones_updated_at
-
-### Community 179 - "20260114173241_dc527d7f-a5a0-4ae4-817a-c76138bba849.sql"
-Cohesion: 0.50
-Nodes (3): public.whatsapp_atendentes, public.update_updated_at_column, update_whatsapp_atendentes_updated_at
+Nodes (3): idx_chatbot_conversas_chatapp_chat_id, public.chatapp_tokens, update_chatapp_tokens_updated_at
 
 ### Community 180 - "20260116004354_48157ce8-9177-4888-be0c-4a8c712d0162.sql"
 Cohesion: 0.39
-Nodes (7): idx_document_recovery_logs_conversa, idx_document_recovery_logs_created_at, idx_document_recovery_logs_document_type, idx_document_recovery_logs_recovery_source, public.document_recovery_logs, public.document_recovery_metrics, public.chatbot_conversas
-
-### Community 181 - "20260116205559_7940d6ec-f9e9-43e7-a8ed-5780c8f3615a.sql"
-Cohesion: 0.50
-Nodes (3): public.coesa_contatos, public.update_updated_at_column, update_coesa_contatos_updated_at
+Nodes (6): idx_document_recovery_logs_conversa, idx_document_recovery_logs_created_at, idx_document_recovery_logs_document_type, idx_document_recovery_logs_recovery_source, public.document_recovery_logs, public.document_recovery_metrics
 
 ### Community 182 - "20260117014325_a165a08f-13aa-4554-a8c1-3d9dd3e9e96f.sql"
 Cohesion: 0.50
 Nodes (3): manter, remover, telefone_duplicatas
 
-### Community 183 - "20260118022409_cad5fbfc-91be-4da4-9782-96d4534d3579.sql"
-Cohesion: 0.50
-Nodes (3): public.planos_comerciais, public.update_updated_at_column, update_planos_comerciais_updated_at
-
 ### Community 184 - "20260120224642_0e7144b8-7a28-4e0b-93e4-4e13a575fac5.sql"
 Cohesion: 0.53
-Nodes (5): idx_rag_quality_alerts_agent, idx_rag_quality_alerts_unresolved, public.check_rag_quality_alerts(), public.rag_quality_alerts, rag_usage_logs
+Nodes (4): idx_rag_quality_alerts_agent, idx_rag_quality_alerts_unresolved, public.check_rag_quality_alerts(), public.rag_quality_alerts
 
 ### Community 185 - "20260121163009_aa334ccd-46c8-4e58-a5fa-c31f14968418.sql"
-Cohesion: 0.47
-Nodes (5): idx_proposal_templates_active, idx_proposal_templates_type, proposal_templates, public.update_updated_at_column, update_proposal_templates_updated_at
+Cohesion: 0.70
+Nodes (4): idx_proposal_templates_active, idx_proposal_templates_type, proposal_templates, update_proposal_templates_updated_at
 
 ### Community 186 - "20260122125812_14fc4c08-8890-4f19-a798-de8282315191.sql"
-Cohesion: 0.47
-Nodes (5): idx_sofia_patterns_active, idx_sofia_patterns_category, public.sofia_detection_patterns, public.update_updated_at_column, update_sofia_detection_patterns_updated_at
-
-### Community 187 - "20260122183036_fbe21204-c7d2-4a1e-872f-4fbf45afb14b.sql"
-Cohesion: 0.50
-Nodes (3): public.mensagens_desqualificacao, public.update_updated_at_column, update_mensagens_desqualificacao_updated_at
-
-### Community 188 - "20260122232959_9c18460e-9cfd-49a2-b30a-fc1ee012dbd5.sql"
-Cohesion: 0.50
-Nodes (3): public.sofia_message_templates, public.update_updated_at_column, update_sofia_message_templates_updated_at
-
-### Community 189 - "public.proposal_generation_queue"
-Cohesion: 0.50
-Nodes (4): idx_proposal_queue_retry, public.proposal_generation_queue, public, public.chatbot_conversas
-
-### Community 190 - "20260127234230_9794f1bc-0fab-40f5-b4a0-df756609b84e.sql"
-Cohesion: 0.50
-Nodes (3): public.cronograma_gd2, public.update_updated_at_column, update_cronograma_gd2_updated_at
+Cohesion: 0.70
+Nodes (4): idx_sofia_patterns_active, idx_sofia_patterns_category, public.sofia_detection_patterns, update_sofia_detection_patterns_updated_at
 
 ### Community 191 - "20260128153616_e7648937-1a9e-4776-91d3-8059719eaf40.sql"
-Cohesion: 0.50
-Nodes (4): idx_bitrix_stages_config_stage_id, public.bitrix_stages_config, update_bitrix_stages_config_updated_at, update_updated_at_column
+Cohesion: 0.83
+Nodes (3): idx_bitrix_stages_config_stage_id, public.bitrix_stages_config, update_bitrix_stages_config_updated_at
 
 ### Community 192 - "20260201235334_71437644-1f76-48a4-b587-0d6dea64a2aa.sql"
-Cohesion: 0.50
-Nodes (4): idx_daily_report_recipients_active, public.daily_report_recipients, public.update_updated_at_column, update_daily_report_recipients_updated_at
+Cohesion: 0.83
+Nodes (3): idx_daily_report_recipients_active, public.daily_report_recipients, update_daily_report_recipients_updated_at
 
 ### Community 193 - "20260203114824_122f9fcb-9eb0-4b76-a4b9-792b87820e8c.sql"
-Cohesion: 0.31
-Nodes (10): idx_few_shot_agent, idx_few_shot_approved, idx_few_shot_quality, idx_learning_content_hash, idx_pending_rules_confidence, idx_pending_rules_learning_type, idx_pending_rules_status, public.few_shot_examples (+2 more)
+Cohesion: 0.27
+Nodes (12): idx_few_shot_agent, idx_few_shot_approved, idx_few_shot_quality, idx_learning_content_hash, idx_pending_rules_confidence, idx_pending_rules_learning_type, idx_pending_rules_status, public.few_shot_examples (+4 more)
 
 ### Community 194 - "20260203174126_efd745c5-3083-437b-aa8c-b24920c65f84.sql"
-Cohesion: 0.39
-Nodes (7): idx_agent_configurations_agent_id, idx_agent_configurations_agent_namespace, idx_agent_configurations_lookup, idx_agent_configurations_namespace, public.agent_configurations, public.update_updated_at_column, update_agent_configurations_updated_at
+Cohesion: 0.52
+Nodes (6): idx_agent_configurations_agent_id, idx_agent_configurations_agent_namespace, idx_agent_configurations_lookup, idx_agent_configurations_namespace, public.agent_configurations, update_agent_configurations_updated_at
 
 ### Community 195 - "20260206124420_8c14f0e1-9108-4bd2-9369-7be44113e2ef.sql"
-Cohesion: 0.39
-Nodes (7): idx_improvement_proposals_agent, idx_improvement_proposals_category, idx_improvement_proposals_created, idx_improvement_proposals_status, public.improvement_proposals, public.update_updated_at_column, update_improvement_proposals_updated_at
-
-### Community 197 - "Legal Policy Regex"
-Cohesion: 0.67
-Nodes (3): RAG Force Legal Keywords Fix, Legal Policy Regex, shouldTriggerRAG Function
+Cohesion: 0.52
+Nodes (6): idx_improvement_proposals_agent, idx_improvement_proposals_category, idx_improvement_proposals_created, idx_improvement_proposals_status, public.improvement_proposals, update_improvement_proposals_updated_at
 
 ### Community 198 - "append-evaluation-sheet Edge Function"
 Cohesion: 1.00
@@ -1251,57 +1124,45 @@ Nodes (3): 7. Distribuidoras Atendidas, Operação Atual, Validação de Distrib
 Cohesion: 0.67
 Nodes (3): 5. `z-api-send-message` (762 linhas), 6. `z-api-add-contact`, 🟢 ENVIO DE MENSAGENS
 
-### Community 210 - "propostas_assinantes"
-Cohesion: 0.67
-Nodes (3): public.fraude_alertas, public.solicitacoes_proposta_definitiva, propostas_assinantes
-
 ### Community 211 - "googleapis"
 Cohesion: 0.50
 Nodes (3): googleapis, authUrl, oauth2Client
 
-### Community 212 - "criarMetadataPropostaInicial"
-Cohesion: 0.67
-Nodes (3): calcularConsumoReverso(), criarMetadataPropostaInicial(), inferirTipoInstalacao()
+### Community 212 - "deepseek.regression.test.ts"
+Cohesion: 0.29
+Nodes (4): ARTICLE, createMock, ISSUES, openAiOptions
 
 ### Community 213 - "001_autoblog.sql"
 Cohesion: 0.60
 Nodes (4): articles_published_at_idx, articles_status_idx, public.articles, public.blog_run_log
 
 ### Community 214 - "public.employee_goals"
-Cohesion: 0.60
-Nodes (4): idx_goals_period, idx_goals_user, public.employee_goals, auth.users
-
-### Community 215 - "20260108003131_384c855f-e007-4c98-a93d-f38bbe0adedf.sql"
-Cohesion: 0.67
-Nodes (3): idx_propostas_assinantes_bitrix24_lead_id, public.bitrix24_sync_logs, public.propostas_assinantes
+Cohesion: 0.53
+Nodes (4): idx_goals_period, idx_goals_user, public.employee_goals, update_employee_goals_updated_at
 
 ### Community 216 - "public.fraude_alertas"
 Cohesion: 0.53
-Nodes (5): idx_fraude_alertas_created, idx_fraude_alertas_proposta, idx_fraude_alertas_tipo, public.fraude_alertas, propostas_assinantes
+Nodes (4): idx_fraude_alertas_created, idx_fraude_alertas_proposta, idx_fraude_alertas_tipo, public.fraude_alertas
 
 ### Community 217 - "public.chatbot_followups"
 Cohesion: 0.53
-Nodes (5): idx_chatbot_followups_conversa, idx_chatbot_followups_created, idx_chatbot_followups_status, public.chatbot_followups, public.chatbot_conversas
+Nodes (4): idx_chatbot_followups_conversa, idx_chatbot_followups_created, idx_chatbot_followups_status, public.chatbot_followups
 
 ### Community 218 - "public.distribuidora_typos_log"
 Cohesion: 0.53
-Nodes (5): idx_typos_log_created_at, idx_typos_log_sugestao, idx_typos_log_typo, public.distribuidora_typos_log, public.chatbot_conversas
+Nodes (4): idx_typos_log_created_at, idx_typos_log_sugestao, idx_typos_log_typo, public.distribuidora_typos_log
 
 ### Community 219 - "public.operator_command_logs"
 Cohesion: 0.60
-Nodes (4): idx_operator_command_logs_command, idx_operator_command_logs_created_at, public.operator_command_logs, public.chatbot_conversas
-
-### Community 221 - "20260119190759_b2861da0-109a-4bfb-8208-30d3257f377f.sql"
-Cohesion: 0.40
-Nodes (4): idx_unique_active_conversation_per_phone, merge_duplicate_conversations(), chatbot_conversas, public.chatbot_conversas
+Nodes (3): idx_operator_command_logs_command, idx_operator_command_logs_created_at, public.operator_command_logs
 
 ### Community 222 - "public.chatbot_mensagens_pendentes"
 Cohesion: 0.60
-Nodes (4): idx_mensagens_pendentes_conversa, idx_mensagens_pendentes_retry, public.chatbot_mensagens_pendentes, public.chatbot_conversas
+Nodes (3): idx_mensagens_pendentes_conversa, idx_mensagens_pendentes_retry, public.chatbot_mensagens_pendentes
 
 ### Community 223 - "public.crm_data_updates_log"
 Cohesion: 0.48
-Nodes (6): idx_crm_data_updates_agent, idx_crm_data_updates_conversa, idx_crm_data_updates_created, idx_crm_data_updates_entity, public.crm_data_updates_log, public.chatbot_conversas
+Nodes (5): idx_crm_data_updates_agent, idx_crm_data_updates_conversa, idx_crm_data_updates_created, idx_crm_data_updates_entity, public.crm_data_updates_log
 
 ### Community 224 - "20260120224153_6e12fb8a-7cb6-4948-8bd0-58cb57d4858f.sql"
 Cohesion: 0.60
@@ -1309,11 +1170,11 @@ Nodes (5): idx_rag_usage_agent_date, idx_rag_usage_agent_id, idx_rag_usage_creat
 
 ### Community 225 - "public.sofia_detection_patterns_versions"
 Cohesion: 0.60
-Nodes (4): idx_patterns_versions_created, idx_patterns_versions_number, public.sofia_detection_patterns_versions, auth.users
+Nodes (3): idx_patterns_versions_created, idx_patterns_versions_number, public.sofia_detection_patterns_versions
 
 ### Community 227 - "20260126153306_4b4cb857-0513-401b-a56e-1dba5f047522.sql"
 Cohesion: 0.40
-Nodes (4): bitrix24_sync_locks, idx_conversas_proposta_link_sent, idx_sync_locks_acquired, chatbot_conversas
+Nodes (3): bitrix24_sync_locks, idx_conversas_proposta_link_sent, idx_sync_locks_acquired
 
 ### Community 228 - "20260126205507_fcede3dd-4b3d-4d06-b804-a77a2942d9d3.sql"
 Cohesion: 0.60
@@ -1337,15 +1198,19 @@ Nodes (5): idx_observability_snapshots_agent_id, idx_observability_snapshots_age
 
 ### Community 234 - "public.unanswered_detection_attempts"
 Cohesion: 0.53
-Nodes (5): idx_unanswered_attempts_conversa, idx_unanswered_attempts_created, idx_unanswered_attempts_pending, public.unanswered_detection_attempts, public.chatbot_conversas
+Nodes (4): idx_unanswered_attempts_conversa, idx_unanswered_attempts_created, idx_unanswered_attempts_pending, public.unanswered_detection_attempts
 
 ### Community 235 - "public.fsm_trace_logs"
 Cohesion: 0.48
-Nodes (6): idx_fsm_trace_logs_agent_id, idx_fsm_trace_logs_conversa_id, idx_fsm_trace_logs_created_at, idx_fsm_trace_logs_trace_id, public.fsm_trace_logs, public.chatbot_conversas
+Nodes (5): idx_fsm_trace_logs_agent_id, idx_fsm_trace_logs_conversa_id, idx_fsm_trace_logs_created_at, idx_fsm_trace_logs_trace_id, public.fsm_trace_logs
 
 ### Community 236 - "public.proposal_views"
 Cohesion: 0.60
-Nodes (4): idx_proposal_views_fingerprint, idx_proposal_views_proposal_id, public.proposal_views, public.propostas_assinantes
+Nodes (3): idx_proposal_views_fingerprint, idx_proposal_views_proposal_id, public.proposal_views
+
+### Community 255 - "app/layout.tsx"
+Cohesion: 0.43
+Nodes (3): metadata, RootLayout(), shouldLoadAnalytics()
 
 ### Community 259 - "20260117155614_5526bd7a-4cb5-46ed-ac62-57e481c6167c.sql"
 Cohesion: 0.70
@@ -1363,65 +1228,65 @@ Nodes (3): idx_auto_learning_runs_started_at, idx_auto_learning_runs_status, pub
 Cohesion: 0.70
 Nodes (4): idx_whatsapp_lid_phone_mapping_last_seen, idx_whatsapp_lid_phone_mapping_lid, idx_whatsapp_lid_phone_mapping_unique, public.whatsapp_lid_phone_mapping
 
-### Community 322 - "public.unanswered_detection_attempts"
-Cohesion: 0.67
-Nodes (3): public.unanswered_detection_attempts, idx_unanswered_detection_result_date, idx_unanswered_detection_unique_message
+### Community 269 - "20260131235622_af867b1b-3a08-4ae9-b0ec-1743b29c28ff.sql"
+Cohesion: 0.83
+Nodes (3): idx_det_templates_lookup, public.deterministic_response_templates, update_deterministic_templates_updated_at
+
+### Community 319 - "react-dom"
+Cohesion: 0.33
+Nodes (3): react-dom, article, metadata
+
+### Community 321 - "generate-status/route.ts"
+Cohesion: 0.40
+Nodes (3): workflow, dynamic, GenerateArticleResult
+
+### Community 324 - "sitemap.ts"
+Cohesion: 0.60
+Nodes (3): revalidate, sitemap(), getAllArticles()
+
+### Community 325 - "rpc-schema.regression.test.ts"
+Cohesion: 0.50
+Nodes (3): client, migration, reclaimMigration
+
+### Community 326 - "openrouter-selector.regression.test.ts"
+Cohesion: 0.50
+Nodes (3): files, SELF, sourceFiles()
 
 ### Community 346 - "20260113172648_e0ed8bfa-d837-4119-bd90-c9d799c399a4.sql"
 Cohesion: 0.53
-Nodes (5): idx_chatbot_conversas_followup, idx_chatbot_conversas_lead_score, idx_chatbot_conversas_lead_source, idx_chatbot_conversas_sofia_mode, chatbot_conversas
+Nodes (4): idx_chatbot_conversas_followup, idx_chatbot_conversas_lead_score, idx_chatbot_conversas_lead_source, idx_chatbot_conversas_sofia_mode
 
 ### Community 348 - "20260113174208_555785e7-54e4-43c3-9dbe-2df1856b78cc.sql"
 Cohesion: 0.53
-Nodes (5): idx_chatbot_conversas_ab_variant, idx_chatbot_conversas_detected_objection, idx_chatbot_conversas_event_conversion, idx_chatbot_conversas_next_followup, chatbot_conversas
-
-### Community 378 - "20260114174209_faec65f3-55e5-4942-8104-9fa3915b43f3.sql"
-Cohesion: 0.67
-Nodes (3): idx_chatbot_conversas_atendente_notificado, idx_chatbot_conversas_escalated_at, public.chatbot_conversas
-
-### Community 389 - "20260116020136_706ac217-3043-447a-90ac-df98de0580da.sql"
-Cohesion: 0.67
-Nodes (3): idx_chatbot_conversas_last_message, idx_chatbot_conversas_rescue, public.chatbot_conversas
-
-### Community 416 - "20260119185321_973f662e-2386-4510-bca7-ea55b915950e.sql"
-Cohesion: 0.67
-Nodes (3): idx_chatbot_mensagens_message_id, idx_chatbot_mensagens_unique_msg_id, public.chatbot_mensagens
-
-### Community 420 - "20260119202424_0cc176e0-2bee-4ae3-ada5-90aec1e1c603.sql"
-Cohesion: 0.67
-Nodes (3): idx_chatbot_conversas_agent_created_at, idx_chatbot_conversas_agent_phone_active, public.chatbot_conversas
+Nodes (4): idx_chatbot_conversas_ab_variant, idx_chatbot_conversas_detected_objection, idx_chatbot_conversas_event_conversion, idx_chatbot_conversas_next_followup
 
 ### Community 467 - "20260127133800_b0f4772e-b970-48d7-bd0d-2f5e8ef0712f.sql"
 Cohesion: 0.40
-Nodes (5): idx_rag_chunks_exemplar, idx_rag_chunks_learning_type, idx_rag_documents_learning_type, public.rag_chunks, public.rag_documents
+Nodes (3): idx_rag_chunks_exemplar, idx_rag_chunks_learning_type, idx_rag_documents_learning_type
 
 ### Community 477 - "20260128155616_fc30f1e4-73b4-4549-a434-6c866816dc00.sql"
 Cohesion: 0.60
-Nodes (4): idx_rag_usage_logs_created_at, idx_rag_usage_logs_skip_reason, idx_rag_usage_logs_was_skipped, public.rag_usage_logs
-
-### Community 484 - "20260202145137_064868ce-bc72-4592-8080-ffaec7b71a64.sql"
-Cohesion: 0.40
-Nodes (4): idx_rag_chunks_doc_lookup, idx_rag_documents_search, public.rag_chunks, public.rag_documents
+Nodes (3): idx_rag_usage_logs_created_at, idx_rag_usage_logs_skip_reason, idx_rag_usage_logs_was_skipped
 
 ## Knowledge Gaps
-- **1090 isolated node(s):** `supabase`, `$schema`, `style`, `rsc`, `tsx` (+1085 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1596 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **268 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **139 isolated node(s):** `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`, `@radix-ui/react-alert-dialog`, `@radix-ui/react-aspect-ratio` (+134 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1524 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **279 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `vitest` connect `vitest` to `package.json`, `blog/[slug]/page.tsx`, `CandidaturaForm.tsx`, `link-audit.ts`, `carreiras/[slug]/page.tsx`, `useEconomyCalculator.ts`, `getServiceClient`, `generate-article.ts`, `autoblog-profile.ts`, `next`, `metrics.ts`, `deepseek.regression.test.ts`, `index.ts`, `distribution.ts`, `supabase-blog.ts`, `useDataComparison.ts`, `generate-article.regression.test.ts`, `[[...slug]]/page.tsx`, `agents-md-scenarios.test.ts`, `lead-capture.ts`, `react`, `validate.ts`, `quality-gate.ts`, `supabase.ts`, `image-gen.ts`, `[slug]/page.test.tsx`, `ArticleBody.tsx`, `investimentos/page.tsx`, `ClientAreaSection.tsx`, `EndCta.tsx`, `ConnectionSceneSection.tsx`, `PredictableBillSection.tsx`, `SolarDaySection.tsx`, `Index.tsx`, `internal-links.ts`?**
-  _High betweenness centrality (0.050) - this node is a cross-community bridge._
-- **Why does `next` connect `next` to `package.json`, `blog/[slug]/page.tsx`, `CandidaturaForm.tsx`, `link-audit.ts`, `carreiras/[slug]/page.tsx`, `getServiceClient`, `generate-article.ts`, `autoblog-profile.ts`, `useConfiguracoes.ts`, `metrics.ts`, `obrigado/page.tsx`, `index.ts`, `distribution.ts`, `supabase-blog.ts`, `[[...slug]]/page.tsx`, `fallback-cover/route.tsx`, `UtmCatcher.tsx`, `lead-capture.ts`, `supabase.ts`, `investimentos/page.tsx`, `ClientAreaSection.tsx`, `setup/page.tsx`?**
-  _High betweenness centrality (0.042) - this node is a cross-community bridge._
-- **Why does `react` connect `react` to `client.ts`, `package.json`, `cn`, `blog/[slug]/page.tsx`, `PropostaPublica.tsx`, `useConfiguracoes`, `CandidaturaForm.tsx`, `carreiras/[slug]/page.tsx`, `useEconomyCalculator.ts`, `autoblog-profile.ts`, `useConfiguracoes.ts`, `index.ts`, `use-toast.ts`, `supabase-blog.ts`, `useDataComparison.ts`, `UtmCatcher.tsx`, `carousel.tsx`, `supabase.ts`, `Auth.tsx`, `DocumentUploadPJ.tsx`, `DataDivergenceAlert.tsx`, `ConnectionSceneSection.tsx`, `PredictableBillSection.tsx`, `SolarDaySection.tsx`, `Index.tsx`?**
-  _High betweenness centrality (0.036) - this node is a cross-community bridge._
-- **What connects `supabase`, `$schema`, `style` to the rest of the system?**
-  _1090 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `vitest` connect `vitest` to `package.json`, `react`, `blog/[slug]/page.tsx`, `CandidaturaForm.tsx`, `link-audit.ts`, `carreiras/[slug]/page.tsx`, `@testing-library/react`, `getServiceClient`, `generate-article.ts`, `autoblog-profile.ts`, `supabase-blog.ts`, `metrics.ts`, `banco-de-talentos/page.tsx`, `SimulationForm`, `distribution.ts`, `blog/page.tsx`, `SolicitarPropostaDefinitiva.tsx`, `generate-article.regression.test.ts`, `App.tsx`, `next`, `agents-md-scenarios.test.ts`, `lead-capture.ts`, `FAQSection.tsx`, `validate.ts`, `quality-gate.ts`, `next.config.js`, `CoesaLogo.tsx`, `supabase.ts`, `react-dom`, `sitemap.ts`, `rpc-schema.regression.test.ts`, `ArticleBody.tsx`, `openrouter-selector.regression.test.ts`, `investimentos/page.tsx`, `editorial-calendar.ts`, `deepseek.regression.test.ts`, `ConnectionSceneSection.tsx`, `PredictableBillSection.tsx`, `SolarDaySection.tsx`, `framer-motion`, `internal-links.ts`, `claim-route.regression.test.ts`, `app/layout.tsx`?**
+  _High betweenness centrality (0.055) - this node is a cross-community bridge._
+- **What connects `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities` to the rest of the system?**
+  _139 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `dependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.02564102564102564 - nodes in this community are weakly interconnected._
+- **Why does `react` connect `react` to `client.ts`, `package.json`, `blog/[slug]/page.tsx`, `PropostaPublica.tsx`, `index.ts`, `CandidaturaForm.tsx`, `carreiras/[slug]/page.tsx`, `@testing-library/react`, `autoblog-profile.ts`, `useConfiguracoes.ts`, `PlanSelector.tsx`, `SimulationForm`, `use-toast.ts`, `blog/page.tsx`, `SolicitarPropostaDefinitiva.tsx`, `App.tsx`, `UtmCatcher.tsx`, `FAQSection.tsx`, `useDataComparison.ts`, `carousel.tsx`, `supabase.ts`, `ProposalChatbot.tsx`, `DocumentUploadPJ.tsx`, `cn`, `ConnectionSceneSection.tsx`, `PredictableBillSection.tsx`, `SolarDaySection.tsx`, `framer-motion`?**
+  _High betweenness centrality (0.041) - this node is a cross-community bridge._
 - **Should `client.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.07317073170731707 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11396011396011396 - nodes in this community are weakly interconnected._
+- **Why does `next` connect `next` to `package.json`, `blog/[slug]/page.tsx`, `CandidaturaForm.tsx`, `link-audit.ts`, `carreiras/[slug]/page.tsx`, `@testing-library/react`, `getServiceClient`, `generate-article.ts`, `autoblog-profile.ts`, `supabase-blog.ts`, `useConfiguracoes.ts`, `metrics.ts`, `banco-de-talentos/page.tsx`, `blog/page.tsx`, `App.tsx`, `UtmCatcher.tsx`, `lead-capture.ts`, `supabase.ts`, `generate-status/route.ts`, `sitemap.ts`, `investimentos/page.tsx`, `setup/page.tsx`, `claim-route.regression.test.ts`, `app/layout.tsx`?**
+  _High betweenness centrality (0.034) - this node is a cross-community bridge._
 - **Should `package.json` be split into smaller, more focused modules?**
-  _Cohesion score 0.03225806451612903 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.03389830508474576 - nodes in this community are weakly interconnected._
