@@ -12,17 +12,19 @@ export function EconomyCalculator() {
   const [cipCustom, setCipCustom] = useState('');
   const [tipoInstalacao, setTipoInstalacao] = useState<TipoInstalacao>('Bifásico');
   const [distribuidora, setDistribuidora] = useState('CEMIG-D');
-  const cipNumerica = cipCustom.trim() ? Number(cipCustom.replace(',', '.')) : undefined;
+  const cipNormalizada = cipCustom.includes(',') ? cipCustom.replace(/\./g, '').replace(',', '.') : cipCustom;
+  const cipNumerica = cipCustom.trim() ? Number(cipNormalizada) : undefined;
+  const cipInvalida = cipNumerica !== undefined && (!Number.isFinite(cipNumerica) || cipNumerica < 0);
   const tarifaSelecionada = useMemo(() => {
     return concessionarias.find(c => c.nome === distribuidora)?.tarifa || config.tarifaFallback;
   }, [concessionarias, config.tarifaFallback, distribuidora]);
 
   // Calculate result with custom params
   const resultado: CalculoResult | null = useMemo(() => {
-    if (valorNumerico <= 0) return null;
+    if (valorNumerico <= 0 || cipInvalida) return null;
     
     return calcular(valorNumerico, PUBLIC_DISCOUNT_PERCENT, cipNumerica, tipoInstalacao, tarifaSelecionada);
-  }, [valorNumerico, cipNumerica, tipoInstalacao, tarifaSelecionada, calcular]);
+  }, [valorNumerico, cipNumerica, cipInvalida, tipoInstalacao, tarifaSelecionada, calcular]);
 
   // Handle input change with currency mask
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,7 +92,8 @@ export function EconomyCalculator() {
         <div className="grid gap-3 pb-3 sm:grid-cols-3">
           <div>
             <label htmlFor="cip-simulacao" className="block text-xs text-[#425547]">Iluminação pública (R$)</label>
-            <input id="cip-simulacao" type="text" inputMode="decimal" value={cipCustom} onChange={(event) => setCipCustom(event.target.value.replace(/[^\d,.]/g, ''))} placeholder={String(config.cipDefault)} className="mt-1 w-full rounded-md border border-[#b9c8ba] bg-white px-3 py-2 text-sm text-[#172019]" />
+            <input id="cip-simulacao" type="text" inputMode="decimal" value={cipCustom} onChange={(event) => setCipCustom(event.target.value.replace(/[^\d,.]/g, ''))} placeholder={String(config.cipDefault)} aria-invalid={cipInvalida} aria-describedby={cipInvalida ? 'cip-simulacao-erro' : undefined} className="mt-1 w-full rounded-md border border-[#b9c8ba] bg-white px-3 py-2 text-sm text-[#172019]" />
+            {cipInvalida && <p id="cip-simulacao-erro" className="mt-1 text-xs text-red-700">Informe um valor válido para iluminação pública.</p>}
           </div>
           <div>
             <label htmlFor="instalacao-simulacao" className="block text-xs text-[#425547]">Tipo de instalação</label>
@@ -145,7 +148,9 @@ export function EconomyCalculator() {
         </div>
       ) : (
         <div id="simulacao-elegibilidade" aria-live="polite" className="border-t border-[#ded8ca] pt-4 text-sm text-[#6b7168]">
-          {valorNumerico === 0
+          {cipInvalida
+            ? 'Corrija o valor da iluminação pública para simular.'
+            : valorNumerico === 0
             ? 'Para simular: conta a partir de R$ 300/mês e consumo estimado de 300 kWh/mês.'
             : valorNumerico < 300
               ? 'A conta precisa ser de pelo menos R$ 300,00 por mês para simular.'

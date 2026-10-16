@@ -28,3 +28,16 @@ it('usa CIP, instalação e distribuidora selecionadas no cálculo', () => {
   fireEvent.change(screen.getByLabelText('Distribuidora'), { target: { value: 'COELBA' } });
   expect(calcular).toHaveBeenLastCalledWith(500, 20, 30, 'Trifásico', 0.82);
 });
+
+it('aceita CIP brasileira e impede simulação com valor inválido', () => {
+  calcular.mockClear();
+  render(<EconomyCalculator />);
+  fireEvent.change(screen.getByLabelText('Quanto você paga de luz por mês?'), { target: { value: '200000' } });
+  fireEvent.change(screen.getByLabelText('Iluminação pública (R$)'), { target: { value: '1.234,50' } });
+  expect(calcular).toHaveBeenLastCalledWith(2000, 20, 1234.5, 'Bifásico', 0.86);
+
+  calcular.mockClear();
+  fireEvent.change(screen.getByLabelText('Iluminação pública (R$)'), { target: { value: '1,2,3' } });
+  expect(screen.getByText('Informe um valor válido para iluminação pública.')).toBeInTheDocument();
+  expect(calcular).not.toHaveBeenCalled();
+});

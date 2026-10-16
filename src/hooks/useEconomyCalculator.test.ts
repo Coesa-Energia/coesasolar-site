@@ -2,7 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { meetsCalculatorMinimums, useEconomyCalculator } from './useEconomyCalculator';
 
-const queriedTables = vi.hoisted(() => [] as string[]);
+const { queriedTables, failedTable } = vi.hoisted(() => ({ queriedTables: [] as string[], failedTable: { value: '' } }));
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
@@ -16,7 +16,7 @@ vi.mock('@/integrations/supabase/client', () => ({
           data: table === 'concessionarias'
             ? [{ id: '1', nome: 'CEMIG-D', uf: 'MG', tarifa_com_impostos: 0.86, tarifa_media: 0.79 }]
             : [],
-          error: table === 'planos_comerciais' ? { message: 'PGRST205' } : null,
+          error: table === failedTable.value ? { message: 'Falha de consulta' } : null,
         }).then(resolve),
       };
       return query;
@@ -24,7 +24,7 @@ vi.mock('@/integrations/supabase/client', () => ({
   },
 }));
 
-beforeEach(() => { queriedTables.length = 0; });
+beforeEach(() => { queriedTables.length = 0; failedTable.value = ''; });
 
 describe('mínimos da calculadora', () => {
   it('exige conta de pelo menos R$ 300 por mês', () => {
@@ -37,6 +37,22 @@ describe('mínimos da calculadora', () => {
     expect(meetsCalculatorMinimums(325, 25, 1)).toBe(true);
     expect(meetsCalculatorMinimums(300, 25, 1)).toBe(false);
   });
+
+  it('rejeita valores inválidos sem gerar uma estimativa incorreta', () => {
+    expect(meetsCalculatorMinimums(500, Number.NaN, 0.86)).toBe(false);
+    expect(meetsCalculatorMinimums(500, -10, 0.86)).toBe(false);
+    expect(meetsCalculatorMinimums(500, 25, Number.POSITIVE_INFINITY)).toBe(false);
+  });
+});
+
+it('não calcula tarifa sem ICMS quando a consulta de alíquotas falha', async () => {
+  failedTable.value = 'icms_estados';
+  vi.resetModules();
+  const { useEconomyCalculator: useFreshCalculator } = await import('./useEconomyCalculator');
+  const { result } = renderHook(() => useFreshCalculator());
+  await waitFor(() => expect(result.current.loading).toBe(false));
+  expect(result.current.error).toBe('Erro ao carregar configurações');
+  expect(result.current.concessionarias[0].id).toContain('fallback');
 });
 
 it('carrega a tarifa real sem depender da tabela de planos ausente em produção', async () => {

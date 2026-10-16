@@ -43,7 +43,8 @@ export interface CalculoResult {
 export type TipoInstalacao = 'Monofásico' | 'Bifásico' | 'Trifásico';
 
 export function meetsCalculatorMinimums(valorConta: number, cip: number, tarifa: number) {
-  return valorConta >= 300 && tarifa > 0 && (valorConta - cip) / tarifa >= 300;
+  return Number.isFinite(valorConta) && Number.isFinite(cip) && Number.isFinite(tarifa)
+    && cip >= 0 && valorConta >= 300 && tarifa > 0 && (valorConta - cip) / tarifa >= 300;
 }
 
 const defaultConfig: EconomyConfig = {
@@ -130,6 +131,7 @@ export function useEconomyCalculator() {
         ]);
 
         if (concessionariasResult.error) throw concessionariasResult.error;
+        if (icmsResult.error) throw icmsResult.error;
 
         const loadedConfig: EconomyConfig = {
           disponibilidadeMonofasico: parseFloat(configMap.get('economy_disponibilidade_monofasico') || '') || defaultConfig.disponibilidadeMonofasico,
