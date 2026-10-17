@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { runInNewContext } from "node:vm";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SolarFarmSection } from "./SolarFarmSection";
@@ -16,9 +17,38 @@ describe("usina solar na home", () => {
   it("inclui o diagrama e os controles interativos do HTML original", () => {
     const html = readFileSync("public/interactive/usina-solar-coesa.html", "utf8");
     expect(html).toContain('class="iso-stage farm-stage"');
-    expect(html).toContain('data-preset="720"');
+    expect(html).toContain('id="hour" type="range"');
     expect(html).toContain('data-route="grid"');
+    expect(html).not.toContain('class="presets"');
+    expect(html).not.toContain('class="iso-legend"');
+    expect(html).not.toContain('class="qualification"');
     expect(html).not.toContain('class="site-header"');
+  });
+
+  it("muda iluminação e direção das sombras ao mover o horário", () => {
+    const html = readFileSync("public/interactive/usina-solar-coesa.html", "utf8");
+    const script = html.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1];
+    expect(script).toBeTruthy();
+    const properties = new Map<string, string>();
+    const listeners = new Map<string, () => void>();
+    const element = () => ({ textContent: "", style: { opacity: "", setProperty: (name: string, value: string) => properties.set(name, value) }, setAttribute: () => {}, addEventListener: (event: string, listener: () => void) => listeners.set(event, listener) });
+    const slider = { ...element(), value: "720" };
+    const nodes = new Map([["#hour", slider], ...["[data-time]", "[data-power]", "[data-energy]", "[data-readout]", "[data-sun]", ".farm-stage", ".iso-plate"].map((selector) => [selector, element()] as const)]);
+    runInNewContext(script, {
+      document: { querySelector: (selector: string) => nodes.get(selector), querySelectorAll: () => [] },
+      matchMedia: () => ({ matches: true }),
+      IntersectionObserver: class { observe() {} },
+    });
+    const at = (minute: number) => { slider.value = String(minute); listeners.get("input")?.(); return Object.fromEntries(properties); };
+    const dawn = at(390);
+    const noon = at(720);
+    const dusk = at(1020);
+    const night = at(1080);
+    expect(Number(noon["--image-brightness"])).toBeGreaterThan(Number(dawn["--image-brightness"]));
+    expect(Number(noon["--image-brightness"])).toBeGreaterThan(Number(dusk["--image-brightness"]));
+    expect(Number.parseFloat(dawn["--shadow-x"])).toBeGreaterThan(0);
+    expect(Number.parseFloat(dusk["--shadow-x"])).toBeLessThan(0);
+    expect(night["--shadow-opacity"]).toBe("0");
   });
 
   it("carrega o HTML em um frame com nome acessível", async () => {
