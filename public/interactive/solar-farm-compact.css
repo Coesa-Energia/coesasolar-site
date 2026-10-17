@@ -1,31 +1,23 @@
 @media (min-width: 900px) {
   .iso-page {
     display: grid;
-    grid-template-columns: minmax(0, 1.45fr) minmax(0, .95fr);
-    gap: 0 28px;
+    width: min(1400px, calc(100% - 48px));
+    grid-template-columns: minmax(0, 2.25fr) minmax(280px, .75fr);
+    gap: 24px;
     align-items: start;
     margin: 0 auto;
   }
 
   .iso-figure {
-    grid-row: 1 / span 2;
     min-width: 0;
   }
 
   .iso-plate {
-    padding: 20px 12px 28px;
+    padding: 16px 8px 24px;
     border-radius: 22px;
   }
 
   .iso-plate-corners { inset: 14px 18px; }
-  .iso-legend {
-    gap: 10px;
-    margin: 8px 0 0;
-    font-size: 11px;
-    line-height: 1.35;
-  }
-  .iso-caption { max-width: none; }
-
   .controls {
     min-width: 0;
     margin: 0;
@@ -44,16 +36,7 @@
     margin-top: 5px;
     font-size: 27px;
   }
-  .presets {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
-    margin: 18px 0 12px;
-  }
-  .presets button {
-    padding: 8px 10px;
-    font-size: 12px;
-  }
+  #hour { margin-top: 24px; }
   .steps {
     grid-template-columns: 1fr;
     gap: 0;
@@ -69,12 +52,45 @@
     margin-top: 2px;
     font-size: 12px;
   }
-  .qualification {
-    grid-column: 2;
-    grid-row: 2;
-    max-width: none;
-    margin: 12px 0 0;
-    font-size: 11px;
-    line-height: 1.35;
-  }
+}
+
+.iso-plate {
+  --daylight: .42;
+  --warmth: 0;
+  --sun-x: 50%;
+  --image-brightness: 1;
+  --image-saturation: 1;
+  --shadow-x: 0px;
+  --shadow-y: 5px;
+  --shadow-opacity: .25;
+  background:
+    radial-gradient(circle at var(--sun-x) 20%, rgba(255, 194, 112, var(--warmth)), transparent 48%),
+    radial-gradient(circle at 55% 30%, rgba(91, 160, 103, var(--daylight)), transparent 70%),
+    linear-gradient(145deg, #08151f, #10251d 75%);
+}
+
+.farm-stage .iso-svg {
+  filter: brightness(var(--image-brightness)) saturate(var(--image-saturation));
+  transform: scale(1.23);
+  transform-origin: center;
+}
+
+.farm-stage .iso-halo {
+  transform: translate(var(--shadow-x), var(--shadow-y));
+  opacity: var(--shadow-opacity);
+}
+
+.farm-stage .module-frame,
+.farm-stage .gear-screen {
+  filter: drop-shadow(var(--shadow-x) var(--shadow-y) 2px rgba(0, 0, 0, var(--shadow-opacity)));
+}
+
+@media (max-width: 899px) {
+  .iso-page { margin-bottom: 0; }
+  .controls { margin-bottom: 0; }
+}
+
+@media (max-width: 720px) {
+  .controls { margin-top: 16px; }
+  .steps { display: none; }
 }

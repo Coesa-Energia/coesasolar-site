@@ -24,7 +24,7 @@
   #usina-solar-titulo { font-size: clamp(2.4rem, 3.2vw, 2.8rem); }
 
   #usina-solar iframe {
-    width: min(100%, 1100px);
+    width: min(100%, 1200px);
     margin-inline: auto;
   }
 }
