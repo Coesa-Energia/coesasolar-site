@@ -9,6 +9,7 @@ const SITE_URL = "https://coesasolar.com.br"
 
 export const metadata: Metadata = {
   title: "Investimentos | Coesa Energia",
+  robots: { index: false, follow: false },
   description:
     "Coesa Energia conclui aporte de R$ 2 milhões na CF Gauss para acelerar a MOVA e novas soluções tecnológicas.",
   alternates: { canonical: `${SITE_URL}/investimentos` },

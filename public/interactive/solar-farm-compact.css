@@ -1,0 +1,80 @@
+@media (min-width: 900px) {
+  .iso-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, .95fr);
+    gap: 0 28px;
+    align-items: start;
+    margin: 0 auto;
+  }
+
+  .iso-figure {
+    grid-row: 1 / span 2;
+    min-width: 0;
+  }
+
+  .iso-plate {
+    padding: 20px 12px 28px;
+    border-radius: 22px;
+  }
+
+  .iso-plate-corners { inset: 14px 18px; }
+  .iso-legend {
+    gap: 10px;
+    margin: 8px 0 0;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+  .iso-caption { max-width: none; }
+
+  .controls {
+    min-width: 0;
+    margin: 0;
+  }
+  .control-head {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .control-head > div:first-child { grid-column: 1 / -1; }
+  .control-head [data-time] {
+    margin-top: 4px;
+    font-size: 64px;
+  }
+  .power { padding: 0; }
+  .power strong {
+    margin-top: 5px;
+    font-size: 27px;
+  }
+  .presets {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    margin: 18px 0 12px;
+  }
+  .presets button {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .steps {
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-top: 14px;
+  }
+  .steps > div {
+    padding: 9px 0;
+    border-right: 0;
+    border-bottom: 1px solid #223d2b2d;
+  }
+  .steps > div:last-child { border-bottom: 0; }
+  .steps span {
+    margin-top: 2px;
+    font-size: 12px;
+  }
+  .qualification {
+    grid-column: 2;
+    grid-row: 2;
+    max-width: none;
+    margin: 12px 0 0;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+}

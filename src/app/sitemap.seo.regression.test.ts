@@ -24,4 +24,8 @@ describe('REGRESSÃO: sitemap.xml da auditoria SEO', () => {
     const urls = (await sitemap()).map(e => e.url).filter(u => u.includes('/categoria/'))
     expect(urls.sort()).toEqual(['https://coesasolar.com.br/categoria/economia', 'https://coesasolar.com.br/categoria/guias'])
   })
+
+  it('não anuncia a página de investimentos oculta', async () => {
+    expect((await sitemap()).map(e => e.url)).not.toContain('https://coesasolar.com.br/investimentos')
+  })
 })

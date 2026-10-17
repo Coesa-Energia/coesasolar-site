@@ -17,8 +17,9 @@ describe("InvestimentosPage", () => {
     expect(container).not.toHaveTextContent("Aporte anunciado")
   })
 
-  it("expõe canonical público", () => {
+  it("preserva o link direto sem indexar a página", () => {
     expect(metadata.alternates).toEqual({ canonical: "https://coesasolar.com.br/investimentos" })
+    expect(metadata.robots).toEqual({ index: false, follow: false })
   })
 
   it("chancela a tese com as marcas e o racional estratégico", () => {

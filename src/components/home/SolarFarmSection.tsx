@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 export function SolarFarmSection() {
   const [html, setHtml] = useState("");
   const [failed, setFailed] = useState(false);
-  const [height, setHeight] = useState(800);
+  const [height, setHeight] = useState(1);
   const observer = useRef<ResizeObserver | null>(null);
 
   useEffect(() => {
@@ -36,16 +36,16 @@ export function SolarFarmSection() {
   }
 
   return (
-    <section id="usina-solar" aria-labelledby="usina-solar-titulo" className="scroll-mt-20 bg-[#f4efe3] text-[#17251b]">
-      <div className="mx-auto max-w-[1600px] px-5 pb-8 pt-12 sm:px-8 lg:px-14 lg:pt-20 xl:px-20">
-        <div className="grid items-end gap-5 lg:grid-cols-[1.2fr_0.8fr] lg:gap-16">
+    <section id="usina-solar" aria-labelledby="usina-solar-titulo" className="scroll-mt-20 bg-[#f4efe3] text-[#17251b] lg:min-h-[calc(100svh-80px)]">
+      <div className="mx-auto max-w-[1600px] px-5 pb-4 pt-8 sm:px-8 lg:px-14 lg:pb-3 lg:pt-5 xl:px-20">
+        <div className="grid items-end gap-3 lg:grid-cols-[1.4fr_0.6fr] lg:gap-8">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#617b64]">08 · Da usina à sua conta</p>
-            <h2 id="usina-solar-titulo" className="mt-4 text-[clamp(2.8rem,5.5vw,6rem)] font-medium leading-[0.94] tracking-[-0.07em]">
+            <h2 id="usina-solar-titulo" className="mt-2 text-[clamp(2.6rem,3.6vw,4rem)] font-medium leading-[0.94] tracking-[-0.07em]">
               Uma fazenda de sol.<br /><span className="text-[#467653]">Energia para muitos.</span>
             </h2>
           </div>
-          <p className="max-w-lg text-sm leading-relaxed text-[#596259] sm:text-lg">
+          <p className="max-w-lg text-sm leading-relaxed text-[#596259] sm:text-base">
             A usina parceira gera energia. Ela entra na rede da distribuidora, e os créditos são compensados na sua conta. Explore cada etapa no diagrama.
           </p>
         </div>
@@ -60,7 +60,7 @@ export function SolarFarmSection() {
           srcDoc={html}
           onLoad={(event) => fitFrame(event.currentTarget)}
           className="block w-full border-0"
-          style={{ height }}
+          style={{ height, visibility: height === 1 ? "hidden" : "visible" }}
         />
       ) : (
         <p className="mx-auto max-w-[1600px] px-5 pb-12 text-sm text-[#596259] sm:px-8 lg:px-14 xl:px-20">Carregando usina interativa…</p>
