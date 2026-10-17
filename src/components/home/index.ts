@@ -20,5 +20,6 @@ export { ConnectionIntroSection } from "./ConnectionIntroSection";
 export { ConnectionSceneSection } from "./ConnectionSceneSection";
 export { PredictableBillSection } from "./PredictableBillSection";
 export { SolarDaySection } from "./SolarDaySection";
+export { SolarFarmSection } from "./SolarFarmSection";
 export { ClientAreaSection } from "./ClientAreaSection";
 export { SimulationSection } from "./SimulationSection";
