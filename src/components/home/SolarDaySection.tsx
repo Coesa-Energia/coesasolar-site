@@ -63,7 +63,7 @@ export function SolarDaySection() {
       <div className="mx-auto flex max-w-[1600px] flex-col justify-center px-5 py-6 sm:px-8 lg:min-h-[calc(100svh-80px)] lg:px-14 lg:py-7 xl:px-20">
         <div className="grid gap-5 lg:grid-cols-[1fr_0.8fr] lg:items-end lg:gap-16">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#526b55]">08 · Energia em movimento</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#526b55]">13 · Energia em movimento</p>
             <h2 id="dia-de-sol-titulo" className="mt-4 text-[clamp(2.8rem,5.2vw,6rem)] font-medium leading-[0.94] tracking-[-0.07em]">
               Um dia de <span className="text-[#3b6948]">sol.</span>
             </h2>

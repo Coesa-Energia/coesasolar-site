@@ -3,7 +3,6 @@ import {
   HeroSection,
   BenefitsSection,
   WhyChooseSection,
-  AboutSection,
   PressSection,
   PlansSection,
   HowItWorksSection,
@@ -17,6 +16,7 @@ import {
   ConnectionSceneSection,
   PredictableBillSection,
   SolarDaySection,
+  SolarFarmSection,
   ClientAreaSection,
   SimulationSection,
 } from "@/components/home";
@@ -36,10 +36,10 @@ const Index = ({ latestArticles }: { latestArticles?: BlogArticle[] } = {}) => {
         <CalculatorSection />
         <PlansSection />
         <HowItWorksSection />
-        <SolarDaySection />
+        <SolarFarmSection />
         <ClientAreaSection />
         <SimulationSection />
-        <AboutSection />
+        <SolarDaySection />
         <PressSection />
         <HomeBlogSection initialArticles={latestArticles} />
         <FAQSection />
