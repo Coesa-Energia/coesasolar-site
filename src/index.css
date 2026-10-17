@@ -15,6 +15,20 @@
   }
 }
 
+@media (min-width: 1024px) and (max-height: 800px) {
+  #usina-solar > div:first-child {
+    padding-top: 8px;
+    padding-bottom: 4px;
+  }
+
+  #usina-solar-titulo { font-size: clamp(2.4rem, 3.2vw, 2.8rem); }
+
+  #usina-solar iframe {
+    width: min(100%, 1100px);
+    margin-inline: auto;
+  }
+}
+
 /* COESA Energia Design System
    Professional/Corporate visual style with full COESA branding
    All colors MUST be HSL

@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SolarFarmSection } from "./SolarFarmSection";
 
@@ -28,6 +28,16 @@ describe("usina solar na home", () => {
     const frame = await screen.findByTitle("Diagrama interativo da usina solar COESA");
     expect(frame).toHaveAttribute("srcdoc", "<p>Usina</p>");
     expect(fetch).toHaveBeenCalledWith("/interactive/usina-solar-coesa.html", expect.objectContaining({ signal: expect.any(AbortSignal) }));
+  });
+
+  it("reduz o frame à altura real do diagrama compacto", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, text: async () => "<p>Usina</p>" }));
+    vi.stubGlobal("ResizeObserver", class { observe() {} disconnect() {} });
+    render(<SolarFarmSection />);
+    const frame = await screen.findByTitle<HTMLIFrameElement>("Diagrama interativo da usina solar COESA");
+    Object.defineProperty(frame.contentDocument!.documentElement, "scrollHeight", { configurable: true, value: 592 });
+    fireEvent.load(frame);
+    expect(frame).toHaveStyle({ height: "592px", visibility: "visible" });
   });
 
   it("oferece o HTML original quando a carga falha", async () => {

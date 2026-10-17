@@ -10,9 +10,11 @@ describe("HomeNavbar", () => {
     expect(link).toHaveAttribute("href", "/carreiras")
   })
 
-  it("tem o link Investimentos apontando para /investimentos", () => {
+  it("não divulga a página de Investimentos nos menus", () => {
     render(<HomeNavbar />)
-    expect(screen.getByRole("link", { name: "Investimentos" })).toHaveAttribute("href", "/investimentos")
+    expect(screen.queryByRole("link", { name: "Investimentos" })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "Abrir menu" }))
+    expect(screen.queryByRole("link", { name: "Investimentos" })).not.toBeInTheDocument()
   })
 
   it("exibe a logomarca ampliada sem distorcer a proporção", () => {

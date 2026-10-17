@@ -14,7 +14,6 @@ const navLinks = [
   { href: "/#planos", label: "Planos" },
   { href: "/#como-funciona", label: "Como Funciona" },
   { href: "/blog", label: "Blog" },
-  { href: "/investimentos", label: "Investimentos" },
   { href: "/carreiras", label: "Carreiras" },
   { href: "/#faq", label: "FAQ" },
 ];
