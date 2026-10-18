@@ -36,12 +36,11 @@ export function HeroSection() {
   const stats = useMemo(() => {
     try {
       const parsed = JSON.parse(configs.hero_stats) as HeroStat[];
-      return parsed.map((stat) => ({ ...stat, value: stat.label.toLowerCase() === "economia" ? PUBLIC_DISCOUNT_LABEL : stat.value, IconComponent: iconMap[stat.icon] || Zap }));
+      return parsed.filter((stat) => stat.label.trim().toLowerCase() !== "garantia").map((stat) => ({ ...stat, value: stat.label.toLowerCase() === "economia" ? PUBLIC_DISCOUNT_LABEL : stat.value, IconComponent: iconMap[stat.icon] || Zap }));
     } catch {
       return [
         { icon: "Zap", value: PUBLIC_DISCOUNT_LABEL, label: "Economia", IconComponent: Zap },
         { icon: "Leaf", value: "100%", label: "Energia Limpa", IconComponent: Leaf },
-        { icon: "Shield", value: "5 anos", label: "Garantia", IconComponent: Shield },
         { icon: "Clock", value: "0", label: "Investimento", IconComponent: Clock },
       ];
     }
@@ -65,7 +64,7 @@ export function HeroSection() {
         <motion.div className={styles.content} style={reducedMotion ? undefined : { y: textY, opacity: introOpacity }}>
           <div className={styles.heading}>
             <h1 id="hero-title">Energia Solar{" "}<br /><span>por Assinatura</span></h1>
-            <h2>{PUBLIC_DISCOUNT_LABEL} de desconto na energia compensada pela COESA. Sem placas, obras ou investimento.</h2>
+            <h2>{PUBLIC_DISCOUNT_LABEL} de desconto na energia. Sem placas, obras ou investimento.</h2>
           </div>
 
           <div className={styles.bottom}>

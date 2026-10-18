@@ -17,7 +17,7 @@
 .heading { max-width: 1160px; }
 .heading h1 { margin: 0; font-family: "Gridora Space Grotesk", sans-serif; font-size: clamp(3.4rem, 7vw, 8rem); font-weight: 400; line-height: .98; letter-spacing: -.065em; }
 .heading h1 span { color: #67956c; }
-.heading h2 { max-width: 760px; margin: 20px auto 0; color: #294e34; font-family: "Gridora DM Sans", sans-serif; font-size: clamp(1rem, 1.4vw, 1.32rem); font-weight: 400; line-height: 1.48; letter-spacing: -.01em; }
+.heading h2 { max-width: 760px; margin: 20px auto 0; color: #fff; text-shadow: 0 2px 12px rgba(8, 24, 21, .75); font-family: "Gridora DM Sans", sans-serif; font-size: clamp(1rem, 1.4vw, 1.32rem); font-weight: 400; line-height: 1.48; letter-spacing: -.01em; }
 .night { color: #f7faf4; }
 .night .heading h1 span { color: #80cb83; }
 .night .heading h2 { color: #e8efe8; }
@@ -34,7 +34,7 @@
 .night .description { color: #e0e8e0; }
 .leadForm { margin-top: 16px; font-family: "Gridora DM Sans", sans-serif; }
 .scrollCue { position: absolute; bottom: 18px; right: 24px; z-index: 2; display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; background: rgba(255,255,255,.5); color: #285e35; cursor: pointer; }
-.stats { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 21px max(5vw, 24px); background: #f5f5ef; border-bottom: 1px solid rgba(28,68,37,.15); }
+.stats { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 21px max(5vw, 24px); background: #f5f5ef; border-bottom: 1px solid rgba(28,68,37,.15); }
 .stats > div { display: flex; align-items: center; justify-content: center; gap: 9px; font-family: "Gridora DM Sans", sans-serif; }
 .stats svg { color: #6d9b73; }
 .stats strong { color: #34723f; font-family: "Gridora Space Grotesk", sans-serif; font-size: clamp(1.25rem, 2vw, 2rem); font-weight: 500; letter-spacing: -.04em; }
@@ -46,14 +46,14 @@
   .image { object-position: 56% 70%; }
   .content { min-height: 100svh; gap: 24px; padding: 110px 20px 20px; }
   .heading h1 { font-size: clamp(3.05rem, 12vw, 5rem); }
-  .heading h2 { margin-top: 18px; font-size: 15px; }
+  .heading h2 { margin-top: 18px; color: #294e34; text-shadow: none; font-size: 15px; }
   .switch button { min-height: 72px; }
   .switch small { font-size: 10px; }
   .description { font-size: 12px; }
   .scrollCue { display: none; }
   .endStatement { font-size: clamp(2rem, 7vw, 3rem); }
-  .stats { position: relative; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 22px 15px; }
-  .stats > div { justify-content: flex-start; }
+  .stats { position: relative; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 18px 12px; }
+  .stats > div { flex-direction: column; justify-content: center; gap: 2px; text-align: center; }
   .stats strong { font-size: 1.4rem; }
   .stats span { font-size: 10px; }
 }
