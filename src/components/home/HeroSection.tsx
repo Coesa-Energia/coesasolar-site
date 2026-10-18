@@ -23,9 +23,15 @@ export function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const reducedMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
-  const clipPath = useTransform(scrollYProgress, [0, 1], ["inset(0% 0% 0% 0% round 0px)", "inset(9% 4% 9% 4% round 36px)"]);
+  const clipPath = useTransform(scrollYProgress, [0, 0.8], ["inset(0% 0% 0% 0% round 0px)", "inset(9% 5% 9% 5% round 36px)"]);
   const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.09]);
   const textY = useTransform(scrollYProgress, [0, 1], [0, -75]);
+  const introOpacity = useTransform(scrollYProgress, [0, 0.35], [1, 0]);
+  const nightReveal = useTransform(scrollYProgress, [0.15, 0.55], [0, 1]);
+  const dayTintOpacity = useTransform(scrollYProgress, [0.15, 0.55], [1, 0]);
+  const endOpacity = useTransform(scrollYProgress, [0.32, 0.55], [0, 1]);
+  const endScale = useTransform(scrollYProgress, [0.32, 0.55], [0.92, 1]);
+  const endBlur = useTransform(scrollYProgress, [0.32, 0.55], ["blur(10px)", "blur(0px)"]);
 
   const stats = useMemo(() => {
     try {
@@ -48,12 +54,15 @@ export function HeroSection() {
       <motion.div className={`${styles.stage} ${scene === "night" ? styles.night : ""}`} style={reducedMotion ? undefined : { clipPath }}>
         <motion.div className={styles.scene} style={reducedMotion ? undefined : { scale: imageScale }} aria-hidden="true">
           <Image src={scenes.day.image} alt="" fill priority sizes="100vw" className={styles.image} />
-          <Image src={scenes.night.image} alt="" fill sizes="100vw" className={`${styles.image} ${styles.nightImage}`} />
-          <div className={styles.tint} />
-          <div className={styles.fog} />
+          <motion.div className={styles.nightImage} style={{ opacity: scene === "night" ? 1 : nightReveal }}>
+            <Image src={scenes.night.image} alt="" fill sizes="100vw" className={styles.image} />
+          </motion.div>
+          <motion.div className={styles.tint} style={scene === "night" || reducedMotion ? undefined : { opacity: dayTintOpacity }} />
+          <motion.div className={styles.fog} style={scene === "night" || reducedMotion ? undefined : { opacity: dayTintOpacity }} />
+          <motion.div className={styles.scrollTint} style={scene === "night" || reducedMotion ? { opacity: 0 } : { opacity: nightReveal }} />
         </motion.div>
 
-        <motion.div className={styles.content} style={reducedMotion ? undefined : { y: textY }}>
+        <motion.div className={styles.content} style={reducedMotion ? undefined : { y: textY, opacity: introOpacity }}>
           <div className={styles.heading}>
             <h1 id="hero-title">Energia Solar{" "}<br /><span>por Assinatura</span></h1>
             <h2>{PUBLIC_DISCOUNT_LABEL} de desconto na energia compensada pela COESA. Sem placas, obras ou investimento.</h2>
@@ -76,6 +85,9 @@ export function HeroSection() {
             <p className={styles.imageNote}>Imagem ilustrativa. A assinatura COESA não exige painéis no imóvel.</p>
           </div>
         </motion.div>
+        <motion.p className={styles.endStatement} style={reducedMotion ? { opacity: 0 } : { opacity: endOpacity, scale: endScale, filter: endBlur }}>
+          Sua nova maneira de pensar energia!
+        </motion.p>
         <button type="button" className={styles.scrollCue} onClick={scrollToBenefits} aria-label="Ir para benefícios"><ChevronDown size={26} /></button>
       </motion.div>
 
