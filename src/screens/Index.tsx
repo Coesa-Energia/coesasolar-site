@@ -16,9 +16,7 @@ import {
   ConnectionSceneSection,
   PredictableBillSection,
   SolarDaySection,
-  SolarFarmSection,
-  ClientAreaSection,
-  SimulationSection,
+  DeferredHomeSection,
 } from "@/components/home";
 import { HomeBlogSection, type BlogArticle } from "@/components/blog/HomeBlogSection";
 import styles from "./Index.module.css";
@@ -40,9 +38,9 @@ const Index = ({ latestArticles }: { latestArticles?: BlogArticle[] } = {}) => {
         <CalculatorSection />
         <PlansSection />
         <HowItWorksSection />
-        <SolarFarmSection />
-        <ClientAreaSection />
-        <SimulationSection />
+        <DeferredHomeSection section="usina" />
+        <DeferredHomeSection section="app" />
+        <DeferredHomeSection section="simulacao" />
         <SolarDaySection />
         <PressSection />
         <HomeBlogSection initialArticles={latestArticles} />

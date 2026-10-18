@@ -8,9 +8,10 @@
 .copy { margin: 32px 0 0; font: 300 clamp(1.45rem, 2.9vw, 3.2rem)/1.1 "Gridora Space Grotesk", sans-serif; letter-spacing: -.035em; }
 .word { display: inline-block; color: #172019; }
 .accent { color: #478b4b; }
-.inlineImage { position: relative; display: inline-block; width: 1.9em; height: .78em; overflow: hidden; border-radius: 999px; vertical-align: -.04em; }
+.inlineImage { position: relative; display: inline-block; width: .9em; height: .9em; overflow: hidden; border-radius: .22em; background: #fff; vertical-align: -.13em; }
+.uber { background: #000; }
 .inlineImageInner { position: absolute; inset: 0; }
-.image { object-fit: cover; }
+.image { object-fit: contain; padding: .08em; }
 .progressRow { display: flex; align-items: center; gap: 16px; margin-top: 40px; color: #687369; font: 500 11px/1.2 "Gridora DM Sans", sans-serif; letter-spacing: .14em; white-space: nowrap; }
 .track { position: relative; flex: 1; height: 4px; overflow: hidden; border-radius: 999px; background: #dce9da; }
 .fill { position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(90deg, #78c77a, #3f8746); transform-origin: left; }

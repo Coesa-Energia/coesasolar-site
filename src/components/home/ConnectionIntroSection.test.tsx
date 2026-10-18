@@ -14,9 +14,11 @@ describe("segunda dobra COESA", () => {
     const { container } = render(<ConnectionIntroSection />);
     expect(screen.getByRole("heading", { name: "Por que COESA" })).toBeInTheDocument();
     expect(container.querySelector("#conexao")).toHaveTextContent("A maneira com que você se locomove na cidade, mudou.");
-    expect(container.querySelector("#conexao")).toHaveTextContent("A COESA Energia Inteligente conecta você às nossas usinas em poucos cliques:");
-    expect(container.querySelector("#conexao")).toHaveTextContent("Sem placas, obras ou investimento inicial, oferecemos desconto na energia, com tarifa mais barata, todos os meses!");
-    expect(container.querySelector("#conexao")).toHaveTextContent("Tudo... na palma da mão.");
+    expect(container.querySelector("#conexao")).toHaveTextContent("COESA Energia Inteligente:");
+    expect(container.querySelector("#conexao")).toHaveTextContent("Sem placas, obras ou investimento inicial. Desconto na sua conta luz.");
+    expect(screen.getByAltText("Uber")).toHaveAttribute("src", expect.stringContaining("uber-logo.png"));
+    expect(screen.getByAltText("WhatsApp")).toHaveAttribute("src", expect.stringContaining("whatsapp-logo.png"));
+    expect(screen.getByAltText("Netflix")).toHaveAttribute("src", expect.stringContaining("netflix-logo.png"));
     expect(screen.getByText("ENERGIA EM MOVIMENTO")).toBeInTheDocument();
     expect(screen.queryByText("Adesão R$ 0")).not.toBeInTheDocument();
   });

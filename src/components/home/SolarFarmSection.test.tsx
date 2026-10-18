@@ -9,8 +9,8 @@ afterEach(() => vi.unstubAllGlobals());
 describe("usina solar na home", () => {
   it("entra depois de Como funciona e mantém Um dia de sol antes da imprensa", () => {
     const home = readFileSync("src/screens/Index.tsx", "utf8");
-    expect(home).toMatch(/<HowItWorksSection\s*\/>\s*<SolarFarmSection\s*\/>/);
-    expect(home).toMatch(/<SimulationSection\s*\/>\s*<SolarDaySection\s*\/>\s*<PressSection\s*\/>/);
+    expect(home).toMatch(/<HowItWorksSection\s*\/>\s*<DeferredHomeSection section="usina"\s*\/>/);
+    expect(home).toMatch(/<DeferredHomeSection section="simulacao"\s*\/>\s*<SolarDaySection\s*\/>\s*<PressSection\s*\/>/);
     expect(home).not.toContain("<AboutSection />");
   });
 

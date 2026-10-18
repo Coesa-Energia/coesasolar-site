@@ -5,19 +5,20 @@ import Image from "next/image";
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import styles from "./ConnectionIntroSection.module.css";
 
-type Part = { kind: "word"; word: string; accent: boolean } | { kind: "image"; src: string };
+type Part = { kind: "word"; word: string; accent: boolean } | { kind: "image"; src: string; alt: string };
 const words = (text: string, accent = false): Part[] => text.split(" ").map((word) => ({ kind: "word", word, accent }));
 
 // Sequência e intervalos seguem a seção 03-manifesto do Gridora fornecida pelo usuário.
 const parts: Part[] = [
   ...words("A maneira com que você se locomove na cidade, mudou."),
-  { kind: "image", src: "/coesa-hero/solar-array.jpg" },
-  ...words("O jeito que você se comunica, já não é mais o mesmo. A maneira com que você assiste filmes e séries também."),
-  { kind: "image", src: "/coesa-hero/hills-mist.jpg" },
+  { kind: "image", src: "/coesa-hero/uber-logo.png", alt: "Uber" },
+  ...words("O jeito que você se comunica, já não é mais o mesmo."),
+  { kind: "image", src: "/coesa-hero/whatsapp-logo.png", alt: "WhatsApp" },
+  ...words("A maneira com que você assiste filmes e séries também."),
+  { kind: "image", src: "/coesa-hero/netflix-logo.png", alt: "Netflix" },
   ...words("Por que só a nossa maneira de pensar energia é a mesma?", true),
-  ...words("A COESA Energia Inteligente conecta você às nossas usinas em poucos cliques:"),
-  ...words("Sem placas, obras ou investimento inicial, oferecemos desconto na energia, com tarifa mais barata, todos os meses!", true),
-  ...words("Tudo... na palma da mão."),
+  ...words("COESA Energia Inteligente:"),
+  ...words("Sem placas, obras ou investimento inicial. Desconto na sua conta luz.", true),
 ];
 const step = 0.78 / parts.length;
 
@@ -27,12 +28,12 @@ function RevealedWord({ word, accent, progress, range, still }: { word: string; 
   return <motion.span className={`${styles.word} ${accent ? styles.accent : ""}`} style={still ? undefined : { opacity, y }}>{word}</motion.span>;
 }
 
-function RevealedImage({ src, progress, range, still }: { src: string; progress: MotionValue<number>; range: [number, number]; still: boolean }) {
+function RevealedImage({ src, alt, progress, range, still }: { src: string; alt: string; progress: MotionValue<number>; range: [number, number]; still: boolean }) {
   const clipPath = useTransform(progress, range, ["inset(0% 100% 0% 0% round 999px)", "inset(0% 0% 0% 0% round 999px)"]);
   const scale = useTransform(progress, range, [1.5, 1]);
-  return <motion.span aria-hidden="true" className={styles.inlineImage} style={still ? undefined : { clipPath }}>
+  return <motion.span className={`${styles.inlineImage} ${alt === "Uber" ? styles.uber : ""}`} style={still ? undefined : { clipPath }}>
     <motion.span className={styles.inlineImageInner} style={still ? undefined : { scale }}>
-      <Image src={src} alt="" fill sizes="160px" className={styles.image} />
+      <Image src={src} alt={alt} fill sizes="64px" className={styles.image} />
     </motion.span>
   </motion.span>;
 }
@@ -58,7 +59,7 @@ export function ConnectionIntroSection() {
             return <span key={index}>
               {part.kind === "word"
                 ? <RevealedWord word={part.word} accent={part.accent} progress={scrollYProgress} range={range} still={reducedMotion} />
-                : <RevealedImage src={part.src} progress={scrollYProgress} range={range} still={reducedMotion} />}
+                : <RevealedImage src={part.src} alt={part.alt} progress={scrollYProgress} range={range} still={reducedMotion} />}
               {index < parts.length - 1 ? " " : null}
             </span>;
           })}
