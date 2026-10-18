@@ -1,11 +1,13 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { SimulationForm } from "./SimulationForm";
 import { formatLeadBill, formatLeadBillInput, openLeadForm, trackLeadEvent, type LeadPrefill } from "@/lib/lead-funnel";
 import { formatarWhatsapp } from "@/lib/carreiras/form-utils";
+
+const SimulationForm = dynamic(() => import("./SimulationForm").then(({ SimulationForm }) => SimulationForm), { ssr: false });
 
 export function CompactLeadForm() {
   const [whatsapp, setWhatsapp] = useState("");
