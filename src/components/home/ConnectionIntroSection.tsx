@@ -31,7 +31,7 @@ function RevealedWord({ word, accent, progress, range, still }: { word: string; 
 function RevealedImage({ src, alt, progress, range, still }: { src: string; alt: string; progress: MotionValue<number>; range: [number, number]; still: boolean }) {
   const clipPath = useTransform(progress, range, ["inset(0% 100% 0% 0% round 999px)", "inset(0% 0% 0% 0% round 999px)"]);
   const scale = useTransform(progress, range, [1.5, 1]);
-  return <motion.span className={`${styles.inlineImage} ${alt === "Uber" ? styles.uber : ""}`} style={still ? undefined : { clipPath }}>
+  return <motion.span className={`${styles.inlineImage} ${alt === "Uber" ? styles.uber : alt === "Netflix" ? styles.netflix : ""}`} style={still ? undefined : { clipPath }}>
     <motion.span className={styles.inlineImageInner} style={still ? undefined : { scale }}>
       <Image src={src} alt={alt} fill sizes="64px" className={styles.image} />
     </motion.span>
