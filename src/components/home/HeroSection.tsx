@@ -12,7 +12,7 @@ const iconMap: Record<string, LucideIcon> = { Zap, Leaf, Shield, Clock };
 interface HeroStat { icon: string; value: string; label: string }
 
 const scenes = {
-  day: { image: "/coesa-hero/day.jpg", label: "Dia", caption: "Usinas parceiras geram", description: "A energia das usinas parceiras vira créditos para sua conta de luz." },
+  day: { image: "/coesa-hero/day.jpg", label: "Dia", caption: "Usinas parceiras geram", description: "A energia das nossas usinas chegando até a sua casa" },
   night: { image: "/coesa-hero/night.jpg", label: "Noite", caption: "A economia continua", description: "Os créditos são compensados na sua fatura, sem instalar painéis em casa." },
 } as const;
 type Scene = keyof typeof scenes;

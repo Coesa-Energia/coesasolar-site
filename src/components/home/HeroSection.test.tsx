@@ -14,6 +14,7 @@ describe("hero COESA no estilo Gridora", () => {
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Energia Solar por Assinatura");
     expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("20% de desconto na energia compensada pela COESA. Sem placas, obras ou investimento.");
     expect(screen.getByText("Sua nova maneira de pensar energia!")).toBeInTheDocument();
+    expect(screen.getByText("A energia das nossas usinas chegando até a sua casa")).toBeInTheDocument();
   });
 
   it("alterna a cena de dia para noite e mantém o controle acessível", () => {
