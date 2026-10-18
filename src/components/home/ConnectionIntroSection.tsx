@@ -17,6 +17,7 @@ const parts: Part[] = [
   ...words("A maneira com que você assiste filmes e séries também."),
   { kind: "image", src: "/coesa-hero/netflix-logo.png", alt: "Netflix" },
   ...words("Por que só a nossa maneira de pensar energia é a mesma?", true),
+  { kind: "image", src: "/favicon.png", alt: "Raio da COESA" },
   ...words("COESA Energia Inteligente:"),
   ...words("Sem placas, obras ou investimento inicial. Desconto na sua conta luz.", true),
 ];
