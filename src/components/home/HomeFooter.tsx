@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { Facebook, Instagram, Linkedin, Mail, MapPin, MessageCircle } from "lucide-react";
 import { COESA_ADDRESS_LINE, COESA_COMPANY } from "@/lib/coesa-company";
 import { useConfiguracoes } from "@/hooks/useConfiguracoes";
@@ -12,6 +13,23 @@ const footerLinkClass = "text-[#a5b4a7] transition-colors hover:text-white";
 export function HomeFooter({ compact = false }: { compact?: boolean }) {
   const currentYear = new Date().getFullYear();
   const { configs } = useConfiguracoes();
+  const sealTarget = useRef<HTMLDivElement>(null);
+  const [loadSeal, setLoadSeal] = useState(false);
+
+  useEffect(() => {
+    if (!sealTarget.current || !window.IntersectionObserver) {
+      setLoadSeal(true);
+      return;
+    }
+    const nearViewport = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setLoadSeal(true);
+        nearViewport.disconnect();
+      }
+    }, { rootMargin: "600px 0px" });
+    nearViewport.observe(sealTarget.current);
+    return () => nearViewport.disconnect();
+  }, []);
 
   return (
     <footer className="overflow-hidden bg-[#102418] text-[#f3f5ed]">
@@ -86,8 +104,8 @@ export function HomeFooter({ compact = false }: { compact?: boolean }) {
             <p>© {currentYear} {configs.empresa_nome}. Todos os direitos reservados.</p>
             <p>{COESA_COMPANY.legalName} · CNPJ {COESA_COMPANY.cnpj}</p>
             <a href="https://www.reclameaqui.com.br/rav/p1b9" target="_blank" rel="noopener noreferrer" aria-label="Ver selo da Coesa no Reclame Aqui" className="flex min-h-8 items-center">
-              <div id="ra-verified-seal">
-                <Script id="ra-embed-verified-seal" src="https://s3.amazonaws.com/raichu-beta/ra-verified/bundle.js" strategy="lazyOnload" data-id="b2xrYlJDLXFqSlROcmFuTTpjb2VzYS1lbmVyZ2lhLWludGVsaWdlbnRl" data-target="ra-verified-seal" data-model="horizontal_1" />
+              <div id="ra-verified-seal" ref={sealTarget}>
+                {loadSeal && <Script id="ra-embed-verified-seal" src="https://s3.amazonaws.com/raichu-beta/ra-verified/bundle.js" strategy="afterInteractive" data-id="b2xrYlJDLXFqSlROcmFuTTpjb2VzYS1lbmVyZ2lhLWludGVsaWdlbnRl" data-target="ra-verified-seal" data-model="horizontal_1" />}
               </div>
             </a>
           </div>
