@@ -1,3 +1,5 @@
+"use client";
+
 import { EconomyCalculator } from './EconomyCalculator';
 
 export function CalculatorSection() {

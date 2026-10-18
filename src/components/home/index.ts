@@ -23,3 +23,4 @@ export { SolarDaySection } from "./SolarDaySection";
 export { SolarFarmSection } from "./SolarFarmSection";
 export { ClientAreaSection } from "./ClientAreaSection";
 export { SimulationSection } from "./SimulationSection";
+export { DeferredHomeSection } from "./DeferredHomeSection";

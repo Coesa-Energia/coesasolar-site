@@ -1,7 +1,4 @@
-"use client"
-
 import { Toaster as Sonner } from "@/components/ui/sonner"
-import { TooltipProvider } from "@/components/ui/tooltip"
 import { ThemeProvider } from "@/components/ThemeProvider"
 import Index from "@/screens/Index"
 import type { BlogArticle } from "@/components/blog/HomeBlogSection"
@@ -12,10 +9,8 @@ import type { BlogArticle } from "@/components/blog/HomeBlogSection"
 export default function HomeClient({ latestArticles }: { latestArticles?: BlogArticle[] }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <TooltipProvider>
-        <Sonner />
-        <Index latestArticles={latestArticles} />
-      </TooltipProvider>
+      <Sonner />
+      <Index latestArticles={latestArticles} />
     </ThemeProvider>
   )
 }

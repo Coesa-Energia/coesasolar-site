@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useMemo } from 'react';
 import { ChevronDown, ExternalLink } from 'lucide-react';
 import { useEconomyCalculator, CalculoResult, TipoInstalacao } from '@/hooks/useEconomyCalculator';

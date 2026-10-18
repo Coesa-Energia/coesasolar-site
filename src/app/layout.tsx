@@ -44,7 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         {gaMeasurementId && (
           <>
-            <Script async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`} />
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`} strategy="lazyOnload" />
             <Script id="gtag-init" strategy="afterInteractive">
               {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}

@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronDown, Clock, Leaf, Moon, Shield, Sun, Zap, type LucideIcon } from "lucide-react";

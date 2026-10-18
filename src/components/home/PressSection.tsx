@@ -1,3 +1,5 @@
+"use client";
+
 import { ExternalLink, Headphones, Play } from "lucide-react";
 import { motion } from "framer-motion";
 import {
