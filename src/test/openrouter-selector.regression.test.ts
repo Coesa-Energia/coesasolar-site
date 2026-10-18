@@ -33,6 +33,6 @@ describe('LLM custom provider routing', () => {
   it('keeps executable public URLs on the active CoesaSolar domain', () => {
     const hits = files.filter(({ src }) => /\.lovable\.app|lovableproject\.com/.test(src)).map(({ f }) => f);
     expect(hits).toEqual([]);
-    expect(fs.readFileSync('src/hooks/useConfiguracoes.ts', 'utf8')).toContain('coesasolar.com.br');
+    expect(fs.readFileSync('src/hooks/useConfiguracoes.ts', 'utf8')).toContain('coesaenergia.com.br');
   });
 });

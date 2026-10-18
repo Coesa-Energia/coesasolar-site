@@ -35,7 +35,7 @@ const mockStart = vi.fn();
 vi.mock('workflow/api', () => ({ start: mockStart }));
 
 function makeRequest(): NextRequest {
-  return new NextRequest('https://coesasolar.com.br/api/blog/generate', {
+  return new NextRequest('https://coesaenergia.com.br/api/blog/generate', {
     headers: { authorization: 'Bearer test-secret' },
   });
 }
@@ -53,7 +53,7 @@ describe('GET /api/blog/generate', () => {
 
   it('sem authorization correto → 401, nunca chama claim nem start', async () => {
     const { GET } = await import('./route');
-    const request = new NextRequest('https://coesasolar.com.br/api/blog/generate');
+    const request = new NextRequest('https://coesaenergia.com.br/api/blog/generate');
     const response = await GET(request);
 
     expect(response.status).toBe(401);

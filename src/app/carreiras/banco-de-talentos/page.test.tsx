@@ -14,6 +14,6 @@ describe("BancoDeTalentosPage", () => {
     expect(screen.getByText("Carreiras")).toBeInTheDocument()
     expect(screen.getByRole("form", { name: "Candidatura" })).toBeInTheDocument()
     expect(container.querySelector("main")).toHaveClass("bg-[#06110d]", "text-white")
-    expect(metadata.alternates).toEqual({ canonical: "https://coesasolar.com.br/carreiras/banco-de-talentos" })
+    expect(metadata.alternates).toEqual({ canonical: "https://coesaenergia.com.br/carreiras/banco-de-talentos" })
   })
 })

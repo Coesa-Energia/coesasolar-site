@@ -15,17 +15,17 @@ import sitemap from './sitemap'
 
 describe('REGRESSÃO: sitemap.xml da auditoria SEO', () => {
   it('inclui a home com lastmod do artigo mais recente', async () => {
-    const home = (await sitemap()).find(e => e.url === 'https://coesasolar.com.br/')
+    const home = (await sitemap()).find(e => e.url === 'https://coesaenergia.com.br/')
     expect(home).toBeDefined()
     expect(new Date(home!.lastModified!).toISOString()).toBe('2026-10-01T12:00:00.000Z')
   })
 
   it('só lista categorias com artigo', async () => {
     const urls = (await sitemap()).map(e => e.url).filter(u => u.includes('/categoria/'))
-    expect(urls.sort()).toEqual(['https://coesasolar.com.br/categoria/economia', 'https://coesasolar.com.br/categoria/guias'])
+    expect(urls.sort()).toEqual(['https://coesaenergia.com.br/categoria/economia', 'https://coesaenergia.com.br/categoria/guias'])
   })
 
   it('não anuncia a página de investimentos oculta', async () => {
-    expect((await sitemap()).map(e => e.url)).not.toContain('https://coesasolar.com.br/investimentos')
+    expect((await sitemap()).map(e => e.url)).not.toContain('https://coesaenergia.com.br/investimentos')
   })
 })

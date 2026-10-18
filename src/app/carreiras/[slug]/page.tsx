@@ -15,7 +15,7 @@ import { normalizarDiferenciais, normalizarItensConteudo, normalizarTexto } from
 import { logoDeMarca } from "@/lib/carreiras/marcas"
 
 export const revalidate = 0
-const SITE_URL = "https://coesasolar.com.br"
+const SITE_URL = "https://coesaenergia.com.br"
 const EMPLOYMENT_TYPE: Record<string, string> = { CLT: "FULL_TIME", PJ: "CONTRACTOR", Estágio: "INTERN" }
 
 interface PageProps { params: Promise<{ slug: string }> }

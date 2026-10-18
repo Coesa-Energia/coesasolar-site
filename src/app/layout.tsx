@@ -17,14 +17,14 @@ export const metadata: Metadata = {
     type: "website",
     title: "Coesa Solar - Energia Solar por Assinatura",
     description: publicDescription,
-    images: ["https://coesasolar.com.br/og-image.png"],
+    images: ["https://coesaenergia.com.br/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
     site: "@CoesaSolar",
     title: "Coesa Solar - Energia Solar por Assinatura",
     description: publicDescription,
-    images: ["https://coesasolar.com.br/og-image.png"],
+    images: ["https://coesaenergia.com.br/og-image.png"],
   },
   verification: {
     // 2 códigos: o original (19/08, conta desconhecida) + o novo (02/09, projeto GCP

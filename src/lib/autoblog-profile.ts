@@ -4,8 +4,8 @@ import { PUBLIC_DISCOUNT_LABEL } from '@/lib/public-discount';
 export const AUTOBLOG_PROFILE = {
   brand: {
     name: 'Coesa Solar',
-    siteUrl: 'https://coesasolar.com.br',
-    logoUrl: 'https://coesasolar.com.br/favicon.png',
+    siteUrl: 'https://coesaenergia.com.br',
+    logoUrl: 'https://coesaenergia.com.br/favicon.png',
   },
   blog: {
     title: 'Blog | Coesa Solar',
@@ -27,7 +27,7 @@ export const AUTOBLOG_PROFILE = {
     internalLinks: [
       {
         label: 'Simule sua economia',
-        url: 'https://coesasolar.com.br/',
+        url: 'https://coesaenergia.com.br/',
         description: 'Simulador oficial da Coesa Solar para calcular o desconto na conta de luz',
       },
     ],
@@ -51,7 +51,7 @@ export const AUTOBLOG_PROFILE = {
     title: 'Quer saber quanto você economiza?',
     subtitle: 'Simule em menos de 1 minuto, sem compromisso.',
     buttonLabel: 'Simular economia',
-    url: 'https://coesasolar.com.br/',
+    url: 'https://coesaenergia.com.br/',
     // A/B de CTA: lista vazia = sem teste (usa title/subtitle/buttonLabel/url acima).
     // Com 2+ variantes, o sistema rotaciona por slug+semana (determinístico, sem
     // cookie) e mede os cliques por variante em /api/blog/metrics.

@@ -11,7 +11,7 @@ import { ORGANIZATION_ID } from "@/lib/seo/home-jsonld"
 // Página de serviço regional (auditoria SEO 02/10/2026: nenhuma página por área
 // atendida). Uma página forte por área real — CEMIG e Energisa MG, as concessionárias
 // de CONCESSIONARIAS_ATENDIDAS (SimulationForm) — em vez de páginas finas por cidade.
-const SITE_URL = "https://coesasolar.com.br"
+const SITE_URL = "https://coesaenergia.com.br"
 const PATH = "/energia-solar-por-assinatura-minas-gerais"
 const TITLE = "Energia solar por assinatura em Minas Gerais"
 
