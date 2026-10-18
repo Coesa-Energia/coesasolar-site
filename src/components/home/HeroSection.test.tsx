@@ -29,4 +29,16 @@ describe("hero COESA no estilo Gridora", () => {
     expect(container.querySelector("#inicio")).toHaveAttribute("data-scene", "night");
     expect(screen.getByText(/Os créditos são compensados na sua fatura/)).toBeInTheDocument();
   });
+
+  it("abre a simulação com telefone e valor preenchidos", () => {
+    render(<HeroSection />);
+    const onOpen = vi.fn();
+    window.addEventListener("coesa:open-lead-form", onOpen, { once: true });
+    fireEvent.change(screen.getByRole("textbox", { name: "WhatsApp" }), { target: { value: "11999999999" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Valor da conta" }), { target: { value: "500" } });
+    fireEvent.click(screen.getByRole("button", { name: "Continuar →" }));
+    expect(onOpen).toHaveBeenCalledOnce();
+    expect((onOpen.mock.calls[0][0] as CustomEvent).detail).toMatchObject({ source: "hero_form", prefill: { telefone: "(11) 99999-9999", valorConta: "R$ 500,00" } });
+    expect(screen.queryByText("Imagem ilustrativa. A assinatura COESA não exige painéis no imóvel.")).not.toBeInTheDocument();
+  });
 });

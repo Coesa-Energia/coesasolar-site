@@ -67,13 +67,13 @@ describe("REGRESSÃO: cena dia/noite do hero acessível", () => {
   })
 })
 
-it("o botão Simular economia do hero leva à seção de benefícios", async () => {
+it("o indicador de rolagem do hero leva à seção de benefícios", async () => {
   const section = document.createElement("section")
   section.id = "beneficios"
   section.scrollIntoView = vi.fn()
   document.body.append(section)
   await act(async () => { render(<HeroSection />) })
-  fireEvent.click(screen.getByRole("button", { name: "Simular economia" }))
+  fireEvent.click(screen.getByRole("button", { name: "Ir para benefícios" }))
   expect(section.scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth" })
   section.remove()
 })

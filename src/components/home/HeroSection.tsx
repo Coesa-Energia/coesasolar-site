@@ -4,7 +4,7 @@ import { ChevronDown, Clock, Leaf, Moon, Shield, Sun, Zap, type LucideIcon } fro
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { useConfiguracoes } from "@/hooks/useConfiguracoes";
 import { PUBLIC_DISCOUNT_LABEL } from "@/lib/public-discount";
-import { WHATSAPP_5192 } from "@/lib/whatsapp-numbers";
+import { CompactLeadForm } from "./LeadFormDock";
 import styles from "./HeroSection.module.css";
 
 const iconMap: Record<string, LucideIcon> = { Zap, Leaf, Shield, Clock };
@@ -78,11 +78,7 @@ export function HeroSection() {
               ))}
             </div>
             <p className={styles.description} aria-live="polite">{scenes[scene].description}</p>
-            <div className={styles.actions}>
-              <button type="button" onClick={scrollToBenefits}>Simular economia <span aria-hidden="true">↗</span></button>
-              <a href={`https://wa.me/${WHATSAPP_5192}?text=Olá! Vim pelo site e gostaria de saber mais sobre energia solar por assinatura.`} target="_blank" rel="noopener noreferrer">Falar com consultor</a>
-            </div>
-            <p className={styles.imageNote}>Imagem ilustrativa. A assinatura COESA não exige painéis no imóvel.</p>
+            <div className={styles.leadForm}><CompactLeadForm /></div>
           </div>
         </motion.div>
         <motion.p className={styles.endStatement} style={reducedMotion ? { opacity: 0 } : { opacity: endOpacity, scale: endScale, filter: endBlur }}>
