@@ -1,10 +1,8 @@
 import { Toaster as Sonner } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/components/ThemeProvider"
-import { LazyMotion } from "framer-motion"
+import { LazyMotion, domAnimation } from "framer-motion"
 import Index from "@/screens/Index"
 import type { BlogArticle } from "@/components/blog/HomeBlogSection"
-
-const loadFeatures = () => import("@/components/home/motion-features").then(({ default: features }) => features)
 
 // Home renderizada no servidor (antes vinha do SPA com ssr:false e o HTML inicial
 // chegava sem corpo — invisível para crawlers sem JS). Mesmos providers do App.tsx
@@ -13,7 +11,7 @@ export default function HomeClient({ latestArticles }: { latestArticles?: BlogAr
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <Sonner />
-      <LazyMotion features={loadFeatures}>
+      <LazyMotion features={domAnimation}>
         <Index latestArticles={latestArticles} />
       </LazyMotion>
     </ThemeProvider>
