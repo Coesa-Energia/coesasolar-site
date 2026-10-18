@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { PUBLIC_DISCOUNT_LABEL } from '@/lib/public-discount';
 import { COESA_ADDRESS_LINE, COESA_COMPANY } from '@/lib/coesa-company';
 
@@ -125,8 +124,10 @@ export function useConfiguracoes() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
     async function loadConfigs() {
       try {
+        const { supabase } = await import('@/integrations/supabase/client');
         const { data, error } = await supabase
           .from('configuracoes_sistema')
           .select('chave, valor');
@@ -139,21 +140,23 @@ export function useConfiguracoes() {
             return acc;
           }, {} as ConfiguracoesSistema);
 
-          setConfigs({ ...defaultConfigs, ...configsMap });
+          if (active) setConfigs({ ...defaultConfigs, ...configsMap });
         }
       } catch (err) {
         console.error('Error loading configs:', err);
-        setError('Erro ao carregar configurações');
+        if (active) setError('Erro ao carregar configurações');
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     }
 
     loadConfigs();
+    return () => { active = false; };
   }, []);
 
   const updateConfig = async (chave: keyof ConfiguracoesSistema, valor: string) => {
     try {
+      const { supabase } = await import('@/integrations/supabase/client');
       const { error } = await supabase
         .from('configuracoes_sistema')
         .update({ valor })
@@ -171,6 +174,7 @@ export function useConfiguracoes() {
 
   const updateConfigs = async (updates: Partial<ConfiguracoesSistema>) => {
     try {
+      const { supabase } = await import('@/integrations/supabase/client');
       const promises = Object.entries(updates).map(([chave, valor]) =>
         supabase
           .from('configuracoes_sistema')
