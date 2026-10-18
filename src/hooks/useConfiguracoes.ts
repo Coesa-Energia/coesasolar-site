@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { PUBLIC_DISCOUNT_LABEL } from '@/lib/public-discount';
 import { COESA_ADDRESS_LINE, COESA_COMPANY } from '@/lib/coesa-company';
 
@@ -119,6 +118,9 @@ const defaultConfigs: ConfiguracoesSistema = {
   home_bg_why_choose: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
 };
 
+type ConfigRow = { chave: string; valor: string };
+let publicConfigsPromise: Promise<ConfigRow[]> | null = null;
+
 export function useConfiguracoes() {
   const [configs, setConfigs] = useState<ConfiguracoesSistema>(defaultConfigs);
   const [loading, setLoading] = useState(true);
@@ -127,11 +129,28 @@ export function useConfiguracoes() {
   useEffect(() => {
     async function loadConfigs() {
       try {
-        const { data, error } = await supabase
-          .from('configuracoes_sistema')
-          .select('chave, valor');
-
-        if (error) throw error;
+        const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+        if (!url || !key) throw new Error('Supabase público indisponível');
+        const storageKey = `sb-${new URL(url).hostname.split('.')[0]}-auth-token`;
+        let data: ConfigRow[] | null;
+        if (localStorage.getItem(storageKey)) {
+          const { supabase } = await import('@/integrations/supabase/client');
+          const result = await supabase.from('configuracoes_sistema').select('chave, valor');
+          if (result.error) throw result.error;
+          data = result.data;
+        } else {
+          publicConfigsPromise ??= fetch(`${url}/rest/v1/configuracoes_sistema?select=chave%2Cvalor`, {
+            headers: { apikey: key, Authorization: `Bearer ${key}` },
+          }).then((response) => {
+            if (!response.ok) throw new Error(`Configurações públicas: HTTP ${response.status}`);
+            return response.json() as Promise<ConfigRow[]>;
+          }).catch((error) => {
+            publicConfigsPromise = null;
+            throw error;
+          });
+          data = await publicConfigsPromise;
+        }
 
         if (data && data.length > 0) {
           const configsMap = data.reduce((acc, item) => {
@@ -154,6 +173,7 @@ export function useConfiguracoes() {
 
   const updateConfig = async (chave: keyof ConfiguracoesSistema, valor: string) => {
     try {
+      const { supabase } = await import('@/integrations/supabase/client');
       const { error } = await supabase
         .from('configuracoes_sistema')
         .update({ valor })
@@ -171,6 +191,7 @@ export function useConfiguracoes() {
 
   const updateConfigs = async (updates: Partial<ConfiguracoesSistema>) => {
     try {
+      const { supabase } = await import('@/integrations/supabase/client');
       const promises = Object.entries(updates).map(([chave, valor]) =>
         supabase
           .from('configuracoes_sistema')
