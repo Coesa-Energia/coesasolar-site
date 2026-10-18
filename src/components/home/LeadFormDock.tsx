@@ -3,7 +3,8 @@
 import { FormEvent, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { X } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
+import * as motion from "framer-motion/m";
 import { formatLeadBill, formatLeadBillInput, openLeadForm, trackLeadEvent, type LeadPrefill } from "@/lib/lead-funnel";
 import { formatarWhatsapp } from "@/lib/carreiras/form-utils";
 

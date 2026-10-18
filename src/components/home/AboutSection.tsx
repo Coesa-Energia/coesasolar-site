@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import * as motion from "framer-motion/m";
 import { responsiveImageProps } from "@/lib/responsive-image";
 import { StatsCounter } from "./StatsCounter";
 import { useConfiguracoes } from "@/hooks/useConfiguracoes";

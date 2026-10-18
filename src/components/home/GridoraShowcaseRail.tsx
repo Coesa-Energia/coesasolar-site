@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import { motion, useMotionValue, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { useMotionValue, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import * as motion from "framer-motion/m";
 import { showcaseOffset, showcaseProgress, type ShowcaseDirection } from "./showcaseMotion";
 
 type Props = {

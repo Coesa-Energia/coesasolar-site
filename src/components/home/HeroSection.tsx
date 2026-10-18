@@ -3,7 +3,8 @@
 import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronDown, Clock, Leaf, Moon, Shield, Sun, Zap, type LucideIcon } from "lucide-react";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { useReducedMotion, useScroll, useTransform } from "framer-motion";
+import * as motion from "framer-motion/m";
 import { useConfiguracoes } from "@/hooks/useConfiguracoes";
 import { PUBLIC_DISCOUNT_LABEL } from "@/lib/public-discount";
 import { CompactLeadForm } from "./LeadFormDock";

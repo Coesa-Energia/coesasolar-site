@@ -1,4 +1,5 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
+import * as motion from "framer-motion/m";
 import { CheckCircle2, Mail, MessageCircle, X, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

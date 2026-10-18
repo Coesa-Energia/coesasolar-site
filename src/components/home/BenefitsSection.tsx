@@ -1,7 +1,7 @@
 "use client";
 
 import { openLeadForm } from "@/lib/lead-funnel";
-import { motion } from "framer-motion";
+import * as motion from "framer-motion/m";
 import { ArrowUpRight } from "lucide-react";
 import { PUBLIC_DISCOUNT_LABEL } from "@/lib/public-discount";
 

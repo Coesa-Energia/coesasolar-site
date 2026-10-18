@@ -2,7 +2,8 @@
 
 import { openLeadForm } from "@/lib/lead-funnel";
 import { useRef, useState } from "react";
-import { motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { useMotionValueEvent, useScroll } from "framer-motion";
+import * as motion from "framer-motion/m";
 import { ArrowUpRight } from "lucide-react";
 import { DottedSurface } from "./DottedSurface";
 import { ProgressiveFluxBar } from "./ProgressiveFluxBar";

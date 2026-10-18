@@ -2,7 +2,8 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import * as motion from "framer-motion/m";
 import styles from "./ConnectionIntroSection.module.css";
 
 type Part = { kind: "word"; word: string; accent: boolean } | { kind: "image"; src: string; alt: string };

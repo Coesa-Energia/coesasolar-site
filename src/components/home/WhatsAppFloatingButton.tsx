@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { MessageCircle } from "lucide-react";
-import { motion } from "framer-motion";
+import * as motion from "framer-motion/m";
 import { WHATSAPP_5192 } from "@/lib/whatsapp-numbers";
 
 export function WhatsAppFloatingButton() {

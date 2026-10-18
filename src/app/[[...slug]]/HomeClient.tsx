@@ -1,5 +1,6 @@
 import { Toaster as Sonner } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/components/ThemeProvider"
+import { LazyMotion, domAnimation } from "framer-motion"
 import Index from "@/screens/Index"
 import type { BlogArticle } from "@/components/blog/HomeBlogSection"
 
@@ -10,7 +11,9 @@ export default function HomeClient({ latestArticles }: { latestArticles?: BlogAr
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <Sonner />
-      <Index latestArticles={latestArticles} />
+      <LazyMotion features={domAnimation}>
+        <Index latestArticles={latestArticles} />
+      </LazyMotion>
     </ThemeProvider>
   )
 }

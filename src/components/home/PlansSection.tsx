@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import * as motion from "framer-motion/m";
 import { ArrowUpRight } from "lucide-react";
 import { WHATSAPP_5192 } from "@/lib/whatsapp-numbers";
 import { PUBLIC_DISCOUNT_LABEL } from "@/lib/public-discount";

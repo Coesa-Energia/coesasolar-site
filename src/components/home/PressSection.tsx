@@ -1,7 +1,7 @@
 "use client";
 
 import { ExternalLink, Headphones, Play } from "lucide-react";
-import { motion } from "framer-motion";
+import * as motion from "framer-motion/m";
 import {
   Carousel,
   CarouselContent,

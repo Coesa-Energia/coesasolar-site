@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, useReducedMotion, useTransform, type MotionValue } from "framer-motion";
+import { useReducedMotion, useTransform, type MotionValue } from "framer-motion";
+import * as motion from "framer-motion/m";
 
 // Adapted from https://ruixen.com/docs/components/progressive-flux-loader
 export function ProgressiveFluxBar({ scrollProgress }: { scrollProgress: MotionValue<number> }) {

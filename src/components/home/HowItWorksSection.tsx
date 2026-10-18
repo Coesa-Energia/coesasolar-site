@@ -1,7 +1,7 @@
 "use client";
 
 import { openLeadForm } from "@/lib/lead-funnel";
-import { motion } from "framer-motion";
+import * as motion from "framer-motion/m";
 import { ArrowUpRight } from "lucide-react";
 import { responsiveImageProps } from "@/lib/responsive-image";
 import { useConfiguracoes } from "@/hooks/useConfiguracoes";
