@@ -8,6 +8,7 @@ import { formatLeadBill, formatLeadBillInput, openLeadForm, trackLeadEvent, type
 import { formatarWhatsapp } from "@/lib/carreiras/form-utils";
 
 const SimulationForm = dynamic(() => import("./SimulationForm").then(({ SimulationForm }) => SimulationForm), { ssr: false });
+const Sonner = dynamic(() => import("@/components/ui/sonner").then(({ Toaster }) => Toaster), { ssr: false });
 
 export function CompactLeadForm() {
   const [whatsapp, setWhatsapp] = useState("");
@@ -53,6 +54,7 @@ export function LeadFormDock() {
 
   return (
     <>
+      {open && <Sonner />}
       <AnimatePresence>
         {open && (
           <motion.aside
