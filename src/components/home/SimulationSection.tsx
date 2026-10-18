@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowDownRight } from "lucide-react";
 import { SimulationForm } from "./SimulationForm";
 

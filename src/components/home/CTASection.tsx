@@ -1,3 +1,5 @@
+"use client";
+
 import { openLeadForm } from "@/lib/lead-funnel";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";

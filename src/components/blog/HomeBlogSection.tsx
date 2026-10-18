@@ -1,3 +1,5 @@
+"use client";
+
 // Seção de blog da home. A rota / (server) passa os 3 artigos mais recentes em
 // initialArticles — assim os links para os posts saem no HTML inicial (descoberta
 // pelo Google). Sem initialArticles (home aberta por navegação dentro do SPA), lê

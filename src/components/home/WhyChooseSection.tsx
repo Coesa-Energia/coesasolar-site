@@ -1,3 +1,5 @@
+"use client";
+
 import { motion } from "framer-motion";
 import { ArrowDownRight, FileCheck2, HeartHandshake, ReceiptText } from "lucide-react";
 import { responsiveImageProps } from "@/lib/responsive-image";
