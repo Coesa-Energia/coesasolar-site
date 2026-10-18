@@ -57,6 +57,15 @@ describe("REGRESSÃO: catch-all não pode servir 200 para caminho inexistente", 
 })
 
 describe("REGRESSÃO: home renderizada no servidor", () => {
+  it("mantém providers com hooks no cliente quando HomeClient é servidor", () => {
+    const home = readFileSync(join(__dirname, "HomeClient.tsx"), "utf-8")
+    expect(home).not.toMatch(/^"use client"/)
+    for (const path of ["../../components/ThemeProvider.tsx", "../../components/ui/sonner.tsx"]) {
+      const provider = readFileSync(join(__dirname, path), "utf-8")
+      expect(provider).toMatch(/^"use client";/)
+    }
+  })
+
   it("page.tsx não carrega a home via dynamic(..., { ssr: false })", () => {
     const page = semComentarios(readFileSync(join(__dirname, "page.tsx"), "utf-8"))
     expect(page).not.toMatch(/ssr:\s*false/)
