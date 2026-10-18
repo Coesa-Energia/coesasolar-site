@@ -1,0 +1,28 @@
+.top { background: transparent; }
+.scrolled { background: rgba(8, 18, 12, .9); backdrop-filter: blur(14px); }
+.brand { transition: filter .35s; }
+.scrolled .brand { filter: brightness(0) invert(1); }
+.navLink { color: #31693d; }
+.navLink:hover { color: #174d24; }
+.scrolled .navLink { color: rgba(255,255,255,.78); }
+.scrolled .navLink:hover { color: #fff; }
+.navbar .simulate { background: #2e6638; color: #fff; border-radius: 999px; box-shadow: 0 14px 28px -17px #2e6638; }
+.navbar .simulate:hover { background: #22562d; }
+.navbar .access { border-color: rgba(39,96,49,.4); color: #296435; border-radius: 999px; }
+.navbar .access:hover { background: rgba(255,255,255,.45); }
+.menuButton { color: #296435; }
+.scrolled .simulate { background: #fff; color: #173d23; }
+.scrolled .simulate:hover { background: #e7f1e5; }
+.scrolled .access { border-color: rgba(255,255,255,.45); color: #fff; }
+.scrolled .access:hover { background: rgba(255,255,255,.12); }
+.scrolled .menuButton { color: #fff; }
+:global(body:has(#inicio[data-scene="night"])) .top .brand { filter: brightness(0) invert(1); }
+:global(body:has(#inicio[data-scene="night"])) .top .navLink { color: rgba(255,255,255,.78); }
+:global(body:has(#inicio[data-scene="night"])) .top .navLink:hover { color: #fff; }
+:global(body:has(#inicio[data-scene="night"])) .top .simulate { background: #fff; color: #173d23; }
+:global(body:has(#inicio[data-scene="night"])) .top .simulate:hover { background: #e7f1e5; }
+:global(body:has(#inicio[data-scene="night"])) .top .access { border-color: rgba(255,255,255,.5); color: #fff; }
+:global(body:has(#inicio[data-scene="night"])) .top .access:hover { background: rgba(255,255,255,.12); }
+:global(body:has(#inicio[data-scene="night"])) .top .menuButton { color: #fff; }
+
+@media (prefers-reduced-motion: reduce) { .brand { transition: none; } }

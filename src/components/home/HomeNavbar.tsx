@@ -6,7 +6,8 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import coesaLogoWhite from "@/assets/logos/coesa-white-new.png";
+import coesaLogoGreen from "@/assets/logos/coesa-green.png";
+import styles from "./HomeNavbar.module.css";
 
 const navLinks = [
   { href: "/#inicio", label: "Início" },
@@ -42,32 +43,30 @@ export function HomeNavbar() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5 }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? "bg-black/90 backdrop-blur-md" : "bg-transparent"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${styles.navbar} ${isScrolled ? styles.scrolled : styles.top}`}
       >
         <div className="container mx-auto px-4">
           <nav className="flex items-center justify-between h-20">
             <a href="/#inicio" className="flex-shrink-0">
-              <Image src={coesaLogoWhite} alt="COESA" width={192} height={108} className="h-10 w-auto lg:h-14" priority />
+              <Image src={coesaLogoGreen} alt="COESA" width={192} height={108} className={`h-10 w-auto lg:h-14 ${styles.brand}`} priority />
             </a>
             <div className="hidden lg:flex items-center gap-8">
               {navLinks.map((link) => (
-                <a key={link.href} href={link.href} className="text-sm text-white/70 hover:text-white transition-colors">
+                <a key={link.href} href={link.href} className={`text-sm transition-colors ${styles.navLink}`}>
                   {link.label}
                 </a>
               ))}
             </div>
             <div className="hidden lg:flex items-center gap-3">
-              <Button onClick={scrollToForm} size="sm" className="bg-white text-black hover:bg-white/90 font-medium px-6 rounded-sm">
+              <Button onClick={scrollToForm} size="sm" className={`${styles.simulate} font-medium px-6 rounded-full`}>
                 Simular
               </Button>
-              <Button asChild size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/10 font-medium px-6 rounded-sm bg-transparent">
+              <Button asChild size="sm" variant="outline" className={`${styles.access} font-medium px-6 rounded-full bg-transparent`}>
                 <a href="https://relatorios.coesasolar.com.br/" target="_blank" rel="noopener noreferrer">Acesso</a>
               </Button>
             </div>
             <button
-              className="lg:hidden text-white p-2"
+              className={`lg:hidden p-2 ${styles.menuButton}`}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
               aria-expanded={isMobileMenuOpen}

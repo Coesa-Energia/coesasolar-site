@@ -1,66 +1,92 @@
-import { useMemo } from "react";
-import { ChevronDown, DollarSign, MessageCircle, Zap, Leaf, Shield, type LucideIcon } from "lucide-react";
-import { motion } from "framer-motion";
+import { useMemo, useRef, useState } from "react";
+import Image from "next/image";
+import { ChevronDown, Clock, Leaf, Moon, Shield, Sun, Zap, type LucideIcon } from "lucide-react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { useConfiguracoes } from "@/hooks/useConfiguracoes";
 import { PUBLIC_DISCOUNT_LABEL } from "@/lib/public-discount";
-import { CompactLeadForm } from "./LeadFormDock";
-import { openLeadForm } from "@/lib/lead-funnel";
+import { WHATSAPP_5192 } from "@/lib/whatsapp-numbers";
+import styles from "./HeroSection.module.css";
 
-const ease = [0.23, 1, 0.32, 1] as const;
-const iconMap: Record<string, LucideIcon> = { Zap, Leaf, Shield, DollarSign, Clock: DollarSign };
+const iconMap: Record<string, LucideIcon> = { Zap, Leaf, Shield, Clock };
+
+interface HeroStat { icon: string; value: string; label: string }
+
+const scenes = {
+  day: { image: "/coesa-hero/day.jpg", label: "Dia", caption: "Usinas parceiras geram", description: "A energia das usinas parceiras vira créditos para sua conta de luz." },
+  night: { image: "/coesa-hero/night.jpg", label: "Noite", caption: "A economia continua", description: "Os créditos são compensados na sua fatura, sem instalar painéis em casa." },
+} as const;
+type Scene = keyof typeof scenes;
 
 export function HeroSection() {
   const { configs } = useConfiguracoes();
+  const [scene, setScene] = useState<Scene>("day");
+  const sectionRef = useRef<HTMLElement>(null);
+  const reducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
+  const clipPath = useTransform(scrollYProgress, [0, 1], ["inset(0% 0% 0% 0% round 0px)", "inset(9% 4% 9% 4% round 36px)"]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.09]);
+  const textY = useTransform(scrollYProgress, [0, 1], [0, -75]);
+
   const stats = useMemo(() => {
     try {
-      const parsed = JSON.parse(configs.hero_stats) as Array<{ icon: string; value: string; label: string }>;
-      return parsed.map((stat) => ({ ...stat, value: stat.label.toLowerCase() === "economia" ? PUBLIC_DISCOUNT_LABEL : stat.value, label: stat.label.toLowerCase() === "economia" ? "Desconto na energia" : stat.label, Icon: iconMap[stat.icon] || Zap }));
+      const parsed = JSON.parse(configs.hero_stats) as HeroStat[];
+      return parsed.map((stat) => ({ ...stat, value: stat.label.toLowerCase() === "economia" ? PUBLIC_DISCOUNT_LABEL : stat.value, IconComponent: iconMap[stat.icon] || Zap }));
     } catch {
       return [
-        { value: PUBLIC_DISCOUNT_LABEL, label: "Desconto na energia", Icon: Zap },
-        { value: "100%", label: "Energia Limpa", Icon: Leaf },
-        { value: "5 anos", label: "Garantia", Icon: Shield },
-        { value: "0", label: "Investimento", Icon: DollarSign },
+        { icon: "Zap", value: PUBLIC_DISCOUNT_LABEL, label: "Economia", IconComponent: Zap },
+        { icon: "Leaf", value: "100%", label: "Energia Limpa", IconComponent: Leaf },
+        { icon: "Shield", value: "5 anos", label: "Garantia", IconComponent: Shield },
+        { icon: "Clock", value: "0", label: "Investimento", IconComponent: Clock },
       ];
     }
   }, [configs.hero_stats]);
 
-  const openForm = () => openLeadForm("hero_full_form");
-  const scrollToStory = () => document.querySelector("#como-funciona")?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBenefits = () => document.querySelector("#beneficios")?.scrollIntoView({ behavior: "smooth" });
 
   return (
-    <section id="inicio" className="relative flex min-h-[calc(100svh-80px)] flex-col overflow-hidden bg-[#090b09] text-white">
-      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(https://i.ytimg.com/vi/${configs.hero_video_youtube_id}/maxresdefault.jpg)` }}>
-        <video autoPlay muted loop playsInline preload="auto" aria-hidden="true" tabIndex={-1} ref={(video) => { if (video) video.playbackRate = 0.25; }} className="pointer-events-none absolute inset-0 h-full w-full object-cover">
-          <source src="/media/hero-clouds-timelapse.webm?v=3" type="video/webm" />
-          <source src="/media/hero-clouds-timelapse.mp4?v=3" type="video/mp4" />
-          <img src="/media/hero-clouds-timelapse.gif?v=4" alt="" aria-hidden="true" />
-        </video>
-        <div className="absolute inset-0 bg-black/42" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_32%,rgba(226,216,188,0.08),transparent_28%),linear-gradient(115deg,rgba(8,10,9,0.76)_0%,rgba(8,10,9,0.42)_48%,rgba(8,10,9,0.52)_100%)]" />
-      </div>
-      <div className="pointer-events-none absolute inset-0 opacity-[0.045] [background-image:linear-gradient(rgba(255,255,255,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:96px_96px] [mask-image:linear-gradient(to_bottom,transparent,black_32%,black_72%,transparent)]" />
+    <section id="inicio" data-scene={scene} ref={sectionRef} className={styles.hero} aria-labelledby="hero-title">
+      <motion.div className={`${styles.stage} ${scene === "night" ? styles.night : ""}`} style={reducedMotion ? undefined : { clipPath }}>
+        <motion.div className={styles.scene} style={reducedMotion ? undefined : { scale: imageScale }} aria-hidden="true">
+          <Image src={scenes.day.image} alt="" fill priority sizes="100vw" className={styles.image} />
+          <Image src={scenes.night.image} alt="" fill sizes="100vw" className={`${styles.image} ${styles.nightImage}`} />
+          <div className={styles.tint} />
+          <div className={styles.fog} />
+        </motion.div>
 
-      <div className="relative z-10 flex flex-1 flex-col justify-start px-5 pb-6 pt-24 sm:px-8 lg:justify-end lg:px-14 lg:pb-8 lg:pt-8 xl:px-20">
-        <div className="mx-auto w-full max-w-[1500px]">
-          <div className="grid items-end gap-7 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-            <motion.div initial={{ y: 24 }} animate={{ y: 0 }} transition={{ duration: 0.8, ease }} className="max-w-3xl">
-              <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.24em] text-white/50">Energia inteligente</p>
-              <h1 className="max-w-3xl text-[clamp(3.2rem,6.2vw,6.8rem)] font-medium leading-[0.9] tracking-[-0.07em] text-white">Energia Solar por Assinatura</h1>
-              <p className="mt-7 max-w-xl text-base leading-relaxed text-white/65 sm:text-lg">{PUBLIC_DISCOUNT_LABEL} de desconto na energia compensada pela COESA. Sem placas, obras ou investimento.</p>
-              <button type="button" onClick={scrollToStory} className="mt-7 inline-flex items-center gap-2 text-sm text-white/55 transition hover:text-white"><ChevronDown className="h-4 w-4" /> Como funciona</button>
-            </motion.div>
-
-            <motion.div initial={{ y: 24 }} animate={{ y: 0 }} transition={{ duration: 0.8, delay: 0.14, ease }} className="lg:justify-self-end lg:max-w-[34rem]">
-              <CompactLeadForm />
-              <div className="mt-4 flex items-center justify-between gap-4 text-xs text-white/45 lg:justify-end"><span className="flex items-center gap-1.5"><MessageCircle className="h-3.5 w-3.5 text-[#6f8b72]" /> Resposta pelo WhatsApp</span><button type="button" onClick={openForm} className="hidden items-center gap-1 text-white/65 transition hover:text-white sm:inline-flex">Prefiro preencher tudo <span aria-hidden="true">↗</span></button></div>
-            </motion.div>
+        <motion.div className={styles.content} style={reducedMotion ? undefined : { y: textY }}>
+          <div className={styles.heading}>
+            <h1 id="hero-title">Energia Solar{" "}<br /><span>por Assinatura</span></h1>
+            <h2>{PUBLIC_DISCOUNT_LABEL} de desconto na energia compensada pela COESA. Sem placas, obras ou investimento.</h2>
           </div>
 
-          <motion.div initial={{ y: 18 }} animate={{ y: 0 }} transition={{ duration: 0.7, delay: 0.34, ease }} className="mt-5 grid grid-cols-4 border-t border-white/15 pt-3 sm:mt-8">
-            {stats.map(({ value, label, Icon }) => <div key={label} className="flex min-w-0 flex-col gap-1 border-white/10 py-2 pr-1 sm:flex-row sm:items-center sm:gap-3 sm:border-r sm:px-5 first:pl-0 last:border-0 last:pr-0"><Icon className="h-4 w-4 shrink-0 text-white/55" strokeWidth={1.5} /><div><strong className="block text-base font-medium tracking-tight text-white sm:text-lg">{value}</strong><span className="text-[10px] text-white/45 sm:text-xs">{label}</span></div></div>)}
-          </motion.div>
-        </div>
+          <div className={styles.bottom}>
+            <div className={styles.switch} role="group" aria-label="Visualizar energia de dia e à noite">
+              {(["day", "night"] as const).map((key) => (
+                <button key={key} type="button" aria-pressed={scene === key} className={scene === key ? styles.selected : ""} onClick={() => setScene(key)}>
+                  <span>{key === "day" ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}{scenes[key].label}</span>
+                  <small>{scenes[key].caption}</small>
+                </button>
+              ))}
+            </div>
+            <p className={styles.description} aria-live="polite">{scenes[scene].description}</p>
+            <div className={styles.actions}>
+              <button type="button" onClick={scrollToBenefits}>Simular economia <span aria-hidden="true">↗</span></button>
+              <a href={`https://wa.me/${WHATSAPP_5192}?text=Olá! Vim pelo site e gostaria de saber mais sobre energia solar por assinatura.`} target="_blank" rel="noopener noreferrer">Falar com consultor</a>
+            </div>
+            <p className={styles.imageNote}>Imagem ilustrativa. A assinatura COESA não exige painéis no imóvel.</p>
+          </div>
+        </motion.div>
+        <button type="button" className={styles.scrollCue} onClick={scrollToBenefits} aria-label="Ir para benefícios"><ChevronDown size={26} /></button>
+      </motion.div>
+
+      <div className={styles.stats}>
+        {stats.map((stat) => (
+          <div key={stat.label}>
+            <stat.IconComponent size={20} aria-hidden="true" />
+            <strong>{stat.value}</strong>
+            <span>{stat.label}</span>
+          </div>
+        ))}
       </div>
     </section>
   );
