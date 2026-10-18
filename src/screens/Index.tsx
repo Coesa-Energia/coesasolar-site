@@ -12,7 +12,8 @@ import {
   WhatsAppFloatingButton,
   CalculatorSection,
   LeadFormDock,
-  ConnectionIntroSection,
+  DeferredConnectionIntroSection,
+  ConnectionSceneSection,
   PredictableBillSection,
   SolarDaySection,
   DeferredHomeSection,
@@ -29,8 +30,8 @@ const Index = ({ latestArticles }: { latestArticles?: BlogArticle[] } = {}) => {
         <section className={styles.trust} aria-labelledby="trust-title">
           <h2 id="trust-title">Escolhida por mais de 2.000 clientes em todo o Brasil.</h2>
         </section>
-        <ConnectionIntroSection />
-        <DeferredHomeSection section="rede" />
+        <DeferredConnectionIntroSection />
+        <ConnectionSceneSection />
         <PredictableBillSection />
         <BenefitsSection />
         <WhyChooseSection />

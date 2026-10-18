@@ -1,31 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
-import dynamic from 'next/dynamic';
-
-const CalculatorPlaceholder = () => <div className="min-h-80" aria-busy="true" />;
-const EconomyCalculator = dynamic(() => import('./EconomyCalculator').then((module) => module.EconomyCalculator), { ssr: false, loading: CalculatorPlaceholder });
+import { EconomyCalculator } from './EconomyCalculator';
 
 export function CalculatorSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [near, setNear] = useState(false);
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element || !window.IntersectionObserver) {
-      setNear(true);
-      return;
-    }
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setNear(true);
-        observer.disconnect();
-      }
-    }, { rootMargin: '1400px 0px' });
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <div id="calculadora" className="scroll-mt-20 bg-[#f4eddf] text-[#172019]">
       <div className="mx-auto grid max-w-[1600px] px-5 sm:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-20 lg:px-14 xl:px-20">
@@ -41,12 +18,12 @@ export function CalculatorSection() {
         </section>
 
         <section aria-label="Calculadora de economia" className="flex min-h-[calc(100svh-80px)] min-w-0 items-center py-6 lg:py-6">
-          <div ref={ref} className="w-full rounded-[1.5rem] border border-[#d5cbb7] bg-[#fbf9f3] p-5 sm:p-7 lg:p-6">
+          <div className="w-full rounded-[1.5rem] border border-[#d5cbb7] bg-[#fbf9f3] p-5 sm:p-7 lg:p-6">
             <div className="mb-3 flex items-center justify-between gap-3 border-b border-[#e1dacb] pb-3">
               <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#617366]">Simulação</span>
               <span className="text-xs text-[#6b7168]">Sem compromisso</span>
             </div>
-            {near ? <EconomyCalculator /> : <CalculatorPlaceholder />}
+            <EconomyCalculator />
           </div>
         </section>
       </div>
