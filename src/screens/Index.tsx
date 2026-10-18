@@ -21,6 +21,7 @@ import {
   SimulationSection,
 } from "@/components/home";
 import { HomeBlogSection, type BlogArticle } from "@/components/blog/HomeBlogSection";
+import styles from "./Index.module.css";
 
 const Index = ({ latestArticles }: { latestArticles?: BlogArticle[] } = {}) => {
   return (
@@ -28,6 +29,9 @@ const Index = ({ latestArticles }: { latestArticles?: BlogArticle[] } = {}) => {
       <HomeNavbar />
       <main>
         <HeroSection />
+        <section className={styles.trust} aria-labelledby="trust-title">
+          <h2 id="trust-title">Escolhida por mais de 2.000 clientes em todo o Brasil.</h2>
+        </section>
         <ConnectionIntroSection />
         <ConnectionSceneSection />
         <PredictableBillSection />

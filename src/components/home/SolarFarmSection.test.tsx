@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SolarFarmSection } from "./SolarFarmSection";
 
@@ -58,6 +58,24 @@ describe("usina solar na home", () => {
     const frame = await screen.findByTitle("Diagrama interativo da usina solar COESA");
     expect(frame).toHaveAttribute("srcdoc", "<p>Usina</p>");
     expect(fetch).toHaveBeenCalledWith("/interactive/usina-solar-coesa.html", expect.objectContaining({ signal: expect.any(AbortSignal) }));
+  });
+
+  it("adia o diagrama até a seção se aproximar da tela", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, text: async () => "<p>Usina</p>" });
+    vi.stubGlobal("fetch", fetchMock);
+    vi.stubGlobal("ResizeObserver", class { observe() {} disconnect() {} });
+    let reveal: IntersectionObserverCallback | undefined;
+    vi.stubGlobal("IntersectionObserver", class {
+      constructor(callback: IntersectionObserverCallback) { reveal = callback; }
+      observe() {}
+      disconnect() {}
+    });
+
+    render(<SolarFarmSection />);
+    expect(fetchMock).not.toHaveBeenCalled();
+    act(() => reveal?.([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    expect(await screen.findByTitle("Diagrama interativo da usina solar COESA")).toHaveAttribute("srcdoc", "<p>Usina</p>");
   });
 
   it("reduz o frame à altura real do diagrama compacto", async () => {

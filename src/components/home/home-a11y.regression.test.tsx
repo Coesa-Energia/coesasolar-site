@@ -1,6 +1,6 @@
 // REGRESSÃO 02/10/2026 — auditoria SEO/agentic (Lighthouse "agent-accessibility-tree"
 // FAIL): botão do menu mobile, ícones de redes sociais e <select> do simulador sem nome
-// acessível. O hero mantém um vídeo ambiente sem controles, foco ou interação.
+// acessível. O hero mantém a cena dia/noite sem controles de mídia externos.
 import { renderToString } from "react-dom/server"
 import { act, fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
@@ -51,32 +51,29 @@ describe("REGRESSÃO: controles da home com nome acessível", () => {
   })
 })
 
-describe("REGRESSÃO: animação ambiente do hero sem player visível", () => {
-  it("renderiza o timelapse local sem controles nem interação", () => {
+describe("REGRESSÃO: cena dia/noite do hero acessível", () => {
+  it("renderiza imagens locais e evita player externo", () => {
     const html = renderToString(<HeroSection />)
-    expect(html).toContain('/media/hero-clouds-timelapse.webm?v=3')
-    expect(html).toContain('/media/hero-clouds-timelapse.mp4?v=3')
-    expect(html).toContain('/media/hero-clouds-timelapse.gif?v=4')
-    expect(html).toContain('<video')
+    expect(html).toContain('coesa-hero')
+    expect(html).toContain('Energia Solar')
     expect(html).not.toContain('<iframe')
-    expect(html).toMatch(/i\.ytimg\.com\/vi\/[\w-]+\/maxresdefault\.jpg/)
+    expect(html).not.toContain('<video')
   })
 
-  it("reproduz o vídeo de fundo em um quarto da velocidade", async () => {
-    let container!: HTMLElement
-    await act(async () => { container = render(<HeroSection />).container })
-    const video = container.querySelector("video")!
-    expect(video.playbackRate).toBe(0.25)
+  it("marca dia como ativo e oferece a opção de noite", async () => {
+    await act(async () => { render(<HeroSection />) })
+    expect(screen.getByRole("button", { name: /Dia Usinas parceiras geram/ })).toHaveAttribute("aria-pressed", "true")
+    expect(screen.getByRole("button", { name: /Noite A economia continua/ })).toHaveAttribute("aria-pressed", "false")
   })
 })
 
-it("o botão Como funciona do hero leva à seção do processo", async () => {
+it("o indicador de rolagem do hero leva à seção de benefícios", async () => {
   const section = document.createElement("section")
-  section.id = "como-funciona"
+  section.id = "beneficios"
   section.scrollIntoView = vi.fn()
   document.body.append(section)
   await act(async () => { render(<HeroSection />) })
-  fireEvent.click(screen.getByRole("button", { name: "Como funciona" }))
+  fireEvent.click(screen.getByRole("button", { name: "Ir para benefícios" }))
   expect(section.scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth" })
   section.remove()
 })

@@ -1,0 +1,27 @@
+.top { background: transparent; }
+.scrolled { top: 10px; left: max(8px, 5vw); right: max(8px, 5vw); border: 1px solid rgba(37,70,44,.12); border-radius: 999px; background: rgba(248,250,246,.94); box-shadow: 0 12px 36px rgba(15,32,22,.12); backdrop-filter: blur(14px); }
+.brand { transition: filter .35s; }
+.navLink { color: #31693d; }
+.navLink:hover { color: #174d24; }
+.scrolled .navLink { color: #31693d; }
+.scrolled .navLink:hover { color: #174d24; }
+.navbar .simulate { background: #2e6638; color: #fff; border-radius: 999px; box-shadow: 0 14px 28px -17px #2e6638; }
+.navbar .simulate:hover { background: #22562d; }
+.navbar .access { border-color: rgba(39,96,49,.4); color: #296435; border-radius: 999px; }
+.navbar .access:hover { background: rgba(255,255,255,.45); }
+.menuButton { color: #296435; }
+.scrolled .simulate { background: #2e6638; color: #fff; }
+.scrolled .simulate:hover { background: #22562d; }
+.scrolled .access { border-color: rgba(39,96,49,.4); color: #296435; }
+.scrolled .access:hover { background: rgba(39,96,49,.08); }
+.scrolled .menuButton { color: #296435; }
+:global(body:has(#inicio[data-scene="night"])) .top .brand { filter: brightness(0) invert(1); }
+:global(body:has(#inicio[data-scene="night"])) .top .navLink { color: rgba(255,255,255,.78); }
+:global(body:has(#inicio[data-scene="night"])) .top .navLink:hover { color: #fff; }
+:global(body:has(#inicio[data-scene="night"])) .top .simulate { background: #fff; color: #173d23; }
+:global(body:has(#inicio[data-scene="night"])) .top .simulate:hover { background: #e7f1e5; }
+:global(body:has(#inicio[data-scene="night"])) .top .access { border-color: rgba(255,255,255,.5); color: #fff; }
+:global(body:has(#inicio[data-scene="night"])) .top .access:hover { background: rgba(255,255,255,.12); }
+:global(body:has(#inicio[data-scene="night"])) .top .menuButton { color: #fff; }
+
+@media (prefers-reduced-motion: reduce) { .brand { transition: none; } }

@@ -1,0 +1,6 @@
+.trust { padding: 72px 20px; background: #f5f5ef; text-align: center; }
+.trust h2 { margin: 0 auto; color: #5d6860; font: 400 clamp(1.125rem, 2.7vw, 1.75rem)/1.35 "Gridora DM Sans", sans-serif; }
+
+@media (max-width: 760px) {
+  .trust { padding: 56px 20px; }
+}

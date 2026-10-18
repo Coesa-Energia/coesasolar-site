@@ -6,9 +6,27 @@ export function SolarFarmSection() {
   const [html, setHtml] = useState("");
   const [failed, setFailed] = useState(false);
   const [height, setHeight] = useState(1);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const section = useRef<HTMLElement>(null);
   const observer = useRef<ResizeObserver | null>(null);
 
   useEffect(() => {
+    if (!section.current || !window.IntersectionObserver) {
+      setShouldLoad(true);
+      return;
+    }
+    const nearViewport = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setShouldLoad(true);
+        nearViewport.disconnect();
+      }
+    }, { rootMargin: "800px 0px" });
+    nearViewport.observe(section.current);
+    return () => nearViewport.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!shouldLoad) return;
     const controller = new AbortController();
     fetch("/interactive/usina-solar-coesa.html", { signal: controller.signal })
       .then((response) => {
@@ -23,7 +41,7 @@ export function SolarFarmSection() {
       controller.abort();
       observer.current?.disconnect();
     };
-  }, []);
+  }, [shouldLoad]);
 
   function fitFrame(frame: HTMLIFrameElement) {
     observer.current?.disconnect();
@@ -36,7 +54,7 @@ export function SolarFarmSection() {
   }
 
   return (
-    <section id="usina-solar" aria-labelledby="usina-solar-titulo" className="scroll-mt-20 bg-[#f4efe3] text-[#17251b] lg:min-h-[calc(100svh-80px)]">
+    <section ref={section} id="usina-solar" aria-labelledby="usina-solar-titulo" className="scroll-mt-20 bg-[#f4efe3] text-[#17251b] lg:min-h-[calc(100svh-80px)]">
       <div className="mx-auto max-w-[1600px] px-5 pb-4 pt-8 sm:px-8 lg:px-14 lg:pb-3 lg:pt-5 xl:px-20">
         <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#617b64]">08 · Da usina à sua conta</p>
         <h2 id="usina-solar-titulo" className="mt-2 text-[clamp(2.25rem,4.2vw,4.8rem)] font-medium leading-[0.98] tracking-[-0.07em] lg:whitespace-nowrap">
