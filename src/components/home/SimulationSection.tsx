@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowDownRight } from "lucide-react";
+import { Toaster as Sonner } from "@/components/ui/sonner";
 import { SimulationForm } from "./SimulationForm";
 
 export function SimulationSection() {
   return (
     <div id="simulacao" className="scroll-mt-20 bg-[#edece2] text-[#17251b]">
+      <Sonner />
       <div className="mx-auto max-w-[1600px] px-5 sm:px-8 lg:grid lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16 lg:px-14 xl:px-20">
         <section aria-labelledby="simulacao-titulo" className="flex min-h-[calc(100svh-80px)] flex-col justify-center py-8 lg:py-0">
           <div className="max-w-xl">
