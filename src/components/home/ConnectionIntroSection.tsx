@@ -3,9 +3,24 @@
 import { useRef } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { parts } from "./connectionIntroParts";
 import styles from "./ConnectionIntroSection.module.css";
 
+type Part = { kind: "word"; word: string; accent: boolean } | { kind: "image"; src: string; alt: string };
+const words = (text: string, accent = false): Part[] => text.split(" ").map((word) => ({ kind: "word", word, accent }));
+
+// Sequência e intervalos seguem a seção 03-manifesto do Gridora fornecida pelo usuário.
+const parts: Part[] = [
+  ...words("A maneira com que você se locomove na cidade, mudou."),
+  { kind: "image", src: "/coesa-hero/uber-logo.png", alt: "Uber" },
+  ...words("O jeito que você se comunica, já não é mais o mesmo."),
+  { kind: "image", src: "/coesa-hero/whatsapp-logo.png", alt: "WhatsApp" },
+  ...words("A maneira com que você assiste filmes e séries também."),
+  { kind: "image", src: "/coesa-hero/netflix-logo.png", alt: "Netflix" },
+  ...words("Por que só a nossa maneira de pensar energia é a mesma?", true),
+  { kind: "image", src: "/favicon.png", alt: "Raio da COESA" },
+  ...words("COESA Energia Inteligente:"),
+  ...words("Sem placas, obras ou investimento inicial. Desconto na sua conta luz.", true),
+];
 const step = 0.78 / parts.length;
 
 function RevealedWord({ word, accent, progress, range, still }: { word: string; accent: boolean; progress: MotionValue<number>; range: [number, number]; still: boolean }) {
