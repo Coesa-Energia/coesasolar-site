@@ -60,7 +60,7 @@ export function createJevRouterFetch(fetchImpl: typeof fetch = fetch): typeof fe
         body: JSON.stringify({
           ...body,
           model: JEV_ROUTER_MODEL,
-          plugins: [{ id: 'jev-router', cost_tier: costTier() }, ...plugins],
+          plugins: [{ id: 'jev-router', cost_tier: costTier(), excluded_models: ['anthropic/*', 'openai/*', 'google/*'] }, ...plugins],
         }),
       });
     } catch {
