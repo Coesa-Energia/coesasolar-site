@@ -10,15 +10,14 @@ const words = (text: string, accent = false): Part[] => text.split(" ").map((wor
 
 // Sequência e intervalos seguem a seção 03-manifesto do Gridora fornecida pelo usuário.
 const parts: Part[] = [
-  ...words("Todos os meses, nossas usinas geram energia suficiente para alimentar uma cidadezinha inteira."),
+  ...words("A maneira com que você se locomove na cidade, mudou."),
   { kind: "image", src: "/coesa-hero/solar-array.jpg" },
-  ...words("O seu jeito de se locomover mudou. O modo como você se comunica já não é mais o mesmo. A maneira com que você assiste filmes e séries também."),
+  ...words("O jeito que você se comunica, já não é mais o mesmo. A maneira com que você assiste filmes e séries também."),
   { kind: "image", src: "/coesa-hero/hills-mist.jpg" },
   ...words("Por que só a nossa maneira de pensar energia é a mesma?", true),
-  ...words("A COESA Energia Inteligente nasce dessa inquietude. Com tecnologia de vanguarda como referência e foco total em você, nascemos para romper com o óbvio."),
-  { kind: "image", src: "/coesa-hero/hero-turbine.jpg" },
-  ...words("Mais de 2.000 clientes já confiam na COESA. Tudo a um clique de distância, no seu celular, em nosso site ou aplicativo."),
-  ...words("E a melhor parte? Sem obra na sua casa. Sem burocracia. Sem custo inicial nenhum.", true),
+  ...words("A COESA Energia Inteligente conecta você às nossas usinas em poucos cliques:"),
+  ...words("Sem placas, obras ou investimento inicial, oferecemos desconto na energia, com tarifa mais barata, todos os meses!", true),
+  ...words("Tudo... na palma da mão."),
 ];
 const step = 0.78 / parts.length;
 
