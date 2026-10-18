@@ -62,7 +62,7 @@ export function HomeNavbar() {
                 Simular
               </Button>
               <Button asChild size="sm" variant="outline" className={`${styles.access} font-medium px-6 rounded-full bg-transparent`}>
-                <a href="https://relatorios.coesasolar.com.br/" target="_blank" rel="noopener noreferrer">Acesso</a>
+                <a href="https://cliente.coesaenergia.com.br/login" target="_blank" rel="noopener noreferrer">Acesso</a>
               </Button>
             </div>
             <button
@@ -89,7 +89,7 @@ export function HomeNavbar() {
                 Simular Economia
               </Button>
               <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 font-medium rounded-sm w-full py-6 bg-transparent">
-                <a href="https://relatorios.coesasolar.com.br/" target="_blank" rel="noopener noreferrer">Acesso</a>
+                <a href="https://cliente.coesaenergia.com.br/login" target="_blank" rel="noopener noreferrer">Acesso</a>
               </Button>
             </div>
           </motion.div>

@@ -37,6 +37,14 @@ describe("HomeNavbar", () => {
     })
   })
 
+  it("mantém o acesso do cliente no desktop e no menu móvel", () => {
+    render(<HomeNavbar />)
+    fireEvent.click(screen.getByRole("button", { name: "Abrir menu" }))
+    for (const link of screen.getAllByRole("link", { name: "Acesso" })) {
+      expect(link).toHaveAttribute("href", "https://cliente.coesaenergia.com.br/login")
+    }
+  })
+
   it("mantém o WhatsApp atrás do menu móvel para não cobrir Acesso", () => {
     render(<><HomeNavbar /><WhatsAppFloatingButton /></>)
     fireEvent.click(screen.getByRole("button", { name: "Abrir menu" }))
