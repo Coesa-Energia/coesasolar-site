@@ -13,7 +13,6 @@ import {
   CalculatorSection,
   LeadFormDock,
   ConnectionIntroSection,
-  ConnectionSceneSection,
   PredictableBillSection,
   SolarDaySection,
   DeferredHomeSection,
@@ -31,7 +30,7 @@ const Index = ({ latestArticles }: { latestArticles?: BlogArticle[] } = {}) => {
           <h2 id="trust-title">Escolhida por mais de 2.000 clientes em todo o Brasil.</h2>
         </section>
         <ConnectionIntroSection />
-        <ConnectionSceneSection />
+        <DeferredHomeSection section="rede" />
         <PredictableBillSection />
         <BenefitsSection />
         <WhyChooseSection />

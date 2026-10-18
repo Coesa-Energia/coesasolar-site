@@ -15,7 +15,6 @@ export { CalculatorSection } from "./CalculatorSection";
 export { LeadFormDock } from "./LeadFormDock";
 export { CompactLeadForm } from "./LeadFormDock";
 export { ConnectionIntroSection } from "./ConnectionIntroSection";
-export { ConnectionSceneSection } from "./ConnectionSceneSection";
 export { PredictableBillSection } from "./PredictableBillSection";
 export { SolarDaySection } from "./SolarDaySection";
 export { DeferredHomeSection } from "./DeferredHomeSection";
