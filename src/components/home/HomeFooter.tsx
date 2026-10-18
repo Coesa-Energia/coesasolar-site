@@ -28,7 +28,7 @@ export function HomeFooter({ compact = false }: { compact?: boolean }) {
           </div>
 
           <div>
-            <h4 className="mb-7 text-sm font-semibold">Explore</h4>
+            <h3 className="mb-7 text-sm font-semibold">Explore</h3>
             <ul className="space-y-4 text-sm">
               {[
                 { label: "Início", href: "/#inicio" },
@@ -42,7 +42,7 @@ export function HomeFooter({ compact = false }: { compact?: boolean }) {
           </div>
 
           <div>
-            <h4 className="mb-7 text-sm font-semibold">COESA</h4>
+            <h3 className="mb-7 text-sm font-semibold">COESA</h3>
             <ul className="space-y-4 text-sm">
               <li><a href="/blog" className={footerLinkClass}>Blog</a></li>
               <li><a href="/carreiras" className={footerLinkClass}>Carreiras</a></li>
@@ -52,7 +52,7 @@ export function HomeFooter({ compact = false }: { compact?: boolean }) {
           </div>
 
           <div>
-            <h4 className="mb-7 text-sm font-semibold">Contato</h4>
+            <h3 className="mb-7 text-sm font-semibold">Contato</h3>
             <ul className="space-y-4 text-sm text-[#a5b4a7]">
               <li className="flex items-start gap-3"><Mail className="mt-0.5 h-4 w-4 shrink-0" /><a href="mailto:contato@coesaenergia.com.br" className="transition-colors hover:text-white">contato@coesaenergia.com.br</a></li>
               <li className="flex items-start gap-3"><MessageCircle className="mt-0.5 h-4 w-4 shrink-0" /><a href={`https://wa.me/${COESA_COMPANY.whatsapp}`} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-white">WhatsApp {COESA_COMPANY.phoneDisplay}</a></li>
@@ -87,7 +87,7 @@ export function HomeFooter({ compact = false }: { compact?: boolean }) {
             <p>{COESA_COMPANY.legalName} · CNPJ {COESA_COMPANY.cnpj}</p>
             <a href="https://www.reclameaqui.com.br/rav/p1b9" target="_blank" rel="noopener noreferrer" aria-label="Ver selo da Coesa no Reclame Aqui" className="flex min-h-8 items-center">
               <div id="ra-verified-seal">
-                <Script id="ra-embed-verified-seal" src="https://s3.amazonaws.com/raichu-beta/ra-verified/bundle.js" strategy="afterInteractive" data-id="b2xrYlJDLXFqSlROcmFuTTpjb2VzYS1lbmVyZ2lhLWludGVsaWdlbnRl" data-target="ra-verified-seal" data-model="horizontal_1" />
+                <Script id="ra-embed-verified-seal" src="https://s3.amazonaws.com/raichu-beta/ra-verified/bundle.js" strategy="lazyOnload" data-id="b2xrYlJDLXFqSlROcmFuTTpjb2VzYS1lbmVyZ2lhLWludGVsaWdlbnRl" data-target="ra-verified-seal" data-model="horizontal_1" />
               </div>
             </a>
           </div>

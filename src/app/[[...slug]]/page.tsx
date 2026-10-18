@@ -33,6 +33,7 @@ export default async function Page({ params }: PageProps) {
       .catch(() => undefined) // Supabase do blog fora do ar: a seção cai no fetch client-side
     return (
       <>
+        <link rel="preload" href="/coesa-hero/space-grotesk.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <HomeClient latestArticles={latestArticles} />
         <script
           type="application/ld+json"
