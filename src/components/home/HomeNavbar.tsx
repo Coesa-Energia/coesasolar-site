@@ -61,9 +61,11 @@ export function HomeNavbar() {
               <Button onClick={scrollToForm} size="sm" className={`${styles.simulate} font-medium px-6 rounded-full`}>
                 Simular
               </Button>
-              <Button asChild size="sm" variant="outline" className={`${styles.access} font-medium px-6 rounded-full bg-transparent`}>
-                <a href="https://cliente.coesaenergia.com.br/login" target="_blank" rel="noopener noreferrer">Acesso</a>
-              </Button>
+              <div className={`${styles.access} inline-flex h-9 items-center overflow-hidden border rounded-full bg-transparent text-sm font-medium`}>
+                <a className="px-4 py-2" href="https://cliente.coesaenergia.com.br/login" target="_blank" rel="noopener noreferrer">Acesso</a>
+                <span aria-hidden="true" className="opacity-40">|</span>
+                <a className="px-4 py-2" href="https://relatorios.coesasolar.com.br/" target="_blank" rel="noopener noreferrer">AIOS</a>
+              </div>
             </div>
             <button
               className={`lg:hidden p-2 ${styles.menuButton}`}
@@ -88,9 +90,11 @@ export function HomeNavbar() {
               <Button onClick={scrollToForm} size="lg" className="bg-white text-black hover:bg-white/90 font-medium mt-4 rounded-sm w-full py-6">
                 Simular Economia
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 font-medium rounded-sm w-full py-6 bg-transparent">
-                <a href="https://cliente.coesaenergia.com.br/login" target="_blank" rel="noopener noreferrer">Acesso</a>
-              </Button>
+              <div className="flex w-full items-center overflow-hidden rounded-sm border border-white/30 bg-transparent text-white font-medium">
+                <a className="flex-1 py-3 text-center hover:bg-white/10" href="https://cliente.coesaenergia.com.br/login" target="_blank" rel="noopener noreferrer">Acesso</a>
+                <span aria-hidden="true" className="opacity-40">|</span>
+                <a className="flex-1 py-3 text-center hover:bg-white/10" href="https://relatorios.coesasolar.com.br/" target="_blank" rel="noopener noreferrer">AIOS</a>
+              </div>
             </div>
           </motion.div>
         )}

@@ -25,23 +25,22 @@ describe("HomeNavbar", () => {
     expect(logo.className).toContain("w-auto")
   })
 
-  describe("REGRESSÃO: botão Acesso sem contraste (texto branco em fundo branco)", () => {
-    // variant="outline" do Button já define bg-background (branco) — sem
-    // bg-transparent no className, o fundo branco do variant vence e o
-    // text-white fica ilegível. CTASection.tsx e HeroSection.tsx já tinham
-    // bg-transparent; só o HomeNavbar esqueceu.
-    it("o botão Acesso do menu desktop tem bg-transparent", () => {
+  describe("REGRESSÃO: controle Acesso sem contraste (texto branco em fundo branco)", () => {
+    it("o controle Acesso do menu desktop tem bg-transparent", () => {
       render(<HomeNavbar />)
       const links = screen.getAllByRole("link", { name: "Acesso" })
-      expect(links[0].className).toContain("bg-transparent")
+      expect(links[0].parentElement?.className).toContain("bg-transparent")
     })
   })
 
-  it("mantém o acesso do cliente no desktop e no menu móvel", () => {
+  it("separa o acesso do cliente e do AIOS no desktop e no menu móvel", () => {
     render(<HomeNavbar />)
     fireEvent.click(screen.getByRole("button", { name: "Abrir menu" }))
     for (const link of screen.getAllByRole("link", { name: "Acesso" })) {
       expect(link).toHaveAttribute("href", "https://cliente.coesaenergia.com.br/login")
+    }
+    for (const link of screen.getAllByRole("link", { name: "AIOS" })) {
+      expect(link).toHaveAttribute("href", "https://relatorios.coesasolar.com.br/")
     }
   })
 
