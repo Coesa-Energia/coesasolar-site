@@ -3,9 +3,6 @@ import { google } from 'googleapis';
 import { AUTOBLOG_PROFILE } from '@/lib/autoblog-profile';
 import { getNextSeedKeyword, SEED_KEYWORDS } from './seed-keywords';
 
-// Mínimo de keywords elegíveis no GSC para não usar fallback de seeds
-const MIN_ELIGIBLE = 5;
-
 function getDayOfYear(): number {
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
@@ -20,6 +17,28 @@ export function getSeedSkippingPublished(existingKeywords: string[], dayOfYear =
     if (!published.has(candidate.toLowerCase())) return candidate;
   }
   return undefined;
+}
+
+type SearchAnalyticsRow = {
+  keys?: string[] | null;
+  position?: number | null;
+  impressions?: number | null;
+};
+
+/** Melhor consulta inédita entre as posições com oportunidade editorial (4–30). */
+export function pickTopEligibleGscKeyword(
+  rows: SearchAnalyticsRow[],
+  existingKeywords: string[],
+): string | undefined {
+  const existingSet = new Set(existingKeywords.map(k => k.toLowerCase()));
+  return rows
+    .filter(r => {
+      const position = r.position ?? 0;
+      const query = r.keys?.[0]?.trim() ?? '';
+      return position >= 4 && position <= 30 && query !== '' && !existingSet.has(query.toLowerCase());
+    })
+    .sort((a, b) => (b.impressions ?? 0) - (a.impressions ?? 0))[0]
+    ?.keys?.[0]?.trim();
 }
 
 export async function fetchTopKeyword(existingKeywords: string[]): Promise<string | undefined> {
@@ -60,21 +79,8 @@ export async function fetchTopKeyword(existingKeywords: string[]): Promise<strin
       },
     });
 
-    const rows = res.data.rows ?? [];
-    const existingSet = new Set(existingKeywords.map(k => k.toLowerCase()));
-
-    const eligible = rows
-      .filter(r => {
-        const position = r.position ?? 0;
-        if (position < 4 || position > 30) return false;
-        const query = r.keys?.[0] ?? '';
-        return !existingSet.has(query.toLowerCase());
-      })
-      .sort((a, b) => (b.impressions ?? 0) - (a.impressions ?? 0));
-
-    if (eligible.length >= MIN_ELIGIBLE) {
-      return eligible[0].keys![0];
-    }
+    const keyword = pickTopEligibleGscKeyword(res.data.rows ?? [], existingKeywords);
+    if (keyword) return keyword;
   } catch (err) {
     console.warn('[gsc] GSC falhou, usando seed fallback:', err);
   }
