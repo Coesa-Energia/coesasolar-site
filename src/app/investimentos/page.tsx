@@ -5,7 +5,7 @@ import { ArrowUpRight, ChevronRight } from "lucide-react"
 import coesaLogo from "@/assets/logos/coesa-black.png"
 import { ORGANIZATION_ID } from "@/lib/seo/home-jsonld"
 
-const SITE_URL = "https://coesasolar.com.br"
+const SITE_URL = "https://coesaenergia.com.br"
 
 export const metadata: Metadata = {
   title: "Investimentos | Coesa Energia",

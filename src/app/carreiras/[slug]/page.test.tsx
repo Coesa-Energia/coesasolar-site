@@ -66,7 +66,7 @@ describe("VagaDetalhePage — resumo e metadados", () => {
       jobLocation: { address: { addressLocality: "Belo Horizonte", addressCountry: "BR" } },
       // REGRESSÃO 02/10/2026 (auditoria SEO): entidade única — mesmo @id/nome legal da
       // Organization da home (antes "Coesa Energia", sem logo).
-      hiringOrganization: { "@id": "https://coesasolar.com.br/#organization", name: "COESA Energia Inteligente", logo: "https://coesasolar.com.br/favicon.png" },
+      hiringOrganization: { "@id": "https://coesaenergia.com.br/#organization", name: "COESA Energia Inteligente", logo: "https://coesaenergia.com.br/favicon.png" },
     })
   })
 })

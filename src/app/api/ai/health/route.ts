@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://coesasolar.com.br',
+        'HTTP-Referer': 'https://coesaenergia.com.br',
         'X-Title': 'CoesaSolar OpenRouter Health',
       },
       body: JSON.stringify({

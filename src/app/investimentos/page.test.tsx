@@ -18,7 +18,7 @@ describe("InvestimentosPage", () => {
   })
 
   it("preserva o link direto sem indexar a página", () => {
-    expect(metadata.alternates).toEqual({ canonical: "https://coesasolar.com.br/investimentos" })
+    expect(metadata.alternates).toEqual({ canonical: "https://coesaenergia.com.br/investimentos" })
     expect(metadata.robots).toEqual({ index: false, follow: false })
   })
 
