@@ -1,4 +1,5 @@
 export const JEV_ROUTER_MODEL = 'typesafe/jev-router';
+const CLAUDE_FALLBACK_MODEL = 'anthropic/claude-haiku-5.5';
 
 type JevCostTier = 'low' | 'medium' | 'high';
 
@@ -30,7 +31,7 @@ async function usable(response: Response): Promise<boolean> {
       (Array.isArray(message?.tool_calls) && message.tool_calls.length)
     );
   } catch {
-    return true;
+    return response.headers.get('content-type')?.includes('text/event-stream') ?? false;
   }
 }
 
@@ -53,6 +54,24 @@ export function createJevRouterFetch(fetchImpl: typeof fetch = fetch): typeof fe
     const plugins = Array.isArray(body.plugins)
       ? body.plugins.filter((plugin) => !plugin || typeof plugin !== 'object' || (plugin as { id?: unknown }).id !== 'jev-router')
       : [];
+    const fallback = async () => {
+      try {
+        const claude = await fetchImpl(input, {
+          ...init,
+          body: JSON.stringify({
+            ...body,
+            model: CLAUDE_FALLBACK_MODEL,
+            provider: { ...(typeof body.provider === 'object' && body.provider ? body.provider : {}), only: ['Anthropic'] },
+            plugins,
+          }),
+        });
+        if (await usable(claude)) return claude;
+        await claude.body?.cancel().catch(() => undefined);
+      } catch {
+        // Original route below preserves continuity.
+      }
+      return fetchImpl(input, init);
+    };
     let routed: Response;
     try {
       routed = await fetchImpl(input, {
@@ -65,10 +84,10 @@ export function createJevRouterFetch(fetchImpl: typeof fetch = fetch): typeof fe
         }),
       });
     } catch {
-      return fetchImpl(input, init);
+      return fallback();
     }
     if (await usable(routed)) return routed;
     await routed.body?.cancel().catch(() => undefined);
-    return fetchImpl(input, init);
+    return fallback();
   }) as typeof fetch;
 }
