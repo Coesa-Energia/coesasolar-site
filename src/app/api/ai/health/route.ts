@@ -1,9 +1,10 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createJevRouterFetch, JEV_ROUTER_MODEL } from '@/lib/ai/jev-router-fetch';
 import { sendFailureAlertEmail } from '@/lib/blog/alert';
 
-const MODEL = 'deepseek/deepseek-v4-flash-0731';
+const FALLBACK_MODEL = 'anthropic/claude-haiku-5.5';
 
 // REGRESSÃO 02/09/2026: rota já existia mas não estava agendada nem alertava em falha —
 // virou canário: cron às 7h UTC (2h ANTES do 1º /api/blog/generate, 9h UTC), fora do fluxo
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15_000);
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await createJevRouterFetch()('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
         'X-Title': 'CoesaSolar OpenRouter Health',
       },
       body: JSON.stringify({
-        model: MODEL,
+        model: FALLBACK_MODEL,
         messages: [{ role: 'user', content: 'Reply OK' }],
         max_tokens: 1,
         temperature: 0,
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ ok: true, model: MODEL });
+    return NextResponse.json({ ok: true, model: JEV_ROUTER_MODEL });
   } catch (err) {
     await alertCanaryFailure(err instanceof Error ? err.message : String(err));
     return NextResponse.json({ ok: false, error: 'OpenRouter request failed' }, { status: 502 });
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
 async function alertCanaryFailure(reason: string): Promise<void> {
   await sendFailureAlertEmail({
     keyword: undefined,
-    error: `canary_failed (${MODEL}): ${reason}`,
+    error: `canary_failed (${JEV_ROUTER_MODEL}): ${reason}`,
     runDate: new Date().toISOString().slice(0, 10),
   }).catch(() => {});
 }
