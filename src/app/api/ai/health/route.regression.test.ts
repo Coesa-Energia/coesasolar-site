@@ -30,17 +30,28 @@ describe('GET /api/ai/health', () => {
   it('uses the dedicated CoesaSolar key for a one-token health call', async () => {
     vi.stubEnv('CRON_SECRET', 'secret');
     vi.stubEnv('COESASOLAR_OPENROUTER_API_KEY', 'dedicated-key');
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }));
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      choices: [{ message: { content: 'OK' } }],
+    }), { status: 200 }));
 
     const response = await GET(new NextRequest('https://example.com/api/ai/health', {
       headers: { authorization: 'Bearer secret' },
     }));
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ ok: true, model: 'deepseek/deepseek-v4-flash-0731' });
+    expect(await response.json()).toEqual({ ok: true, model: 'typesafe/jev-router' });
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(fetchMock.mock.calls[0]?.[1]?.headers).toMatchObject({ Authorization: 'Bearer dedicated-key' });
-    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toMatchObject({ max_tokens: 1 });
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toMatchObject({
+      model: 'typesafe/jev-router',
+      max_tokens: 1,
+      provider: { only: ['Anthropic'] },
+      plugins: [{
+        id: 'jev-router',
+        cost_tier: 'low',
+        allowed_models: ['anthropic/claude-haiku-5.5', 'anthropic/claude-sonnet-5.5', 'anthropic/claude-opus-5.5'],
+      }],
+    });
     expect(sendFailureAlertEmail).not.toHaveBeenCalled();
   });
 
