@@ -4,7 +4,7 @@ type JevCostTier = 'low' | 'medium' | 'high';
 
 function canaryPercent(): number {
   const raw = process.env.OPENROUTER_JEV_PERCENT?.trim();
-  if (!raw) return 0;
+  if (!raw) return 100;
   const value = Number(raw);
   if (!Number.isFinite(value) || value < 0 || value > 100) {
     throw new Error('OPENROUTER_JEV_PERCENT must be a number between 0 and 100');
@@ -60,6 +60,7 @@ export function createJevRouterFetch(fetchImpl: typeof fetch = fetch): typeof fe
         body: JSON.stringify({
           ...body,
           model: JEV_ROUTER_MODEL,
+          provider: { only: ['Anthropic'] },
           plugins: [{ id: 'jev-router', cost_tier: costTier(), allowed_models: ['anthropic/claude-haiku-5.5', 'anthropic/claude-sonnet-5.5', 'anthropic/claude-opus-5.5'] }, ...plugins],
         }),
       });
