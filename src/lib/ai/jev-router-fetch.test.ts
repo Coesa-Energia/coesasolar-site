@@ -24,7 +24,7 @@ describe('Jev Router fetch', () => {
     await createJevRouterFetch(fetchImpl)(...request({ model: 'fixed', messages: [{ role: 'user', content: 'oi' }] }));
     expect(fetchImpl).toHaveBeenCalledTimes(2);
     expect(JSON.parse(fetchImpl.mock.calls[0][1].body)).toMatchObject({
-      model: 'typesafe/jev-router', plugins: [{ id: 'jev-router', cost_tier: 'low', excluded_models: ['anthropic/*', 'openai/*', 'google/*'] }],
+      model: 'typesafe/jev-router', plugins: [{ id: 'jev-router', cost_tier: 'low', allowed_models: ['anthropic/claude-haiku-5.5', 'anthropic/claude-sonnet-5.5', 'anthropic/claude-opus-5.5'] }],
     });
     expect(JSON.parse(fetchImpl.mock.calls[1][1].body).model).toBe('fixed');
   });
