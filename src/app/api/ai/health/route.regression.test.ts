@@ -39,18 +39,12 @@ describe('GET /api/ai/health', () => {
     }));
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ ok: true, model: 'typesafe/jev-router' });
+    expect(await response.json()).toEqual({ ok: true, model: 'anthropic/claude-haiku-5.5' });
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(fetchMock.mock.calls[0]?.[1]?.headers).toMatchObject({ Authorization: 'Bearer dedicated-key' });
     expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toMatchObject({
-      model: 'typesafe/jev-router',
+      model: 'anthropic/claude-haiku-5.5',
       max_tokens: 1,
-      provider: { only: ['Anthropic'] },
-      plugins: [{
-        id: 'jev-router',
-        cost_tier: 'low',
-        allowed_models: ['anthropic/claude-haiku-5.5', 'anthropic/claude-sonnet-5.5', 'anthropic/claude-opus-5.5'],
-      }],
     });
     expect(sendFailureAlertEmail).not.toHaveBeenCalled();
   });
