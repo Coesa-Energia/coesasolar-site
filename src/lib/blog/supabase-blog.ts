@@ -196,7 +196,7 @@ export async function insertArticle(input: InsertArticleInput): Promise<string> 
   }
 
   const supabase = getServiceClient();
-  const { data, error } = await supabase.rpc('coesa_blog_insert_article', {
+  const params = {
     p_secret: getCronSecret(),
     p_slug: input.slug,
     p_title: input.title,
@@ -207,8 +207,16 @@ export async function insertArticle(input: InsertArticleInput): Promise<string> 
     p_cover_alt: input.cover_alt,
     p_keyword: input.keyword,
     p_category: input.category,
-  });
+  };
+  let { data, error } = await supabase.rpc('coesa_blog_insert_article', params);
   if (error) throw new Error(`Supabase insert error: ${error.message}`);
+  if (!data) {
+    ({ data, error } = await supabase.rpc('coesa_blog_insert_article', {
+      ...params,
+      p_slug: `${input.slug}-${crypto.randomUUID().slice(0, 8)}`,
+    }));
+    if (error) throw new Error(`Supabase insert error: ${error.message}`);
+  }
   if (!data) throw new Error('slug_collision');
   return data as string;
 }
