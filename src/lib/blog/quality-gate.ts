@@ -8,7 +8,7 @@
 // malformado → { skipped: true, score: null }, sem lançar erro. O pipeline
 // sempre segue publicando, mesmo se o gate não puder rodar.
 
-import OpenAI from 'openai';
+import { createByokClient } from '@/lib/ai/byok';
 
 export type JudgeSeverity = 'P0' | 'P1' | 'P2';
 
@@ -171,7 +171,7 @@ export async function runQualityGate(articleContent: string): Promise<QualityGat
     // Timeout explícito: o default do SDK é 10min (bem acima do maxDuration=300s da rota
     // de geração) — sem isso, uma chamada travada não cai no fail-open, ela é morta pelo
     // platform timeout, o catch nunca roda, e o insertRunLog de erro nunca é gravado.
-    const client = new OpenAI({ apiKey, baseURL: 'https://openrouter.ai/api/v1', timeout: 60_000, maxRetries: 1 });
+    const client = createByokClient('fast', { apiKey, timeout: 60_000 });
     const response = await client.chat.completions.create({
       user: 'coesasolar/blog/quality-gate',
       model: 'z-ai/glm-5.3-flash',

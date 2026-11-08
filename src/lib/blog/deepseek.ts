@@ -1,5 +1,5 @@
 // src/lib/blog/deepseek.ts
-import OpenAI from 'openai';
+import { createByokClient } from '@/lib/ai/byok';
 import { AUTOBLOG_PROFILE } from '@/lib/autoblog-profile';
 import { buildEditorialBriefSection, type EditorialBrief } from '@/lib/blog/editorial-calendar';
 import type { JudgeIssue } from '@/lib/blog/quality-gate';
@@ -487,9 +487,8 @@ export async function writeSection(
   sectionIndex: number,
   totalSections: number,
 ): Promise<string> {
-  const client = new OpenAI({
+  const client = createByokClient('quality', {
     apiKey: process.env.COESASOLAR_OPENROUTER_API_KEY,
-    baseURL: 'https://openrouter.ai/api/v1',
     timeout: 90_000,
     // O loop abaixo já controla as tentativas e troca de modelo. Retry interno repetia
     // o mesmo provedor por até 180s e impedia o fallback de ser alcançado.
@@ -906,9 +905,8 @@ export async function generateArticle(
   // Timeout explícito: uma única chamada não pode consumir a maior parte dos 800s da rota
   // de geração — sem isso, uma chamada travada é morta pelo deadline do pipeline em vez de
   // lançar um erro tratável, e o insertRunLog de erro no catch da rota nunca roda.
-  const client = new OpenAI({
+  const client = createByokClient('quality', {
     apiKey: process.env.COESASOLAR_OPENROUTER_API_KEY,
-    baseURL: 'https://openrouter.ai/api/v1',
     timeout: 90_000,
     maxRetries: 1,
   });
@@ -1033,9 +1031,8 @@ async function askDeepseek(system: string, user: string, route: string, maxToken
   // 150s (não 90s) quando maxTokens é passado (generateArticleStructure): achado 25/08/2026
   // — 90s cortava a conexão no meio de uma resposta de raciocínio longa antes dela terminar
   // (erro "terminated" do Undici), ainda dentro do antigo maxDuration=300s da rota.
-  const client = new OpenAI({
+  const client = createByokClient('quality', {
     apiKey: process.env.COESASOLAR_OPENROUTER_API_KEY,
-    baseURL: 'https://openrouter.ai/api/v1',
     timeout: maxTokens !== undefined ? 150_000 : 90_000,
     // generateArticleStructure já controla 3 tentativas e troca de modelo. Retry
     // interno duplicava cada timeout de 150s e consumia o orçamento do pipeline.

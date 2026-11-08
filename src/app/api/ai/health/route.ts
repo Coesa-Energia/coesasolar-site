@@ -2,8 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { sendFailureAlertEmail } from '@/lib/blog/alert';
-
-const HEALTH_MODEL = 'anthropic/claude-haiku-5.5';
+import { buildByokChatBody, BYOK_MODELS, validateByokResponse } from '@/lib/ai/byok';
 
 // REGRESSÃO 02/09/2026: rota já existia mas não estava agendada nem alertava em falha —
 // virou canário: cron às 7h UTC (2h ANTES do 1º /api/blog/generate, 9h UTC), fora do fluxo
@@ -26,7 +25,7 @@ export async function GET(request: NextRequest) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15_000);
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const upstream = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -34,14 +33,13 @@ export async function GET(request: NextRequest) {
         'HTTP-Referer': 'https://coesasolar.com.br',
         'X-Title': 'CoesaSolar OpenRouter Health',
       },
-      body: JSON.stringify({
-        model: HEALTH_MODEL,
+      body: JSON.stringify(buildByokChatBody({
         messages: [{ role: 'user', content: 'Reply OK' }],
         max_tokens: 1,
-        temperature: 0,
-      }),
+      }, 'fast')),
       signal: controller.signal,
     });
+    const response = await validateByokResponse(upstream, BYOK_MODELS.fast);
 
     if (!response.ok) {
       await alertCanaryFailure(`OpenRouter request failed (HTTP ${response.status})`);
@@ -51,7 +49,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ ok: true, model: HEALTH_MODEL });
+    const data = await response.json() as { model?: string };
+    return NextResponse.json({ ok: true, model: data.model, isByok: true });
   } catch (err) {
     await alertCanaryFailure(err instanceof Error ? err.message : String(err));
     return NextResponse.json({ ok: false, error: 'OpenRouter request failed' }, { status: 502 });
@@ -63,7 +62,7 @@ export async function GET(request: NextRequest) {
 async function alertCanaryFailure(reason: string): Promise<void> {
   await sendFailureAlertEmail({
     keyword: undefined,
-    error: `canary_failed (${HEALTH_MODEL}): ${reason}`,
+    error: `canary_failed (BYOK fast): ${reason}`,
     runDate: new Date().toISOString().slice(0, 10),
   }).catch(() => {});
 }
