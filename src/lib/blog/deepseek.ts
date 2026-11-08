@@ -487,12 +487,11 @@ export async function writeSection(
   sectionIndex: number,
   totalSections: number,
 ): Promise<string> {
+  // O transporte BYOK desativa retry do SDK; o loop abaixo controla as tentativas
+  // sem reenviar silenciosamente uma resposta já cobrada e reprovada pela política.
   const client = createByokClient('quality', {
     apiKey: process.env.COESASOLAR_OPENROUTER_API_KEY,
     timeout: 90_000,
-    // O loop abaixo já controla as tentativas e troca de modelo. Retry interno repetia
-    // o mesmo provedor por até 180s e impedia o fallback de ser alcançado.
-    maxRetries: 0,
   });
   const baseUser = `Tema geral do artigo: "${keyword}" (seção ${sectionIndex + 1} de ${totalSections}).
 Título desta seção (H2): ${section.h2}
@@ -908,7 +907,6 @@ export async function generateArticle(
   const client = createByokClient('quality', {
     apiKey: process.env.COESASOLAR_OPENROUTER_API_KEY,
     timeout: 90_000,
-    maxRetries: 1,
   });
 
   for (let attempt = 1; attempt <= 2; attempt++) {
@@ -1031,12 +1029,11 @@ async function askDeepseek(system: string, user: string, route: string, maxToken
   // 150s (não 90s) quando maxTokens é passado (generateArticleStructure): achado 25/08/2026
   // — 90s cortava a conexão no meio de uma resposta de raciocínio longa antes dela terminar
   // (erro "terminated" do Undici), ainda dentro do antigo maxDuration=300s da rota.
+  // O transporte BYOK mantém retry do SDK em zero; os loops dos chamadores são o
+  // único produtor de nova tentativa e preservam os limites de tempo existentes.
   const client = createByokClient('quality', {
     apiKey: process.env.COESASOLAR_OPENROUTER_API_KEY,
     timeout: maxTokens !== undefined ? 150_000 : 90_000,
-    // generateArticleStructure já controla 3 tentativas e troca de modelo. Retry
-    // interno duplicava cada timeout de 150s e consumia o orçamento do pipeline.
-    maxRetries: maxTokens !== undefined ? 0 : 1,
   });
   // Mesmo motivo do comentário em generateArticle: 'deepseek-v4-flash' substitui o
   // nome legado 'deepseek-chat', desativado pela DeepSeek em 2026-07-24.
