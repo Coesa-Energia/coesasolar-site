@@ -31,7 +31,9 @@ describe('GET /api/ai/health', () => {
     vi.stubEnv('CRON_SECRET', 'secret');
     vi.stubEnv('COESASOLAR_OPENROUTER_API_KEY', 'dedicated-key');
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      model: 'openai/gpt-5-nano',
       choices: [{ message: { content: 'OK' } }],
+      usage: { is_byok: true },
     }), { status: 200 }));
 
     const response = await GET(new NextRequest('https://example.com/api/ai/health', {
@@ -39,11 +41,13 @@ describe('GET /api/ai/health', () => {
     }));
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ ok: true, model: 'anthropic/claude-haiku-5.5' });
+    expect(await response.json()).toEqual({ ok: true, model: 'openai/gpt-5-nano', isByok: true });
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(fetchMock.mock.calls[0]?.[1]?.headers).toMatchObject({ Authorization: 'Bearer dedicated-key' });
     expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toMatchObject({
-      model: 'anthropic/claude-haiku-5.5',
+      models: ['openai/gpt-5-nano', 'anthropic/claude-haiku-5.5'],
+      provider: { only: ['openai', 'anthropic'], allow_fallbacks: false, require_parameters: true },
+      usage: { include: true },
       max_tokens: 1,
     });
     expect(sendFailureAlertEmail).not.toHaveBeenCalled();
