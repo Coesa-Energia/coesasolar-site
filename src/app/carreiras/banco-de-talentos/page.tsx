@@ -6,7 +6,7 @@ import { CandidaturaForm } from "@/components/carreiras/CandidaturaForm"
 export const metadata: Metadata = {
   title: "Banco de Talentos | Coesa Energia",
   description: "Não achou a vaga certa? Deixe seu currículo e avisamos quando surgir uma oportunidade com o seu perfil.",
-  alternates: { canonical: "https://coesasolar.com.br/carreiras/banco-de-talentos" },
+  alternates: { canonical: "https://coesaenergia.com.br/carreiras/banco-de-talentos" },
 }
 
 export default function BancoDeTalentosPage() {

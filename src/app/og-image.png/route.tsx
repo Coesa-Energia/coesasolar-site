@@ -28,7 +28,7 @@ export function GET() {
             {`${PUBLIC_DISCOUNT_LABEL} de desconto na conta de luz, sem investimento e sem obras`}
           </div>
         </div>
-        <div style={{ display: "flex", fontSize: 26, color: "#F3F0E7" }}>coesasolar.com.br</div>
+        <div style={{ display: "flex", fontSize: 26, color: "#F3F0E7" }}>coesaenergia.com.br</div>
       </div>
     ),
     { width: 1200, height: 630 },

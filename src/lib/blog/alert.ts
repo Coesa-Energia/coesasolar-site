@@ -25,7 +25,7 @@ export async function sendFailureAlertEmail(input: FailureAlertInput): Promise<v
       body: JSON.stringify({
         from: ALERT_FROM,
         to: [ALERT_TO],
-        subject: `⚠️ coesasolar.com.br/blog não publicou hoje (${input.runDate})`,
+        subject: `⚠️ coesaenergia.com.br/blog não publicou hoje (${input.runDate})`,
         text: [
           `Keyword: ${input.keyword ?? '(não resolvida)'}`,
           `Erro: ${input.error}`,
@@ -34,7 +34,7 @@ export async function sendFailureAlertEmail(input: FailureAlertInput): Promise<v
           '18:50 UTC, se ainda não passaram), mas isso pode indicar um problema real que vale',
           'intervenção manual agora em vez de esperar.',
           '',
-          'Retrigger manual: curl -H "Authorization: Bearer $CRON_SECRET" https://coesasolar.com.br/api/blog/generate',
+          'Retrigger manual: curl -H "Authorization: Bearer $CRON_SECRET" https://coesaenergia.com.br/api/blog/generate',
         ].join('\n'),
       }),
     });

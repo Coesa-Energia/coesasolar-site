@@ -14,6 +14,6 @@ describe("REGRESSÃO: imagem OpenGraph existe", () => {
 
   it("o layout continua apontando para /og-image.png", () => {
     const layout = readFileSync(join(__dirname, "..", "layout.tsx"), "utf-8")
-    expect(layout).toContain("https://coesasolar.com.br/og-image.png")
+    expect(layout).toContain("https://coesaenergia.com.br/og-image.png")
   })
 })

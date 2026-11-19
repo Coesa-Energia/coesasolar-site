@@ -8,7 +8,7 @@ export const revalidate = 0
 export const metadata: Metadata = {
   title: "Carreiras | Coesa Energia",
   description: "Vagas abertas na Coesa Energia — venha construir o futuro da energia com a gente.",
-  alternates: { canonical: "https://coesasolar.com.br/carreiras" },
+  alternates: { canonical: "https://coesaenergia.com.br/carreiras" },
 }
 
 export default async function CarreirasPage() {

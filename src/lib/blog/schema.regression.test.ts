@@ -51,8 +51,8 @@ describe('REGRESSÃO: schema JSON-LD', () => {
     expect(schema.dateModified).toBeTruthy();
     expect(schema.author['@type']).toBe('Organization');
     // REGRESSÃO 02/10/2026 (auditoria SEO): autor/publisher apontam para a Organization da home.
-    expect(schema.author['@id']).toBe('https://coesasolar.com.br/#organization');
-    expect(schema.publisher['@id']).toBe('https://coesasolar.com.br/#organization');
+    expect(schema.author['@id']).toBe('https://coesaenergia.com.br/#organization');
+    expect(schema.publisher['@id']).toBe('https://coesaenergia.com.br/#organization');
     expect(schema.author.name).toBe('Exemplo');
   });
 

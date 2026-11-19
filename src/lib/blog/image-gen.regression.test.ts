@@ -25,7 +25,7 @@ vi.mock('./supabase-blog', () => ({
 }));
 
 vi.mock('@/lib/autoblog-profile', () => ({
-  AUTOBLOG_PROFILE: { brand: { siteUrl: 'https://coesasolar.com.br' }, integrations: { imageGenerationEnabled: true } },
+  AUTOBLOG_PROFILE: { brand: { siteUrl: 'https://coesaenergia.com.br' }, integrations: { imageGenerationEnabled: true } },
 }));
 
 const { generateAndUploadBodyImages, generateAndUploadCover } = await import('./image-gen');
@@ -118,7 +118,7 @@ describe('REGRESSÃO 26/08/2026: falha de crédito nunca publica capa nula', () 
     const cover = await generateAndUploadCover('painéis solares', 'energia-compartilhada');
     const body = await generateAndUploadBodyImages(['a', 'b'], 'slug', 'kw');
 
-    expect(cover).toBe('https://coesasolar.com.br/api/blog/fallback-cover?slug=energia-compartilhada');
+    expect(cover).toBe('https://coesaenergia.com.br/api/blog/fallback-cover?slug=energia-compartilhada');
     expect(body).toEqual([null, null]);
     expect(generateMock).toHaveBeenCalledTimes(1);
   });
@@ -145,7 +145,7 @@ describe('REGRESSÃO 08/09/2026: generateAndUploadCover nunca trava indefinidame
       await vi.advanceTimersByTimeAsync(60_000);
       const cover = await coverPromise;
 
-      expect(cover).toBe('https://coesasolar.com.br/api/blog/fallback-cover?slug=energia-solar-travada');
+      expect(cover).toBe('https://coesaenergia.com.br/api/blog/fallback-cover?slug=energia-solar-travada');
     } finally {
       vi.useRealTimers();
     }

@@ -19,7 +19,7 @@ describe("REGRESSÃO: página de serviço Minas Gerais", () => {
 
   it("H1, canonical e as duas distribuidoras atendidas", () => {
     expect(html).toMatch(/<h1[^>]*>Energia solar por assinatura em Minas Gerais<\/h1>/)
-    expect(metadata.alternates?.canonical).toBe("https://coesasolar.com.br/energia-solar-por-assinatura-minas-gerais")
+    expect(metadata.alternates?.canonical).toBe("https://coesaenergia.com.br/energia-solar-por-assinatura-minas-gerais")
     expect(html).toContain("Clientes CEMIG")
     expect(html).toContain("Clientes Energisa MG")
   })
@@ -27,7 +27,7 @@ describe("REGRESSÃO: página de serviço Minas Gerais", () => {
   it("JSON-LD Service + BreadcrumbList ligado à Organization", () => {
     const ld = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)![1])
     expect(ld["@graph"].map((n: { "@type": string }) => n["@type"])).toEqual(["Service", "BreadcrumbList"])
-    expect(ld["@graph"][0].provider["@id"]).toBe("https://coesasolar.com.br/#organization")
+    expect(ld["@graph"][0].provider["@id"]).toBe("https://coesaenergia.com.br/#organization")
   })
 
   it("rodapé diz Minas Gerais (não 'todo o Brasil') e linka a página", () => {

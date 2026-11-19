@@ -44,7 +44,7 @@ describe("REGRESSÃO: catch-all não pode servir 200 para caminho inexistente", 
 
   it("home renderiza (não chama notFound) e tem canonical", async () => {
     await expect(Page(params())).resolves.toBeTruthy()
-    expect((await generateMetadata(params())).alternates?.canonical).toBe("https://coesasolar.com.br/")
+    expect((await generateMetadata(params())).alternates?.canonical).toBe("https://coesaenergia.com.br/")
   })
 
   it("todo prefixo de rota do App.tsx está na allowlist (e só eles)", () => {

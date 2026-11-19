@@ -5,8 +5,9 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { ARCHIVED_ARTICLE_REDIRECTS, buildArchivedRedirects } = require('./archived-redirects.js') as {
+const { ARCHIVED_ARTICLE_REDIRECTS, LEGACY_WORDPRESS_REDIRECTS, buildArchivedRedirects } = require('./archived-redirects.js') as {
   ARCHIVED_ARTICLE_REDIRECTS: Record<string, string>
+  LEGACY_WORDPRESS_REDIRECTS: Record<string, string>
   buildArchivedRedirects: () => unknown[]
 }
 
@@ -31,6 +32,16 @@ describe('REGRESSÃO: redirects dos artigos arquivados por duplicidade', () => {
       { source: '/como-verificar-conta-de-energia', destination: '/blog/creditos-energia-solar-conta-luz', permanent: true },
       { source: '/distribuidoras', destination: '/blog/o-que-e-geracao-distribuida-de-energia', permanent: true },
     ]))
+  })
+
+  it('migra os domínios e os 19 posts antigos do WordPress', () => {
+    const redirects = buildArchivedRedirects() as Array<{ source: string; destination: string; permanent: boolean; has?: Array<{ type: string; value: string }> }>
+    expect(redirects).toEqual(expect.arrayContaining([
+      { source: '/:path*', has: [{ type: 'host', value: 'coesasolar.com.br' }], destination: 'https://coesaenergia.com.br/:path*', permanent: true },
+      { source: '/:path*', has: [{ type: 'host', value: 'www.coesaenergia.com.br' }], destination: 'https://coesaenergia.com.br/:path*', permanent: true },
+      { source: '/assinatura-energia-solar-guia-pratico-condominios', destination: '/blog/geracao-compartilhada-condominios', permanent: true },
+    ]))
+    expect(Object.keys(LEGACY_WORDPRESS_REDIRECTS)).toHaveLength(19)
   })
 
   it('a migration arquiva exatamente os slugs redirecionados', () => {

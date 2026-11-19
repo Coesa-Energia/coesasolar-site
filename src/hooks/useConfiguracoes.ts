@@ -109,7 +109,7 @@ const defaultConfigs: ConfiguracoesSistema = {
   
   // Hero Section
   hero_video_youtube_id: 'ftw1xfJQ5jM',
-  hero_video_origin: 'https://coesasolar.com.br',
+  hero_video_origin: 'https://coesaenergia.com.br',
   hero_stats: `[{"icon":"Zap","value":"${PUBLIC_DISCOUNT_LABEL}","label":"Economia"},{"icon":"Leaf","value":"100%","label":"Energia Limpa"},{"icon":"Shield","value":"5 anos","label":"Garantia"},{"icon":"Clock","value":"0","label":"Investimento"}]`,
   
   // Home Background Images (Phase 14 - Zero Hardcode 100%)
