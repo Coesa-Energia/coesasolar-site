@@ -554,7 +554,6 @@ export function DocumentUploadWithAI({ propostaId, onExtractionComplete, onManua
             </div>
           </div>
           
-          {/* Quality issues alert */}
           <AnimatePresence>
             {document.qualityResult && document.qualityResult.issues.length > 0 && (
               <QualityAlert 
@@ -566,7 +565,6 @@ export function DocumentUploadWithAI({ propostaId, onExtractionComplete, onManua
         </div>
       ) : (
         <div className="space-y-2">
-          {/* File input area */}
           <div 
             onClick={() => inputRef.current?.click()}
             className="relative border-2 border-dashed rounded-lg p-4 transition-all duration-200 cursor-pointer hover:border-primary hover:bg-primary/5 border-muted-foreground/25"
@@ -591,7 +589,6 @@ export function DocumentUploadWithAI({ propostaId, onExtractionComplete, onManua
             </div>
           </div>
 
-          {/* Camera option for mobile */}
           {isMobile ? (
             <div>
               <input
@@ -636,7 +633,6 @@ export function DocumentUploadWithAI({ propostaId, onExtractionComplete, onManua
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Step indicator */}
         <div className="flex items-center justify-center gap-2 text-sm">
           <div className={cn(
             "flex items-center gap-1 px-3 py-1 rounded-full",
@@ -663,7 +659,6 @@ export function DocumentUploadWithAI({ propostaId, onExtractionComplete, onManua
           </div>
         </div>
 
-        {/* Document uploads */}
         <div className="grid gap-6 md:grid-cols-2">
           <DocumentUploadCard
             type="identificacao"
@@ -683,7 +678,6 @@ export function DocumentUploadWithAI({ propostaId, onExtractionComplete, onManua
           />
         </div>
 
-        {/* Fraud Alert */}
         <AnimatePresence>
           {fraudDetected && validationData && (
             <FraudAlert
@@ -695,7 +689,6 @@ export function DocumentUploadWithAI({ propostaId, onExtractionComplete, onManua
           )}
         </AnimatePresence>
 
-        {/* PJ Warning */}
         <AnimatePresence>
           {isPJCase && validationData && !fraudDetected && (
             <PJWarningAlert
@@ -705,7 +698,6 @@ export function DocumentUploadWithAI({ propostaId, onExtractionComplete, onManua
           )}
         </AnimatePresence>
 
-        {/* AI Extraction */}
         <AnimatePresence mode="wait">
           {bothDocumentsUploaded && !extractionResult && !fraudDetected && (
             <motion.div
@@ -768,7 +760,6 @@ export function DocumentUploadWithAI({ propostaId, onExtractionComplete, onManua
           )}
         </AnimatePresence>
 
-        {/* Extraction warnings */}
         {extractionResult?.avisos && extractionResult.avisos.length > 0 && (
           <Alert className="bg-amber-50 border-amber-200">
             <AlertCircle className="h-4 w-4 text-amber-600" />
@@ -778,7 +769,6 @@ export function DocumentUploadWithAI({ propostaId, onExtractionComplete, onManua
           </Alert>
         )}
 
-        {/* Skip AI option */}
         {!extractionResult && (
           <div className="text-center pt-2 border-t">
             <button

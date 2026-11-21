@@ -62,7 +62,6 @@ export function FraudAlertPJ({
         </CardHeader>
         
         <CardContent className="space-y-5">
-          {/* Explicação do problema */}
           <Alert variant="destructive" className="bg-red-100 dark:bg-red-900/50 border-red-200 dark:border-red-700">
             <AlertTriangle className="h-5 w-5" />
             <AlertTitle className="text-red-900 dark:text-red-100">O que aconteceu?</AlertTitle>
@@ -151,7 +150,6 @@ export function FraudAlertPJ({
             </>
           )}
 
-          {/* Instruções */}
           <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-red-200 dark:border-red-800">
             <h4 className="font-semibold text-red-900 dark:text-red-100 mb-3">O que você pode fazer:</h4>
             <ul className="space-y-2 text-sm text-red-800 dark:text-red-200">
@@ -206,7 +204,6 @@ export function FraudAlertPJ({
             </ul>
           </div>
 
-          {/* Botões de ação */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button
               onClick={onRetry}

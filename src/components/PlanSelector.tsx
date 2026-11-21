@@ -106,7 +106,6 @@ export function PlanSelector({
 
   return (
     <div className={cn("w-full", className)}>
-      {/* Header */}
       <div className="text-center mb-4">
         <h3 className="text-lg font-bold text-gray-900 flex items-center justify-center gap-2">
           <Sparkles className="h-5 w-5 text-amber-500" />
@@ -117,7 +116,6 @@ export function PlanSelector({
         </p>
       </div>
 
-      {/* Planos Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         {planosComCalculo.map((plano) => {
           const isSelected = plano.id === planoAtual.id;
@@ -156,7 +154,6 @@ export function PlanSelector({
                 )}
                 onClick={handleClick}
               >
-                {/* Badge de destaque */}
                 {plano.destaque && !isLocked && (
                   <div className="absolute -top-1 -right-1">
                     <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0.5 rounded-bl-lg rounded-tr-lg">
@@ -166,7 +163,6 @@ export function PlanSelector({
                   </div>
                 )}
                 
-                {/* Badge UNLOCK ou LOCKED */}
                 {plano.unlock && (
                   <div className="absolute -top-1 -right-1">
                     <Badge className={cn(
@@ -191,7 +187,6 @@ export function PlanSelector({
                 )}
 
                 <CardContent className="p-3 sm:p-4">
-                  {/* Fidelidade */}
                   <div className="flex items-center justify-center gap-1 mb-2">
                     <Clock className={cn(
                       "h-4 w-4",
@@ -205,7 +200,6 @@ export function PlanSelector({
                     </span>
                   </div>
 
-                  {/* Desconto */}
                   <div className={cn(
                     "text-center py-2 px-2 rounded-lg mb-3",
                     isSelected 
@@ -235,7 +229,6 @@ export function PlanSelector({
                     <p className="text-[10px] sm:text-xs text-gray-600 mt-0.5">de desconto</p>
                   </div>
 
-                  {/* Economia Mensal */}
                   <div className="text-center mb-2">
                     <p className="text-[10px] sm:text-xs text-gray-500 mb-0.5">Economia mensal</p>
                     <p className={cn(
@@ -246,7 +239,6 @@ export function PlanSelector({
                     </p>
                   </div>
 
-                  {/* Economia Acumulada */}
                   <div className={cn(
                     "text-center p-2 rounded-lg",
                     isSelected 
@@ -269,7 +261,6 @@ export function PlanSelector({
                     </p>
                   </div>
 
-                  {/* Checkbox de seleção */}
                   <div className="mt-3 flex justify-center">
                     <div className={cn(
                       "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
@@ -308,7 +299,6 @@ export function PlanSelector({
         })}
       </div>
 
-      {/* Resumo do plano selecionado */}
       <AnimatePresence mode="wait">
         <motion.div
           key={planoSelecionado.id}
