@@ -3,13 +3,20 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import parser from '@typescript-eslint/parser';
+import ts from 'typescript';
 
 const baselinePath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'comment-baseline.json');
 const sourcePattern = /\.[cm]?[jt]sx?$/;
 
 export function findComments(file, source) {
+  const processed = ts.preProcessFile(source, true, true);
+  const directives = [
+    ...processed.referencedFiles,
+    ...processed.typeReferenceDirectives,
+    ...processed.libReferenceDirectives,
+  ];
   const comments = parser.parse(source, { filePath: file, comment: true, jsx: true, sourceType: 'module' }).comments
-    .filter(comment => !/^\/\/\/\s*<reference\s/.test(source.slice(...comment.range)));
+    .filter(comment => !directives.some(directive => comment.range[0] <= directive.pos && directive.pos < comment.range[1]));
   return [...new Set(comments.flatMap(comment => Array.from(
     { length: comment.loc.end.line - comment.loc.start.line + 1 },
     (_, index) => comment.loc.start.line + index,

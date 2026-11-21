@@ -6,9 +6,9 @@ The blog generator once ran the full pipeline inside one HTTP request with an 80
 
 ## Decision
 
-The authenticated route atomically claims the day's run and starts a Workflow DevKit workflow. Each pipeline phase is a durable step with its own retry and cache. The claim also prevents concurrent cron and manual requests from publishing twice. If the claim fails, the route returns an error so the scheduler can retry.
+The authenticated route atomically claims the day's run and starts a Workflow DevKit workflow. Pipeline phases are durable steps with configured retries and caching. The claim also prevents concurrent cron and manual requests from publishing twice. If the claim fails, the route returns an error so the scheduler can retry.
 
-This project records a run's failure in `coesa_blog_run_log`; article insertion writes a published row directly. The scheduled route and its atomic claim provide retries without a separate retry cron. Section writing retries three times and fails the workflow if it cannot meet the required word count. Imports remain static because the pipeline modules have no module-level side effects.
+This project records a run's failure in `coesa_blog_run_log`; article insertion writes a published row directly. The scheduled route and its atomic claim provide retries without a separate retry cron. Structure generation already makes up to three provider attempts, so `generateStructureStep.maxRetries` is zero to avoid multiplying paid calls. Section writing makes three attempts per invocation; `writeSectionStep.maxRetries = 1` allows the workflow one additional invocation if the step fails. The publishing step also has zero workflow retries because it writes durable records. Imports remain static because the pipeline modules have no module-level side effects.
 
 The owner removed the shared time-budget checks that skipped optional phases near the old deadline. A slow or failing day can take longer; individual phases handle their own errors rather than being skipped because the total clock is low.
 

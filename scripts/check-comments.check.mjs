@@ -13,6 +13,8 @@ test('counts every line of a multiline comment', () => {
 
 test('preserves required TypeScript reference directives', () => {
   assert.deepEqual(findComments('vite-env.d.ts', '/// <reference types="vite/client" />\nconst value = 1; // remove'), [2]);
+  assert.deepEqual(findComments('example.ts', '/// <reference this is prose.'), [1]);
+  assert.deepEqual(findComments('example.ts', 'const n = 1;\n/// <reference types="vite/client" />'), [2]);
 });
 
 test('rejects a new comment and requires tightening after a removal', () => {
