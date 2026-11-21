@@ -64,7 +64,7 @@
   "src/components/DocumentUploadPJ.tsx": 35,
   "src/components/DocumentUploadWithAI.tsx": 26,
   "src/components/FraudAlert.tsx": 4,
-  "src/components/FraudAlertPJ.tsx": 4,
+  "src/components/FraudAlertPJ.tsx": 1,
   "src/components/PlanSelector.tsx": 13,
   "src/components/ThemeProvider.tsx": 0,
   "src/components/blog/ArticleBody.tsx": 6,
