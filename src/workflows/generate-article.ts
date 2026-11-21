@@ -1,42 +1,3 @@
-/**
- * Workflow durável de geração de artigo — substitui a chamada síncrona de
- * runPipeline() dentro de app/api/blog/generate/route.ts.
- *
- * Migração 13/09/2026 (mesma causa raiz já corrigida no cfgauss-site, PR
- * #600/#605/#610/#617, e no gaussmob-nextjs/mova-nextjs, PR #155): rota
- * síncrona com maxDuration=800 como teto artificial, Promise.race(runPipeline,
- * deadline) como workaround manual — o próprio comentário do código admitia
- * "Promise.race não cancela o perdedor: se o deadline vencer, runPipeline()
- * segue rodando em segundo plano até a Vercel matar o processo". 3 incidentes
- * reais de pipeline_deadline_exceeded documentados (27/08, 01/09, 02/09,
- * depois recorrente quase toda semana de setembro). Cada fase agora é um
- * step durável — cacheado e retryado pelo runtime do Workflow DevKit,
- * sobrevive a reinício de processo, sem teto de tempo total.
- *
- * Diferenças estruturais reais vs. cfgauss/gaussmob (não é find-and-replace):
- *   - coesa_articles nunca tem linha 'generating'/'failed' — a RPC
- *     coesa_blog_insert_article sempre insere 'published'. Rastreamento de
- *     falha vive só em coesa_blog_run_log (status running/success/error),
- *     já com self-healing em SQL puro (migrations de reclaim/cleanup) — não
- *     precisa de equivalente a reserveArticleSlot/markArticleFailed.
- *   - Sem cron de retry separado: vercel.json dispara esta rota 3x/dia útil;
- *     a idempotência de claimBlogRunToday() JÁ é a estratégia de retry.
- *   - writeSection() retenta três vezes e lança se a seção continuar fora
- *     de 400–700 palavras; o workflow registra a falha sem publicar briefing.
- *   - Nenhum módulo do pipeline tem side-effect de módulo Node.js no nível
- *     do módulo (grep confirmado: zero AsyncLocalStorage/instanciação
- *     top-level) — diferente do gaussmob, todos os imports abaixo são
- *     ESTÁTICOS, sem necessidade do padrão de import dinâmico.
- *
- * Decisão do dono (13/09/2026): o mecanismo de "orçamento de tempo"
- * (hasTimeBudget/PUBLISH_SAFETY_MARGIN_MS/STRUCTURE_SAFETY_MARGIN_MS/
- * hasStructureBudget), que pulava fases opcionais quando o relógio
- * compartilhado estava acabando, foi REMOVIDO por completo — sem teto de
- * 800s, esse mecanismo seria o mesmo tipo de workaround que esta migração
- * elimina. Cada fase já falha aberto sozinha (retorna null/skipped em erro
- * próprio); um dia ruim agora demora mais em vez de degradar cedo pulando
- * fases — trade-off aceito explicitamente.
- */
 import { revalidatePath } from 'next/cache';
 import {
   claimBlogRunToday,
@@ -74,7 +35,6 @@ import { AUTOBLOG_PROFILE } from '@/lib/autoblog-profile';
 
 export type GenerateArticleResult = { slug: string | null; warnings?: string[]; error?: string };
 
-// ─── Steps ──────────────────────────────────────────────────────────────────
 
 export async function checkBalanceStep(): Promise<void> {
   'use step';
@@ -136,7 +96,6 @@ export async function generateStructureStep(
   await saveOutlineStructure(keyword, JSON.stringify(structure)).catch(() => {});
   return structure;
 }
-// generateArticleStructure já controla a chamada inicial e os dois retries de provedor.
 generateStructureStep.maxRetries = 0;
 
 export async function writeSectionStep(
@@ -181,9 +140,6 @@ export async function qualityGateAndPublishStep(
     const newBodies = await regenerateSectionsWithFeedback(keyword, a.structure, a.bodies, issues);
     const newContent = assembleArticleMarkdown(a.structure, newBodies);
     const revised = { ...a, bodies: newBodies, content: newContent };
-    // As imagens de seção/infográfico JÁ GERADAS continuam válidas — só
-    // reinjeta nos NOVOS corpos regenerados, sem gerar imagem de novo
-    // (mesmo comportamento do runPipeline síncrono original).
     const regenBody = injectSectionImages(newContent, sectionImages);
     const regenWithInfographic = injectInfographic(
       regenBody,
@@ -207,20 +163,8 @@ export async function qualityGateAndPublishStep(
   }
 
   let finalWordCount = countArticleWords(finalContent.content);
-  // REGRESSÃO 14/09/2026 (achado real: 3826/4050): o gate de qualidade por LLM acima
-  // nunca avalia tamanho (suas 5 categorias são conteúdo/SEO/E-E-A-T/técnico/GEO) — um
-  // artigo pode pontuar >=90 e sair curto do mesmo jeito, sem NUNCA passar pelo loop de
-  // regeneração. Antes deste fix, isso reprovava o dia inteiro na 1ª geração curta. Uma
-  // tentativa extra, reaproveitando o MESMO regenerate do gate de qualidade, com uma
-  // issue sintética pedindo mais profundidade — mesma classe de correção, agora fechada
-  // pra tamanho.
   if (finalWordCount < MIN_ACCEPTABLE_ARTICLE_WORDS) {
     console.warn(`[workflow/generate-article] Artigo com ${finalWordCount} palavras (piso ${MIN_ACCEPTABLE_ARTICLE_WORDS}) — regenerando com pedido de expansão.`);
-    // regenerateSectionsWithFeedback só regenera seções cujo `issue.section` bate
-    // EXATAMENTE com um h2 da estrutura (findIndex por igualdade) — uma issue genérica
-    // ("geral") não casa com nenhuma seção e é descartada em silêncio (secoesComIssue
-    // fica vazio, currentBodies volta inalterado). Uma issue por seção real é o que
-    // aciona a regeneração de todas elas.
     const expandAllSections: JudgeIssue[] = finalContent.article.structure.sections.map(s => ({
       severity: 'P0',
       category: 'content_quality',
@@ -235,15 +179,6 @@ export async function qualityGateAndPublishStep(
   const finalArticle = finalContent.article;
   const finalContentWithCtas = finalContent.content;
   const warnings: string[] = [];
-  // DECISÃO DO DONO 14/09/2026: bloquear a publicação por piso de palavras reprovava o DIA
-  // INTEIRO — zero artigo, mesmo com milhares de palavras de conteúdo substancial já
-  // prontas, só porque uma métrica de tamanho não bateu mesmo depois da tentativa extra de
-  // expansão acima. O LLM é probabilístico — nenhuma quantidade de retry é garantia
-  // matemática de bater o piso exato. A garantia real pedida foi inverter a prioridade:
-  // publicar SEMPRE (best-effort de tamanho já feito acima), nunca mais bloquear por isso.
-  // Mesmo tratamento que o checklist on-page já dá a outras issues não-fatais — aviso, não
-  // bloqueio. Consequência direta: essa causa nunca mais dispara o alerta de falha do dia
-  // (recordFailureStep só roda pra erro real de pipeline, não pra isso).
   if (finalWordCount < MIN_ACCEPTABLE_ARTICLE_WORDS) {
     const warning = `article_below_${MIN_ACCEPTABLE_ARTICLE_WORDS}_words:${finalWordCount}`;
     console.warn(`[workflow/generate-article] Publicando mesmo assim com ${finalWordCount} palavras (piso ${MIN_ACCEPTABLE_ARTICLE_WORDS}) — piso de palavras não bloqueia mais publicação.`);
@@ -262,9 +197,6 @@ export async function qualityGateAndPublishStep(
     category: finalArticle.category ?? null,
   });
 
-  // Log de sucesso — feito IMEDIATAMENTE após insert do artigo. Crítico: se
-  // revalidate/markPublished/distribute abaixo falharem, o log já existe e
-  // o próximo cron run (3x/dia) vê 'success' e não duplica o artigo.
   await insertRunLog({ keyword, status: 'success' });
 
   return { slug: finalSlug, warnings };
@@ -322,7 +254,6 @@ export async function recordFailureStep(keyword: string | undefined, errorMsg: s
   }
 }
 
-// ─── Workflow ───────────────────────────────────────────────────────────────
 
 export async function generateArticleWorkflow(): Promise<GenerateArticleResult> {
   'use workflow';
@@ -346,10 +277,6 @@ export async function generateArticleWorkflow(): Promise<GenerateArticleResult> 
     );
     let article = buildArticleFromSections(structure, bodies);
 
-    // Validação on-page (pura, sem I/O — roda no corpo do workflow) + fix
-    // determinístico se falhar (também puro). Regenerar o artigo INTEIRO
-    // aqui é o que estourava o antigo maxDuration=800s na 2ª rodada — fix
-    // determinístico é instantâneo; o que sobrar publica com aviso.
     const validate = (a: ArticleContent) =>
       validateArticle({
         keyword: kw,
@@ -390,17 +317,6 @@ export async function generateArticleWorkflow(): Promise<GenerateArticleResult> 
       return { slug: null, error: published.error };
     }
 
-    // REGRESSÃO 14/09/2026 (achado da auditoria "garantia irrestrita de publicação"): daqui
-    // pra baixo o artigo JÁ está publicado — coesa_articles + insertRunLog(success) já
-    // gravados dentro de qualityGateAndPublishStep. markPublished/revalidate/distribute são
-    // acessórios (calendário, cache, redes sociais); um deles lançando (ex.: revalidatePath
-    // fora do contexto de request do Next.js) não pode mais virar "o dia não teve artigo" —
-    // isso já aconteceu: o catch externo tratava qualquer exceção daqui como falha total do
-    // pipeline e disparava recordFailureStep, que envia um alerta de falha FALSO (a RPC
-    // coesa_blog_mark_alerted não verifica status, só `alerted=false` — dispara mesmo com o
-    // artigo já publicado). Cada passo já é fail-open por dentro (markPublished/
-    // distributeArticle nunca lançam de fato), mas o guard aqui cobre qualquer exceção
-    // residual sem depender de cada implementação individual permanecer fail-open pra sempre.
     try {
       await markPublishedStep(kw, published.slug);
       await revalidateStep(published.slug, article.category);
@@ -413,11 +329,6 @@ export async function generateArticleWorkflow(): Promise<GenerateArticleResult> 
       console.warn('[workflow/generate-article] Publicado com ressalvas do checklist:', warnings);
     }
 
-    // REGRESSÃO 14/09/2026 (achado da 2ª passada da auditoria): published.warnings (ex.: o
-    // aviso de piso de palavras do PR #76) era computado dentro de qualityGateAndPublishStep
-    // mas nunca chegava até aqui — só os warnings do checklist on-page eram propagados. O
-    // artigo publicava certo, mas quem consome o resultado (rota, e-mail, dashboard) nunca
-    // via o aviso de tamanho.
     return { slug: published.slug, warnings: [...warnings.map(w => w.message), ...published.warnings] };
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
