@@ -256,7 +256,7 @@
   "src/lib/cep-utils.ts": 15,
   "src/lib/coesa-company.regression.test.tsx": 4,
   "src/lib/coesa-company.ts": 5,
-  "src/lib/cpf-cnpj-utils.ts": 38,
+  "src/lib/cpf-cnpj-utils.ts": 0,
   "src/lib/docs-tracking-utils.ts": 22,
   "src/lib/errors.test.ts": 0,
   "src/lib/errors.ts": 0,
