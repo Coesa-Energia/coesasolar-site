@@ -78,11 +78,9 @@ async function resolveConcessionaria(base: string, field: string, name: string):
       .map((item) => ({ item, value: normalizeName(String(item.VALUE || item.value || "")) }))
       .filter((option) => option.value);
     const single = (candidates: typeof options) => (candidates.length === 1 ? candidates[0] : undefined);
-    const firstWord = searchName.split(" ")[0];
     const match =
       options.find(({ value }) => value === searchName || value.split(" - ")[0] === searchName) ??
-      single(options.filter(({ value }) => value.includes(searchName) || searchName.includes(value))) ??
-      single(options.filter(({ value }) => value.split(" ")[0] === firstWord));
+      single(options.filter(({ value }) => value.includes(searchName) || searchName.includes(value)));
     const id = match?.item.ID || match?.item.id;
     return id ? String(id) : undefined;
   } catch {

@@ -55,6 +55,13 @@ describe("POST /api/lead", () => {
       expect(JSON.parse(fetchMock.mock.calls[1][1].body).fields.UF_CRM_1759750064).toBe(expected);
     },
   );
+  it("não associa outra distribuidora do mesmo grupo", async () => {
+    const items = [{ ID: "1", VALUE: "CEMIG - MG" }, { ID: "2", VALUE: "Energisa MG" }];
+    const fetchMock = vi.fn().mockResolvedValueOnce(json({ result: { UF_CRM_1759750064: { items } } })).mockResolvedValueOnce(json({ result: 1 }));
+    vi.stubGlobal("fetch", fetchMock);
+    expect((await POST(request({ ...lead, concessionaria: "Energisa Tocantins" }))).status).toBe(200);
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body).fields).not.toHaveProperty("UF_CRM_1759750064");
+  });
   it.each([json({ error: "erro privado" }), json({ result: "abc" }), new Error("timeout")])("retorna erro genérico quando a criação falha", async (failure) => {
     const fetchMock = vi.fn().mockResolvedValueOnce(json({ result: {} }));
     if (failure instanceof Error) fetchMock.mockRejectedValueOnce(failure); else fetchMock.mockResolvedValueOnce(failure);
