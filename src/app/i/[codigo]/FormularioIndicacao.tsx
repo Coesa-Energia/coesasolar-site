@@ -18,12 +18,15 @@ export function FormularioIndicacao({
   slug,
   codigo,
   nomeDeQuemIndicou,
+  valorIndicado,
   whatsapp,
 }: {
   origem: string
   slug: string
   codigo: string
   nomeDeQuemIndicou: string | null
+  /** Desconto do amigo já formatado ("R$ 50"); null quando o AIOS não devolveu o valor. */
+  valorIndicado: string | null
   whatsapp: string
 }) {
   const ref = useRef<HTMLIFrameElement>(null)
@@ -75,6 +78,11 @@ export function FormularioIndicacao({
             <MessageCircle className="h-7 w-7" />
           </span>
           <h3 className="mt-5 font-[family-name:var(--fonte-titulo)] text-2xl font-bold tracking-[-0.03em] text-[#0F1F17]">Falta só um passo</h3>
+          {valorIndicado && (
+            <p className="mt-4 max-w-xs rounded-xl bg-[#1A422F] px-4 py-3 text-sm font-medium leading-snug text-[#F3EBD6]">
+              Seu desconto de {valorIndicado} entra depois que você pagar a sua primeira conta.
+            </p>
+          )}
           <p className="mt-3 max-w-xs leading-relaxed text-[#0F1F17]/70">
             Recebemos o seu cadastro. Para finalizar, chame a Coesa no WhatsApp: é por lá que um especialista conclui tudo com você.
           </p>
