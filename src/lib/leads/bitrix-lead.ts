@@ -14,6 +14,10 @@ async function bitrixFetch(url: string, init?: RequestInit) {
   return fetch(url, { ...init, signal: AbortSignal.timeout(10_000) });
 }
 
+function normalizeName(value: string) {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+}
+
 async function resolveConcessionaria(base: string, field: string, name: string): Promise<string | undefined> {
   try {
     const response = await bitrixFetch(`${base}/crm.lead.fields`);
@@ -21,12 +25,18 @@ async function resolveConcessionaria(base: string, field: string, name: string):
     const data = await response.json();
     const items = data.result?.[field]?.items;
     if (!Array.isArray(items)) return undefined;
-    const searchName = name.toLowerCase();
-    const match = items.find((item) => {
-      const value = String(item.VALUE || item.value || "").toLowerCase();
-      return value && (value.includes(searchName) || searchName.includes(value.split(" ")[0]));
-    });
-    const id = match?.ID || match?.id;
+    const searchName = normalizeName(name);
+    if (!searchName) return undefined;
+    const options = items
+      .map((item) => ({ item, value: normalizeName(String(item.VALUE || item.value || "")) }))
+      .filter((option) => option.value);
+    const single = (candidates: typeof options) => (candidates.length === 1 ? candidates[0] : undefined);
+    const firstWord = searchName.split(" ")[0];
+    const match =
+      options.find(({ value }) => value === searchName || value.split(" - ")[0] === searchName) ??
+      single(options.filter(({ value }) => value.includes(searchName) || searchName.includes(value))) ??
+      single(options.filter(({ value }) => value.split(" ")[0] === firstWord));
+    const id = match?.item.ID || match?.item.id;
     return id ? String(id) : undefined;
   } catch {
     console.error("Falha ao consultar concessionárias no CRM");
