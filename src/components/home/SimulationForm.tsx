@@ -105,30 +105,15 @@ export function SimulationForm({ compact = false, prefill, source = "inline_form
     setIsSubmitting(true);
     
     try {
-      // Call edge function to create lead in Bitrix24
-      const { data: result, error } = await supabase.functions.invoke('create-lead-from-site', {
-        body: {
-          nome: data.nome,
-          telefone: data.telefone,
-          email: data.email,
-          valorConta: data.valorConta,
-          concessionaria: data.concessionaria,
-        },
+      const response = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
-
-      if (error) {
+      const result = await response.json();
+      if (!response.ok || !result?.success) {
         trackLeadEvent("lead_submit_error", source);
-        console.error('Error creating lead:', error);
         toast.error('Erro ao enviar simulação. Tente novamente.');
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (!result?.success) {
-        trackLeadEvent("lead_submit_error", source);
-        console.error('Lead creation failed:', result);
-        toast.error(result?.error || 'Erro ao processar simulação');
-        setIsSubmitting(false);
         return;
       }
 
@@ -151,11 +136,7 @@ export function SimulationForm({ compact = false, prefill, source = "inline_form
     } catch (err) {
       trackLeadEvent("lead_submit_error", source);
       console.error('Submit error:', err);
-      toast.error(
-        !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-          ? 'Envio indisponível nesta prévia. Seus dados não foram enviados.'
-          : 'Não foi possível enviar sua simulação. Tente novamente.'
-      );
+      toast.error('Não foi possível enviar sua simulação. Tente novamente.');
     } finally {
       setIsSubmitting(false);
     }
