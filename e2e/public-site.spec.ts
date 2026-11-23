@@ -78,10 +78,10 @@ test('CTA de Minas leva ao formulário da home', async ({ page }) => {
 })
 
 test('simulação válida confirma envio sem criar lead real', async ({ page }) => {
-  test.skip(process.env.AUDIT_ALL_LINKS !== '1', 'O Preview não tem configuração de envio')
   let envios = 0
-  await page.route('**/functions/v1/create-lead-from-site', async (route) => {
+  await page.route('**/api/lead', async (route) => {
     envios++
+    expect(route.request().method()).toBe('POST')
     const body = route.request().postDataJSON()
     expect(body).toMatchObject({ nome: 'Teste E2E COESA', email: 'nao-enviar@example.com', concessionaria: 'CEMIG' })
     await route.fulfill({ status: 200, json: { success: true } })
