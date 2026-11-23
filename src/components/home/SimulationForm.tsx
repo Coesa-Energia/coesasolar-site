@@ -54,6 +54,7 @@ function isConcessionariaAtendida(nome: string): boolean {
 export function SimulationForm({ compact = false, prefill, source = "inline_form" }: { compact?: boolean; prefill?: LeadPrefill; source?: string } = {}) {
   const formId = useId();
   const started = useRef(false);
+  const honeypotRef = useRef<HTMLInputElement>(null);
   const [concessionarias, setConcessionarias] = useState<Concessionaria[]>(
     CONCESSIONARIAS_ATENDIDAS.map((nome) => ({ id: nome, nome }))
   );
@@ -108,7 +109,7 @@ export function SimulationForm({ compact = false, prefill, source = "inline_form
       const response = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, website: honeypotRef.current?.value ?? "" }),
       });
       const result = await response.json();
       if (!response.ok || !result?.success) {
@@ -291,6 +292,10 @@ export function SimulationForm({ compact = false, prefill, source = "inline_form
         <p className={`pt-2 text-center text-xs text-white/40 ${compact ? "sm:col-span-2" : ""}`}>
           A COESA entrará em contato por WhatsApp ou e-mail
         </p>
+        <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+          <label htmlFor={`${formId}-website`}>Website</label>
+          <input ref={honeypotRef} id={`${formId}-website`} name="website" type="text" tabIndex={-1} autoComplete="off" />
+        </div>
       </form>
 
       {/* Thank You Modal */}

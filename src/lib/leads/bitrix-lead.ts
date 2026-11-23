@@ -1,3 +1,4 @@
+import { Redis } from "@upstash/redis";
 import { z } from "zod";
 
 const leadSchema = z.object({
@@ -9,6 +10,52 @@ const leadSchema = z.object({
 });
 
 type Lead = z.infer<typeof leadSchema>;
+
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW_SECONDS = 600;
+const RATE_LIMIT_TIMEOUT_MS = 2_000;
+
+let redisClient: Redis | null = null;
+function getRedis(): Redis | null {
+  if (!(process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL) || !(process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN)) return null;
+  if (!redisClient) redisClient = Redis.fromEnv();
+  return redisClient;
+}
+
+function clientIp(request: Request) {
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  return (forwarded || request.headers.get("x-real-ip")?.trim() || "unknown").slice(0, 100);
+}
+
+async function isRateLimited(request: Request): Promise<boolean> {
+  const redis = getRedis();
+  if (!redis) {
+    console.warn("Limite de envios de leads desativado: Redis não configurado");
+    return false;
+  }
+  const key = `lead-rl:${clientIp(request)}`;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const count = await Promise.race([
+      redis.incr(key).then(async (value) => {
+        await redis.expire(key, RATE_LIMIT_WINDOW_SECONDS, "NX");
+        return value;
+      }),
+      new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error("timeout")), RATE_LIMIT_TIMEOUT_MS); }),
+    ]);
+    return count > RATE_LIMIT_MAX;
+  } catch {
+    console.warn("Falha ao verificar limite de envios de leads; seguindo sem limite");
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function isHoneypotFilled(body: unknown) {
+  const website = (body as { website?: unknown } | null)?.website;
+  return typeof website === "string" && website.trim() !== "";
+}
 
 async function bitrixFetch(url: string, init?: RequestInit) {
   return fetch(url, { ...init, signal: AbortSignal.timeout(10_000) });
@@ -81,6 +128,10 @@ export async function handleLeadRequest(request: Request): Promise<Response> {
     body = await request.json();
   } catch {
     return Response.json({ success: false, error: "Dados inválidos" }, { status: 400 });
+  }
+  if (isHoneypotFilled(body)) return Response.json({ success: true });
+  if (await isRateLimited(request)) {
+    return Response.json({ success: false, error: "Muitas tentativas. Tente novamente em alguns minutos." }, { status: 429 });
   }
   const parsed = leadSchema.safeParse(body);
   if (!parsed.success) return Response.json({ success: false, error: "Dados inválidos" }, { status: 400 });

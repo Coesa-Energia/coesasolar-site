@@ -2,6 +2,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/lead/route";
 
+const redis = vi.hoisted(() => ({ incr: vi.fn(), expire: vi.fn() }));
+vi.mock("@upstash/redis", () => ({ Redis: { fromEnv: () => redis } }));
+
 const lead = { nome: "Maria Silva", telefone: "(31) 99999-8888", email: "maria@example.com", valorConta: "R$ 1.234,56", concessionaria: "CEMIG" };
 const request = (body: unknown = lead) => new Request("http://localhost/api/lead", { method: "POST", body: JSON.stringify(body) });
 const json = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status });
@@ -9,8 +12,11 @@ const json = (data: unknown, status = 200) => new Response(JSON.stringify(data),
 beforeEach(() => {
   vi.stubEnv("BITRIX24_WEBHOOK_URL", "https://example.com/rest/1/token/");
   vi.spyOn(console, "error").mockImplementation(() => {});
+  vi.spyOn(console, "warn").mockImplementation(() => {});
+  redis.incr.mockReset().mockResolvedValue(1);
+  redis.expire.mockReset().mockResolvedValue(1);
 });
-afterEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks(); });
+afterEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe("POST /api/lead", () => {
   it("envia o mapeamento ao Bitrix e resolve a concessionária", async () => {
@@ -67,5 +73,55 @@ describe("POST /api/lead", () => {
   it("retorna erro quando o webhook não está configurado", async () => {
     vi.stubEnv("BITRIX24_WEBHOOK_URL", "");
     expect((await POST(request())).status).toBe(500);
+  });
+  describe("proteção contra abuso", () => {
+    const success = () => vi.fn().mockResolvedValueOnce(json({ result: {} })).mockResolvedValueOnce(json({ result: 1 }));
+    const fromIp = (ip: string) => new Request("http://localhost/api/lead", { method: "POST", body: JSON.stringify(lead), headers: { "x-forwarded-for": `${ip}, 10.0.0.1` } });
+    beforeEach(() => {
+      vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://redis.example.com");
+      vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "token");
+    });
+
+    it("conta envios por IP com janela fixa de 10 minutos", async () => {
+      vi.stubGlobal("fetch", success());
+      expect((await POST(fromIp("203.0.113.7"))).status).toBe(200);
+      expect(redis.incr).toHaveBeenCalledWith("lead-rl:203.0.113.7");
+      expect(redis.expire).toHaveBeenCalledWith("lead-rl:203.0.113.7", 600, "NX");
+    });
+    it("retorna 429 após o limite sem chamar o CRM", async () => {
+      redis.incr.mockResolvedValue(6);
+      const fetchMock = vi.fn(); vi.stubGlobal("fetch", fetchMock);
+      const response = await POST(fromIp("203.0.113.7"));
+      expect(response.status).toBe(429);
+      expect(await response.json()).toEqual({ success: false, error: "Muitas tentativas. Tente novamente em alguns minutos." });
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+    it("permite o envio quando o Redis falha", async () => {
+      redis.incr.mockRejectedValue(new Error("redis fora do ar"));
+      const fetchMock = success(); vi.stubGlobal("fetch", fetchMock);
+      expect((await POST(fromIp("203.0.113.7"))).status).toBe(200);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(console.warn).toHaveBeenCalled();
+    });
+    it("permite o envio sem consultar o Redis quando ele não está configurado", async () => {
+      vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
+      vi.stubEnv("KV_REST_API_URL", "");
+      const fetchMock = success(); vi.stubGlobal("fetch", fetchMock);
+      expect((await POST(fromIp("203.0.113.7"))).status).toBe(200);
+      expect(redis.incr).not.toHaveBeenCalled();
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+    it("responde sucesso ao honeypot preenchido sem chamar o CRM", async () => {
+      const fetchMock = vi.fn(); vi.stubGlobal("fetch", fetchMock);
+      const response = await POST(request({ ...lead, website: "https://spam.example" }));
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ success: true });
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(redis.incr).not.toHaveBeenCalled();
+    });
+    it("aceita o honeypot vazio enviado pelo formulário", async () => {
+      const fetchMock = success(); vi.stubGlobal("fetch", fetchMock);
+      expect(await (await POST(request({ ...lead, website: "" }))).json()).toEqual({ success: true, leadId: 1 });
+    });
   });
 });
