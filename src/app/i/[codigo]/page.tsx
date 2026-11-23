@@ -2,10 +2,11 @@ import type { Metadata } from "next"
 import { Figtree, Poppins } from "next/font/google"
 import Image from "next/image"
 import Link from "next/link"
-import { Check, Plus } from "lucide-react"
+import { Check, Gift, Plus } from "lucide-react"
 import coesaLogo from "@/assets/logos/coesa-black.png"
 import { COESA_COMPANY } from "@/lib/coesa-company"
 import { PUBLIC_DISCOUNT_LABEL } from "@/lib/public-discount"
+import { formatarValor, lerValorIndicado } from "./beneficio"
 import { FormularioIndicacao } from "./FormularioIndicacao"
 
 // Página do link pessoal de indicação (coesasolar.com.br/i/arthur_azevedo27). Cada cliente da Coesa tem o seu link
@@ -28,18 +29,24 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-/** Nome de quem indicou ("Arthur Azevedo"), ou null quando o código não existe ou o AIOS não respondeu. */
-async function nomeDeQuemIndicou(codigo: string): Promise<string | null> {
+/**
+ * Nome de quem indicou ("Arthur Azevedo") e valor do desconto do amigo (`valorIndicado`, em reais). Nome null quando o código
+ * não existe ou o AIOS não respondeu; valor null quando o AIOS ainda não devolve o campo (a página não promete nada).
+ */
+async function dadosDaIndicacao(codigo: string): Promise<{ nome: string | null; valorIndicado: number | null }> {
   try {
     const r = await fetch(`${AIOS_URL}/api/indicacao-publica/${encodeURIComponent(codigo)}`, {
       next: { revalidate: 300 },
       signal: AbortSignal.timeout(4000),
     })
-    if (!r.ok) return null
-    const json = (await r.json()) as { nome?: unknown }
-    return typeof json.nome === "string" && json.nome.trim() ? json.nome.trim() : null
+    if (!r.ok) return { nome: null, valorIndicado: null }
+    const json = (await r.json()) as { nome?: unknown; valorIndicado?: unknown }
+    return {
+      nome: typeof json.nome === "string" && json.nome.trim() ? json.nome.trim() : null,
+      valorIndicado: lerValorIndicado(json.valorIndicado),
+    }
   } catch {
-    return null
+    return { nome: null, valorIndicado: null }
   }
 }
 
@@ -53,7 +60,7 @@ const iniciais = (nome: string) =>
 
 const vantagens = ["Sem placas no telhado", "Sem obra e sem investimento", "Sem taxa de adesão", "A mesma distribuidora de sempre"]
 
-const perguntas = [
+const perguntas = (valor: string | null) => [
   {
     p: "Preciso instalar alguma coisa?",
     r: "Não. A energia vem de usinas solares da Coesa e entra como crédito na sua conta de luz. Nada muda no seu imóvel.",
@@ -62,10 +69,15 @@ const perguntas = [
     p: "Quanto custa para começar?",
     r: "Nada. Não tem taxa de adesão nem investimento. Você só passa a pagar menos pela energia.",
   },
-  {
-    p: "O que quem me indicou ganha?",
-    r: "Se você virar cliente, quem indicou chega mais perto de um desconto na conta de luz. Para você nada muda: o seu desconto é o mesmo.",
-  },
+  valor
+    ? {
+        p: "O que eu e quem me indicou ganhamos?",
+        r: `Se você virar cliente da Coesa, você ganha ${valor} de desconto e quem te indicou também ganha um desconto. Os dois descontos só valem depois que você pagar a sua primeira conta.`,
+      }
+    : {
+        p: "O que quem me indicou ganha?",
+        r: "Se você virar cliente, quem indicou chega mais perto de um desconto na conta de luz. Esse desconto só vale depois que você pagar a sua primeira conta.",
+      },
   {
     p: "O que acontece com os meus dados?",
     r: "Usamos o seu nome e o seu WhatsApp só para fazer a simulação e falar com você. Quem indicou não vê os seus dados.",
@@ -74,8 +86,9 @@ const perguntas = [
 
 export default async function PaginaIndicacao({ params }: Props) {
   const { codigo } = await params
-  const nome = await nomeDeQuemIndicou(codigo)
+  const { nome, valorIndicado } = await dadosDaIndicacao(codigo)
   const primeiroNome = nome?.split(" ")[0]
+  const valor = valorIndicado === null ? null : formatarValor(valorIndicado)
 
   return (
     <div className={`${titulo.variable} ${texto.variable} min-h-screen bg-[#FAF8F3] font-[family-name:var(--fonte-texto)] text-[#0F1F17] antialiased`}>
@@ -107,6 +120,19 @@ export default async function PaginaIndicacao({ params }: Props) {
               {primeiroNome ? `${primeiroNome} já economiza com a Coesa e lembrou de você.` : "Um cliente da Coesa lembrou de você."} Sem placas, sem
               obra e sem investimento. Preencha o formulário e veja quanto você economiza.
             </p>
+
+            {/* Só aparece quando o AIOS devolve valorIndicado: o site não promete o desconto antes de ele existir. */}
+            {valor && (
+              <aside className="mt-6 flex max-w-lg items-start gap-4 rounded-2xl bg-[#1A422F] p-5 text-[#F3EBD6] md:p-6">
+                <span aria-hidden className="grid h-11 w-11 flex-shrink-0 place-items-center rounded-full bg-[#F3EBD6]/15">
+                  <Gift className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="font-[family-name:var(--fonte-titulo)] text-xl font-semibold tracking-[-0.02em] md:text-2xl">Você ganha {valor} de desconto</p>
+                  <p className="mt-1.5 leading-relaxed text-[#F3EBD6]/90">O desconto entra depois que você pagar a sua primeira conta com a Coesa.</p>
+                </div>
+              </aside>
+            )}
           </div>
 
           {/* Foto alta à direita, com o formulário em vidro (fundo fosco) por cima dela. O formulário do AIOS tem fundo transparente. */}
@@ -120,7 +146,7 @@ export default async function PaginaIndicacao({ params }: Props) {
               priority
             />
             <div className="relative w-full max-w-[28rem] overflow-hidden rounded-3xl border border-white/70 bg-white/55 shadow-[0_24px_60px_-24px_rgba(15,31,23,0.45),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl backdrop-saturate-150">
-              <FormularioIndicacao origem={AIOS_URL} slug={FORMULARIO} codigo={codigo} nomeDeQuemIndicou={nome} whatsapp={COESA_COMPANY.whatsapp} />
+              <FormularioIndicacao origem={AIOS_URL} slug={FORMULARIO} codigo={codigo} nomeDeQuemIndicou={nome} valorIndicado={valor} whatsapp={COESA_COMPANY.whatsapp} />
             </div>
           </div>
         </section>
@@ -147,7 +173,7 @@ export default async function PaginaIndicacao({ params }: Props) {
           <div className="grid gap-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
             <h2 className="font-[family-name:var(--fonte-titulo)] text-3xl font-bold tracking-[-0.04em]">Dúvidas</h2>
             <div className="divide-y divide-[#0F1F17]/10 border-y border-[#0F1F17]/10">
-              {perguntas.map(q => (
+              {perguntas(valor).map(q => (
                 <details key={q.p} className="group py-4">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-6 font-semibold [&::-webkit-details-marker]:hidden">
                     {q.p}
