@@ -43,6 +43,22 @@ describe('REGRESSÃO 02/09/2026: sendFailureAlertEmail', () => {
     expect(body.subject).toContain('2026-09-02');
     expect(body.text).toContain('deepseek_structure_failed');
     expect(body.text).toContain('placa solar');
+    expect(body.text).toContain('Retrigger manual');
+  });
+
+  it('orienta renovar o acesso do GSC antes de repetir uma falha terminal de pauta', async () => {
+    process.env.RESEND_API_KEY = 're_test';
+    (globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: true, status: 200 });
+
+    await sendFailureAlertEmail({
+      keyword: undefined,
+      error: 'Step resolveKeywordAndBriefStep failed: gsc_invalid_grant_no_keyword',
+      runDate: '2026-11-24',
+    });
+
+    const body = JSON.parse((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
+    expect(body.text).toContain('Renove a autorização de leitura do Search Console da Coesa Solar');
+    expect(body.text).not.toContain('Retrigger manual');
   });
 
   it('Resend responde erro HTTP: não lança (fail-open, só loga aviso)', async () => {

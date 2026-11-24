@@ -1,5 +1,5 @@
-// src/lib/blog/gsc.ts
 import { google } from 'googleapis';
+import { FatalError } from 'workflow';
 import { AUTOBLOG_PROFILE } from '@/lib/autoblog-profile';
 import { getNextSeedKeyword, SEED_KEYWORDS } from './seed-keywords';
 
@@ -39,6 +39,19 @@ export function pickTopEligibleGscKeyword(
     })
     .sort((a, b) => (b.impressions ?? 0) - (a.impressions ?? 0))[0]
     ?.keys?.[0]?.trim();
+}
+
+function summarizeGscFailure(error: unknown) {
+  const response = error && typeof error === 'object' && 'response' in error ? error.response : null;
+  const data = response && typeof response === 'object' && 'data' in response ? response.data : null;
+  const providerCode = data && typeof data === 'object' && 'error' in data && typeof data.error === 'string'
+    ? data.error
+    : undefined;
+  const responseStatus = response && typeof response === 'object' && 'status' in response ? response.status : null;
+  const status = typeof responseStatus === 'number' && Number.isInteger(responseStatus)
+    && responseStatus >= 400 && responseStatus <= 599 ? responseStatus : undefined;
+  const code = providerCode ?? (error instanceof Error ? error.message : undefined);
+  return { reason: code === 'invalid_grant' ? 'invalid_grant' : 'request_failed', status };
 }
 
 export async function fetchTopKeyword(existingKeywords: string[]): Promise<string | undefined> {
@@ -82,7 +95,11 @@ export async function fetchTopKeyword(existingKeywords: string[]): Promise<strin
     const keyword = pickTopEligibleGscKeyword(res.data.rows ?? [], existingKeywords);
     if (keyword) return keyword;
   } catch (err) {
-    console.warn('[gsc] GSC falhou, usando seed fallback:', err);
+    const seed = getSeedSkippingPublished(existingKeywords);
+    const { reason, status } = summarizeGscFailure(err);
+    console.warn('[gsc] Search Console indisponível:', reason, status);
+    if (!seed && reason === 'invalid_grant') throw new FatalError('gsc_invalid_grant_no_keyword');
+    return seed;
   }
 
   return getSeedSkippingPublished(existingKeywords);
