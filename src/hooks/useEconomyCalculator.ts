@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { WHATSAPP_5192 } from '@/lib/whatsapp-numbers';
 import { PUBLIC_DISCOUNT_PERCENT } from '@/lib/public-discount';
+import { CONCESSIONARIAS_ATENDIDAS } from '@/lib/concessionarias-atendidas';
 
 export interface EconomyConfig {
   disponibilidadeMonofasico: number;
@@ -66,12 +67,22 @@ let cachedConcessionarias: Concessionaria[] | null = null;
 let cacheTimestamp = 0;
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
-// Fallback distribuidoras (usado apenas se BD falhar)
-const DEFAULT_MAIN_DISTRIBUIDORAS = [
-  { nome: 'CEMIG-D', uf: 'MG', tarifa: 0.86 },
-  { nome: 'COELBA', uf: 'BA', tarifa: 0.82 },
-  { nome: 'CPFL-PAULISTA', uf: 'SP', tarifa: 0.78 },
+const [CEMIG, ENERGISA_MG] = CONCESSIONARIAS_ATENDIDAS;
+const DISTRIBUIDORAS = [
+  { nomesNoBanco: ['CEMIG-D', CEMIG], fallback: { id: 'cemig-d-fallback', nome: CEMIG, uf: 'MG', tarifa: 0.86 } },
+  { nomesNoBanco: [ENERGISA_MG, 'EMR'], fallback: { id: 'energisa-mg-fallback', nome: ENERGISA_MG, uf: 'MG', tarifa: 0.9516 } },
 ];
+
+type TarifaConfigurada = { nome: string; tarifa: number };
+
+function readConfiguredTariffs(value: string | undefined): TarifaConfigurada[] {
+  try {
+    const tariffs: TarifaConfigurada[] = JSON.parse(value ?? '[]');
+    return Array.isArray(tariffs) ? tariffs : [];
+  } catch {
+    return [];
+  }
+}
 
 export function useEconomyCalculator() {
   const [config, setConfig] = useState<EconomyConfig>(defaultConfig);
@@ -92,7 +103,6 @@ export function useEconomyCalculator() {
       }
 
       try {
-        // Load configs first to get dynamic distribuidoras list
         const configResult = await supabase
           .from('configuracoes_sistema')
           .select('chave, valor')
@@ -100,31 +110,18 @@ export function useEconomyCalculator() {
 
         if (configResult.error) throw configResult.error;
 
-        // Parse configs to get main distribuidoras from DB
         const configMap = new Map<string, string>();
         configResult.data?.forEach((item) => {
           configMap.set(item.chave, item.valor);
         });
 
-        // Get main distribuidoras from config (or use fallback)
-        let mainDistribuidoras: Array<{ nome: string; uf: string; tarifa: number }>;
-        try {
-          const configValue = configMap.get('economy_main_distribuidoras');
-          mainDistribuidoras = configValue 
-            ? JSON.parse(configValue) 
-            : DEFAULT_MAIN_DISTRIBUIDORAS;
-        } catch {
-          mainDistribuidoras = DEFAULT_MAIN_DISTRIBUIDORAS;
-        }
+        const configuredTariffs = readConfiguredTariffs(configMap.get('economy_main_distribuidoras'));
 
-        const mainNomes = mainDistribuidoras.map(d => d.nome);
-
-        // Load rest in parallel
         const [concessionariasResult, icmsResult] = await Promise.all([
           supabase
             .from('concessionarias')
             .select('id, nome, uf, tarifa_com_impostos, tarifa_media')
-            .in('nome', mainNomes),
+            .in('nome', DISTRIBUIDORAS.flatMap(({ nomesNoBanco }) => nomesNoBanco)),
           supabase
             .from('icms_estados')
             .select('uf, icms_percentual'),
@@ -152,45 +149,29 @@ export function useEconomyCalculator() {
           icmsMap.set(item.uf, item.icms_percentual / 100); // Convert to decimal
         });
 
-        // Parse concessionarias - calculate tarifa_com_impostos including ICMS + PIS/COFINS
         // Formula: tarifa_com_impostos = tarifa_media / (1 - ICMS) / (1 - PIS/COFINS)
         const pisCofins = loadedConfig.pisCofinsAliquota;
-        const loadedConcessionarias: Concessionaria[] = (concessionariasResult.data || []).map((c) => {
-          const tarifaBase = c.tarifa_media || defaultConfig.tarifaFallback;
-          
-          // Se tarifa_com_impostos já existe no BD, usa ela
-          if (c.tarifa_com_impostos) {
-            return {
-              id: c.id,
-              nome: c.nome,
-              uf: c.uf,
-              tarifa: c.tarifa_com_impostos,
-            };
+        const loadedConcessionarias = DISTRIBUIDORAS.map(({ nomesNoBanco, fallback }) => {
+          const concessionaria = nomesNoBanco
+            .map((nome) => concessionariasResult.data?.find((row) => row.nome === nome))
+            .find(Boolean);
+          if (!concessionaria) {
+            const configured = nomesNoBanco
+              .map((nome) => configuredTariffs.find((entry) => entry?.nome === nome))
+              .find(Boolean);
+            const tarifa = configured?.tarifa;
+            return typeof tarifa === 'number' && Number.isFinite(tarifa) && tarifa > 0
+              ? { ...fallback, tarifa }
+              : fallback;
           }
-          
-          // Senão, calcula incluindo ICMS + PIS/COFINS
-          const icmsAliquota = icmsMap.get(c.uf || '') || 0;
-          const tarifaComImpostos = tarifaBase / (1 - icmsAliquota) / (1 - pisCofins);
-          
-          return {
-            id: c.id,
-            nome: c.nome,
-            uf: c.uf,
-            tarifa: tarifaComImpostos,
-          };
-        });
 
-        // If main distribuidoras not found in DB, add from config fallback
-        const existingNomes = loadedConcessionarias.map(c => c.nome);
-        mainDistribuidoras.forEach(dist => {
-          if (!existingNomes.includes(dist.nome)) {
-            loadedConcessionarias.push({
-              id: `${dist.nome.toLowerCase().replace(/[^a-z0-9]/g, '-')}-fallback`,
-              nome: dist.nome,
-              uf: dist.uf,
-              tarifa: dist.tarifa,
-            });
-          }
+          const tarifaBase = concessionaria.tarifa_media || defaultConfig.tarifaFallback;
+          const icmsAliquota = icmsMap.get(concessionaria.uf || '') || 0;
+          return {
+            ...fallback,
+            id: concessionaria.id,
+            tarifa: concessionaria.tarifa_com_impostos || tarifaBase / (1 - icmsAliquota) / (1 - pisCofins),
+          };
         });
 
         // Update cache
@@ -203,15 +184,7 @@ export function useEconomyCalculator() {
       } catch (err) {
         console.error('Error loading economy configs:', err);
         setError('Erro ao carregar configurações');
-        // Set fallback concessionarias on error (from constant)
-        setConcessionarias(
-          DEFAULT_MAIN_DISTRIBUIDORAS.map(d => ({
-            id: `${d.nome.toLowerCase().replace(/[^a-z0-9]/g, '-')}-fallback`,
-            nome: d.nome,
-            uf: d.uf,
-            tarifa: d.tarifa,
-          }))
-        );
+        setConcessionarias(DISTRIBUIDORAS.map(({ fallback }) => fallback));
       } finally {
         setLoading(false);
       }

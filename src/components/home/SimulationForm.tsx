@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { CONCESSIONARIAS_ATENDIDAS } from "@/lib/concessionarias-atendidas";
 import { toast } from "sonner";
 import { ThankYouModal } from "./ThankYouModal";
 import { formatLeadBill, formatLeadBillInput, parseLeadBill, trackLeadEvent, type LeadPrefill } from "@/lib/lead-funnel";
@@ -27,41 +27,21 @@ export const simulationFormSchema = z.object({
   telefone: z.string().refine((value) => /^\d{10,11}$/.test(value.replace(/\D/g, "")), "Telefone inválido"),
   email: z.string().email("E-mail inválido"),
   valorConta: z.string().min(1, "Informe o valor da conta").refine((value) => parseLeadBill(value) >= 300, "Conta mínima de R$ 300,00 por mês"),
-  concessionaria: z.string({ required_error: "Selecione a concessionária" }).min(1, "Selecione a concessionária"),
+  concessionaria: z.string({ required_error: "Selecione a concessionária" }).refine(
+    (value) => CONCESSIONARIAS_ATENDIDAS.some((nome) => nome === value),
+    "Selecione a concessionária",
+  ),
 });
 
 type FormData = z.infer<typeof simulationFormSchema>;
-
-interface Concessionaria {
-  id: string;
-  nome: string;
-}
-
-// Concessionárias atendidas pela COESA (sincronizado com distribuidoras_config)
-const CONCESSIONARIAS_ATENDIDAS = [
-  'CEMIG',
-  'ENERGISA MG',
-  'ENERGISA',
-];
-
-function isConcessionariaAtendida(nome: string): boolean {
-  const nomeUpper = nome.toUpperCase().trim();
-  return CONCESSIONARIAS_ATENDIDAS.some(c => 
-    nomeUpper.includes(c) || c.includes(nomeUpper)
-  );
-}
 
 export function SimulationForm({ compact = false, prefill, source = "inline_form" }: { compact?: boolean; prefill?: LeadPrefill; source?: string } = {}) {
   const formId = useId();
   const started = useRef(false);
   const honeypotRef = useRef<HTMLInputElement>(null);
-  const [concessionarias, setConcessionarias] = useState<Concessionaria[]>(
-    CONCESSIONARIAS_ATENDIDAS.map((nome) => ({ id: nome, nome }))
-  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
   const [submittedName, setSubmittedName] = useState("");
-  const [isRegionNotSupported, setIsRegionNotSupported] = useState(false);
   const {
     register,
     handleSubmit,
@@ -79,29 +59,6 @@ export function SimulationForm({ compact = false, prefill, source = "inline_form
     if (prefill?.valorConta) setValue("valorConta", prefill.valorConta);
   }, [prefill, setValue]);
 
-  useEffect(() => {
-    async function fetchConcessionarias() {
-      try {
-        const { data, error } = await supabase
-          .from("concessionarias")
-          .select("id, nome")
-          .order("nome");
-
-        if (error) throw error;
-        if (data) {
-          setConcessionarias((current) => [
-            ...current,
-            ...data.filter((item) => item.nome.toUpperCase().trim() !== 'CEMIG-D' && !current.some((option) => option.nome === item.nome)),
-          ]);
-        }
-      } catch (error) {
-        console.error("Erro ao carregar concessionárias:", error);
-      }
-    }
-
-    fetchConcessionarias();
-  }, []);
-
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     
@@ -117,10 +74,6 @@ export function SimulationForm({ compact = false, prefill, source = "inline_form
         toast.error('Erro ao enviar simulação. Tente novamente.');
         return;
       }
-
-      // Check if the concessionária is supported
-      const regionNotSupported = !isConcessionariaAtendida(data.concessionaria);
-      setIsRegionNotSupported(regionNotSupported);
 
       // Success! Show thank you modal
       trackLeadEvent("generate_lead", source);
@@ -257,13 +210,9 @@ export function SimulationForm({ compact = false, prefill, source = "inline_form
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
             <SelectContent className="bg-neutral-900 border-white/20">
-              {concessionarias.map((c) => (
-                <SelectItem 
-                  key={c.id} 
-                  value={c.nome}
-                  className="text-white hover:bg-white/10"
-                >
-                  {c.nome}
+              {CONCESSIONARIAS_ATENDIDAS.map((nome) => (
+                <SelectItem key={nome} value={nome} className="text-white hover:bg-white/10">
+                  {nome}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -303,7 +252,6 @@ export function SimulationForm({ compact = false, prefill, source = "inline_form
         isOpen={showThankYou}
         onClose={() => setShowThankYou(false)}
         clienteNome={submittedName}
-        isRegionNotSupported={isRegionNotSupported}
       />
     </motion.div>
   );

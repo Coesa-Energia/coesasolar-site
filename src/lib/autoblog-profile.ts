@@ -17,10 +17,10 @@ export const AUTOBLOG_PROFILE = {
     businessDescription:
       `Coesa Solar — energia solar por assinatura em Minas Gerais. O cliente economiza ${PUBLIC_DISCOUNT_LABEL} na conta de luz sem investimento inicial, sem obras e sem instalação própria: a energia vem das fazendas solares da Coesa. Plano com ${PUBLIC_DISCOUNT_LABEL} de desconto, contratado 100% digital.`,
     audience:
-      'donos de casa e pequenos empresários de Minas Gerais que pagam conta de luz acima de R$ 200 por mês e querem reduzir o custo sem obra e sem investimento',
+      'donos de casa e pequenos empresários de Minas Gerais com conta de luz de pelo menos R$ 300 por mês e querem reduzir o custo sem obra e sem investimento',
     // Persona: para QUEM se escreve (dores, contexto, decisões) — guia Neil/RD: persona antes da keyword.
     persona:
-      'morador de Minas Gerais com conta de luz acima de R$ 200, que já ouviu falar de energia solar mas acha que exige obra, telhado próprio ou dinheiro guardado — procura no Google se dá para economizar sem instalar nada',
+      'morador de Minas Gerais com conta de luz de pelo menos R$ 300, que já ouviu falar de energia solar mas acha que exige obra, telhado próprio ou dinheiro guardado — procura no Google se dá para economizar sem instalar nada',
     tone: 'claro, direto e acessível; sem jargão elétrico pesado; fala com quem não é técnico',
     // URL da newsletter — aparece no CTA fallback quando cta.url estiver vazio
     newsletterUrl: '',
