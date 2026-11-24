@@ -8,8 +8,8 @@ vi.mock('@/hooks/useEconomyCalculator', () => ({
   useEconomyCalculator: () => ({
     config: { cipDefault: 25, tarifaFallback: 0.79 },
     concessionarias: [
-      { id: '1', nome: 'CEMIG-D', uf: 'MG', tarifa: 0.86 },
-      { id: '2', nome: 'COELBA', uf: 'BA', tarifa: 0.82 },
+      { id: '1', nome: 'CEMIG', uf: 'MG', tarifa: 0.86 },
+      { id: '2', nome: 'Energisa MG', uf: 'MG', tarifa: 0.95 },
     ],
     loading: false,
     calcular,
@@ -25,8 +25,8 @@ it('usa CIP, instalação e distribuidora selecionadas no cálculo', () => {
 
   fireEvent.change(screen.getByLabelText('Iluminação pública (R$)'), { target: { value: '30' } });
   fireEvent.change(screen.getByLabelText('Tipo de instalação'), { target: { value: 'Trifásico' } });
-  fireEvent.change(screen.getByLabelText('Distribuidora'), { target: { value: 'COELBA' } });
-  expect(calcular).toHaveBeenLastCalledWith(500, 20, 30, 'Trifásico', 0.82);
+  fireEvent.change(screen.getByLabelText('Distribuidora'), { target: { value: 'Energisa MG' } });
+  expect(calcular).toHaveBeenLastCalledWith(500, 20, 30, 'Trifásico', 0.95);
 });
 
 it('aceita CIP brasileira e impede simulação com valor inválido', () => {

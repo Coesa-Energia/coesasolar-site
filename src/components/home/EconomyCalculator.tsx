@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { ChevronDown, ExternalLink } from 'lucide-react';
 import { useEconomyCalculator, CalculoResult, TipoInstalacao } from '@/hooks/useEconomyCalculator';
+import { CONCESSIONARIAS_ATENDIDAS } from '@/lib/concessionarias-atendidas';
 import { PUBLIC_DISCOUNT_LABEL, PUBLIC_DISCOUNT_PERCENT } from '@/lib/public-discount';
 
 export function EconomyCalculator() {
@@ -13,7 +14,7 @@ export function EconomyCalculator() {
   const [valorNumerico, setValorNumerico] = useState<number>(0);
   const [cipCustom, setCipCustom] = useState('');
   const [tipoInstalacao, setTipoInstalacao] = useState<TipoInstalacao>('Bifásico');
-  const [distribuidora, setDistribuidora] = useState('CEMIG-D');
+  const [distribuidora, setDistribuidora] = useState<string>(CONCESSIONARIAS_ATENDIDAS[0]);
   const cipNormalizada = cipCustom.includes(',') ? cipCustom.replace(/\./g, '').replace(',', '.') : cipCustom;
   const cipNumerica = cipCustom.trim() ? Number(cipNormalizada) : undefined;
   const cipInvalida = cipNumerica !== undefined && (!Number.isFinite(cipNumerica) || cipNumerica < 0);
@@ -106,7 +107,7 @@ export function EconomyCalculator() {
           <div>
             <label htmlFor="distribuidora-simulacao" className="block text-xs text-[#425547]">Distribuidora</label>
             <select id="distribuidora-simulacao" aria-label="Distribuidora" value={distribuidora} onChange={(event) => setDistribuidora(event.target.value)} className="mt-1 w-full rounded-md border border-[#b9c8ba] bg-white px-3 py-2 text-sm text-[#172019]">
-              {concessionarias.map((item) => <option key={item.id} value={item.nome}>{item.nome}{item.uf ? ` (${item.uf})` : ''}</option>)}
+              {concessionarias.map((item) => <option key={item.id} value={item.nome}>{item.nome}</option>)}
             </select>
           </div>
         </div>

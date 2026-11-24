@@ -20,6 +20,13 @@ describe("SimulationForm", () => {
     expect(simulationFormSchema.safeParse({ ...validSubmission, valorConta: "R$ 300,00", telefone: "(31) 3333-4444" }).success).toBe(true);
   });
 
+  it.each([["CEMIG", true], ["Energisa MG", true], ["ENERGISA", false], ["Energisa MT", false], ["Coelba", false], ["CPFL Paulista", false]])(
+    "valida a concessionária %s",
+    (concessionaria, accepted) => {
+      expect(simulationFormSchema.safeParse({ ...validSubmission, valorConta: "R$ 300", concessionaria }).success).toBe(accepted);
+    },
+  );
+
   it("orienta a seleção da concessionária quando o campo está vazio", () => {
     const result = simulationFormSchema.safeParse({ ...validSubmission, valorConta: "R$ 300,00", concessionaria: undefined });
     expect(result.success).toBe(false);
