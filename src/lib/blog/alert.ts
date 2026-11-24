@@ -18,6 +18,18 @@ export async function sendFailureAlertEmail(input: FailureAlertInput): Promise<v
     console.warn('[alert] RESEND_API_KEY não configurada — alerta pulado (fail-open).');
     return;
   }
+  const guidance = input.error.includes('gsc_invalid_grant_no_keyword')
+    ? [
+      'O Google rejeitou a credencial de leitura e o blog ficou sem pauta inédita de reserva.',
+      'Renove a autorização de leitura do Search Console da Coesa Solar antes da próxima tentativa.',
+    ]
+    : [
+      'Esta é a 1ª falha do dia — ainda há tentativas automáticas restantes (13:30 e',
+      '18:50 UTC, se ainda não passaram), mas isso pode indicar um problema real que vale',
+      'intervenção manual agora em vez de esperar.',
+      '',
+      'Retrigger manual: curl -H "Authorization: Bearer $CRON_SECRET" https://coesasolar.com.br/api/blog/generate',
+    ];
   try {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -30,11 +42,7 @@ export async function sendFailureAlertEmail(input: FailureAlertInput): Promise<v
           `Keyword: ${input.keyword ?? '(não resolvida)'}`,
           `Erro: ${input.error}`,
           '',
-          'Esta é a 1ª falha do dia — ainda há tentativas automáticas restantes (13:30 e',
-          '18:50 UTC, se ainda não passaram), mas isso pode indicar um problema real que vale',
-          'intervenção manual agora em vez de esperar.',
-          '',
-          'Retrigger manual: curl -H "Authorization: Bearer $CRON_SECRET" https://coesasolar.com.br/api/blog/generate',
+          ...guidance,
         ].join('\n'),
       }),
     });
