@@ -212,7 +212,7 @@
   "src/lib/blog/editorial-calendar.regression.test.ts": 1,
   "src/lib/blog/editorial-calendar.ts": 12,
   "src/lib/blog/gsc.regression.test.ts": 0,
-  "src/lib/blog/gsc.ts": 5,
+  "src/lib/blog/gsc.ts": 4,
   "src/lib/blog/guest-posts.regression.test.ts": 1,
   "src/lib/blog/guest-posts.ts": 7,
   "src/lib/blog/image-body.regression.test.ts": 2,

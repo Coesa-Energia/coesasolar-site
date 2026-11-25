@@ -1,12 +1,19 @@
-import { NextRequest } from 'next/server';
+import { after, NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { sendFailureAlertEmail } = vi.hoisted(() => ({ sendFailureAlertEmail: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('@/lib/blog/alert', () => ({ sendFailureAlertEmail }));
+vi.mock('next/server', async importOriginal => ({
+  ...await importOriginal<typeof import('next/server')>(),
+  after: vi.fn(),
+}));
+vi.mock('@/lib/blog/editorial-readiness', () => ({ recordEditorialReadiness: vi.fn() }));
 
 import { GET } from './route';
+import { recordEditorialReadiness } from '@/lib/blog/editorial-readiness';
 
 beforeEach(() => {
+  vi.mocked(after).mockClear();
   sendFailureAlertEmail.mockClear();
   sendFailureAlertEmail.mockResolvedValue(undefined); // restoreAllMocks() do afterEach limpa a implementação
 });
@@ -25,6 +32,7 @@ describe('GET /api/ai/health', () => {
 
     expect(response.status).toBe(401);
     expect(fetchMock).not.toHaveBeenCalled();
+    expect(after).not.toHaveBeenCalled();
   });
 
   it('uses the dedicated CoesaSolar key for a one-token health call', async () => {
@@ -41,6 +49,7 @@ describe('GET /api/ai/health', () => {
     }));
 
     expect(response.status).toBe(200);
+    expect(after).toHaveBeenCalledExactlyOnceWith(recordEditorialReadiness);
     expect(await response.json()).toEqual({ ok: true, model: 'openai/gpt-5-nano', isByok: true });
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(fetchMock.mock.calls[0]?.[1]?.headers).toMatchObject({ Authorization: 'Bearer dedicated-key' });

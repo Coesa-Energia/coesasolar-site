@@ -1,7 +1,8 @@
 export const dynamic = 'force-dynamic';
 
-import { NextRequest, NextResponse } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
 import { sendFailureAlertEmail } from '@/lib/blog/alert';
+import { recordEditorialReadiness } from '@/lib/blog/editorial-readiness';
 import { buildByokChatBody, BYOK_MODELS, validateByokResponse } from '@/lib/ai/byok';
 
 // REGRESSÃO 02/09/2026: rota já existia mas não estava agendada nem alertava em falha —
@@ -15,6 +16,7 @@ export async function GET(request: NextRequest) {
   if (!cronSecret || request.headers.get('authorization') !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
+  after(recordEditorialReadiness);
 
   const apiKey = process.env.COESASOLAR_OPENROUTER_API_KEY;
   if (!apiKey) {

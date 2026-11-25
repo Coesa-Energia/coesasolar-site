@@ -41,7 +41,7 @@ export function pickTopEligibleGscKeyword(
     ?.keys?.[0]?.trim();
 }
 
-function summarizeGscFailure(error: unknown) {
+function summarizeGscFailure(error: unknown): { reason: 'invalid_grant' | 'request_failed'; status?: number } {
   const response = error && typeof error === 'object' && 'response' in error ? error.response : null;
   const data = response && typeof response === 'object' && 'data' in response ? response.data : null;
   const providerCode = data && typeof data === 'object' && 'error' in data && typeof data.error === 'string'
@@ -54,25 +54,28 @@ function summarizeGscFailure(error: unknown) {
   return { reason: code === 'invalid_grant' ? 'invalid_grant' : 'request_failed', status };
 }
 
-export async function fetchTopKeyword(existingKeywords: string[]): Promise<string | undefined> {
+type GscKeywordReading =
+  | { state: 'eligible'; keyword: string }
+  | { state: 'disabled' | 'no_eligible' }
+  | { state: 'unconfigured'; missing: string[] }
+  | { state: 'invalid_grant' | 'request_failed'; status?: number };
+
+export async function readGscKeyword(existingKeywords: string[], signal?: AbortSignal): Promise<GscKeywordReading> {
   if (!AUTOBLOG_PROFILE.integrations.googleSearchConsoleEnabled) {
-    return getSeedSkippingPublished(existingKeywords);
+    return { state: 'disabled' };
   }
 
-  // Flag ligada sem credenciais: falha em silêncio = debug impossível. Diagnóstico claro.
   const missing = ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_REFRESH_TOKEN'].filter(
     k => !process.env[k],
   );
-  if (missing.length > 0) {
-    console.warn(`[gsc] Flag ligada mas envs ausentes: ${missing.join(', ')}. Usando seed fallback.`);
-    return getSeedSkippingPublished(existingKeywords);
-  }
+  if (missing.length > 0) return { state: 'unconfigured', missing };
 
   try {
-    const auth = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-    );
+    const auth = new google.auth.OAuth2({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      ...(signal && { transporterOptions: { signal } }),
+    });
     auth.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
 
     const searchconsole = google.searchconsole({ version: 'v1', auth });
@@ -90,17 +93,27 @@ export async function fetchTopKeyword(existingKeywords: string[]): Promise<strin
         // ATENÇÃO: position NÃO é filtrável via dimensionFilterGroups
         // É uma métrica de row, não uma dimensão. Filtrar no código abaixo.
       },
-    });
+    }, { signal });
 
     const keyword = pickTopEligibleGscKeyword(res.data.rows ?? [], existingKeywords);
-    if (keyword) return keyword;
+    return keyword ? { state: 'eligible', keyword } : { state: 'no_eligible' };
   } catch (err) {
-    const seed = getSeedSkippingPublished(existingKeywords);
     const { reason, status } = summarizeGscFailure(err);
-    console.warn('[gsc] Search Console indisponível:', reason, status);
-    if (!seed && reason === 'invalid_grant') throw new FatalError('gsc_invalid_grant_no_keyword');
-    return seed;
+    return { state: reason, status };
   }
+}
 
-  return getSeedSkippingPublished(existingKeywords);
+export async function fetchTopKeyword(existingKeywords: string[]): Promise<string | undefined> {
+  const reading = await readGscKeyword(existingKeywords);
+  if (reading.state === 'eligible') return reading.keyword;
+
+  const seed = getSeedSkippingPublished(existingKeywords);
+  if (reading.state === 'unconfigured') {
+    console.warn(`[gsc] Flag ligada mas envs ausentes: ${reading.missing.join(', ')}. Usando seed fallback.`);
+  }
+  if (reading.state === 'invalid_grant' || reading.state === 'request_failed') {
+    console.warn('[gsc] Search Console indisponível:', reading.state, reading.status);
+    if (!seed && reading.state === 'invalid_grant') throw new FatalError('gsc_invalid_grant_no_keyword');
+  }
+  return seed;
 }

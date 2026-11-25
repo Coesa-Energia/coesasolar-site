@@ -1,4 +1,5 @@
 import { revalidatePath } from 'next/cache';
+import { FatalError } from 'workflow';
 import {
   claimBlogRunToday,
   insertArticle,
@@ -8,7 +9,7 @@ import {
   markAlertedIfFirstFailureToday,
 } from '@/lib/blog/supabase-blog';
 import { sendFailureAlertEmail } from '@/lib/blog/alert';
-import { getNextPlannedEntry, markPublished, saveOutlineStructure, type EditorialBrief } from '@/lib/blog/editorial-calendar';
+import { getAvailableEditorialReserves, getNextPlannedEntry, markPublished, saveOutlineStructure, type EditorialBrief } from '@/lib/blog/editorial-calendar';
 import { fetchTopKeyword } from '@/lib/blog/gsc';
 import {
   generateArticleStructure,
@@ -44,25 +45,28 @@ export async function checkBalanceStep(): Promise<void> {
   }
 }
 
-async function resolveKeywordAndBriefStep(): Promise<{ keyword: string; brief: EditorialBrief | null }> {
+export async function resolveKeywordAndBriefStep(): Promise<{ keyword: string; brief: EditorialBrief | null }> {
   'use step';
-  let brief: EditorialBrief | null = null;
-  let keyword: string | undefined;
   try {
     const planned = await getNextPlannedEntry();
-    if (planned) {
-      keyword = planned.keyword;
-      brief = planned;
-    }
+    if (planned?.keyword) return { keyword: planned.keyword, brief: planned };
   } catch (err) {
     console.warn('[workflow/generate-article] Calendário indisponível:', err);
   }
-  if (!keyword) {
-    const existingKeywords = await getPublishedKeywords();
-    keyword = await fetchTopKeyword(existingKeywords);
+
+  const existingKeywords = await getPublishedKeywords();
+  let rejectedGrant: FatalError | undefined;
+  try {
+    const keyword = await fetchTopKeyword(existingKeywords);
+    if (keyword) return { keyword, brief: null };
+  } catch (error) {
+    if (!(error instanceof FatalError) || error.message !== 'gsc_invalid_grant_no_keyword') throw error;
+    rejectedGrant = error;
   }
-  if (!keyword) throw new Error('keyword_not_resolved');
-  return { keyword, brief };
+
+  const [reserve] = await getAvailableEditorialReserves(existingKeywords);
+  if (reserve) return { keyword: reserve.keyword, brief: reserve };
+  throw rejectedGrant ?? new Error('keyword_not_resolved');
 }
 
 async function resolveInternalLinksStep(keyword: string): Promise<InternalLink[]> {

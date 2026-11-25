@@ -157,13 +157,33 @@ export async function markAlertedIfFirstFailureToday(): Promise<boolean> {
   return data === true;
 }
 
-export async function getPublishedKeywords(): Promise<string[]> {
+export async function readAllBlogRows<Row>(
+  readPage: (from: number, to: number) => PromiseLike<{ data: Row[] | null; count: number | null; error: unknown }>,
+  errorCode: string,
+): Promise<Row[]> {
+  const rows: Row[] = [];
+  const pageSize = 500;
+  for (;;) {
+    const offset = rows.length;
+    const { data, count, error } = await readPage(offset, offset + pageSize - 1);
+    if (error || !data || count === null) throw new Error(errorCode);
+    rows.push(...data);
+    if (rows.length >= count) return rows;
+    if (data.length === 0) throw new Error(errorCode);
+  }
+}
+
+export async function getPublishedKeywords(signal?: AbortSignal): Promise<string[]> {
   const supabase = getServiceClient();
-  const { data } = await supabase
-    .from(TABLES.articles)
-    .select('keyword')
-    .eq('status', 'published');
-  return (data ?? []).map((r: { keyword: string | null }) => r.keyword ?? '').filter(Boolean);
+  const rows = await readAllBlogRows<{ keyword: string | null }>((from, to) => {
+    const query = supabase.from(TABLES.articles)
+      .select('keyword', { count: 'exact' })
+      .eq('status', 'published')
+      .order('id', { ascending: true })
+      .range(from, to);
+    return signal ? query.abortSignal(signal) : query;
+  }, 'published_keywords_unavailable');
+  return rows.map(row => row.keyword?.trim() ?? '').filter(Boolean);
 }
 
 export async function insertArticle(input: InsertArticleInput): Promise<string> {
