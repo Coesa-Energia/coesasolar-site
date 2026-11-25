@@ -6,6 +6,10 @@
 // e responde 500 "claim_failed", deixando a falha visível e re-tentável.
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
+import { FatalError } from 'workflow';
+import { getNextPlannedEntry, getAvailableEditorialReserves } from '@/lib/blog/editorial-calendar';
+import { fetchTopKeyword } from '@/lib/blog/gsc';
+import { getPublishedKeywords } from '@/lib/blog/supabase-blog';
 
 const claimMock = vi.fn();
 
@@ -23,6 +27,7 @@ vi.mock('@/lib/blog/openrouter-budget', () => ({ checkOpenRouterBalance: vi.fn()
 
 vi.mock('@/lib/blog/editorial-calendar', () => ({
   getNextPlannedEntry: vi.fn(),
+  getAvailableEditorialReserves: vi.fn(),
   markPublished: vi.fn(),
   saveOutlineStructure: vi.fn(),
 }));
@@ -58,6 +63,7 @@ vi.mock('@/lib/blog/distribution', () => ({
 vi.mock('@/lib/autoblog-profile', () => ({ AUTOBLOG_PROFILE: {} }));
 
 const { GET } = await import('@/app/api/blog/generate/route');
+const { resolveKeywordAndBriefStep } = await import('@/workflows/generate-article');
 
 function authorizedRequest(): NextRequest {
   return new NextRequest('http://localhost/api/blog/generate', {
@@ -97,5 +103,51 @@ describe('REGRESSÃO: /api/blog/generate não responde 200 "already_run_today" q
 
     expect(res.status).toBe(401);
     expect(claimMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('seleção de pauta com reserva editorial', () => {
+  const reserve = { keyword: 'pauta de reserva', relatedKeywords: [], competitors: [], attentionPoints: '' };
+
+  beforeEach(() => {
+    vi.mocked(getNextPlannedEntry).mockReset().mockResolvedValue(null);
+    vi.mocked(getPublishedKeywords).mockReset().mockResolvedValue(['pauta publicada']);
+    vi.mocked(fetchTopKeyword).mockReset().mockResolvedValue(undefined);
+    vi.mocked(getAvailableEditorialReserves).mockReset().mockResolvedValue([reserve]);
+  });
+
+  it('usa a reserva aprovada quando o Google recusa a credencial e a reserva antiga está esgotada', async () => {
+    vi.mocked(fetchTopKeyword).mockRejectedValue(new FatalError('gsc_invalid_grant_no_keyword'));
+    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({ keyword: reserve.keyword, brief: reserve });
+    expect(getAvailableEditorialReserves).toHaveBeenCalledExactlyOnceWith(['pauta publicada']);
+  });
+
+  it('conserva a precedência da pauta planejada, do GSC e da reserva antiga', async () => {
+    const planned = { ...reserve, keyword: 'pauta planejada' };
+    vi.mocked(getNextPlannedEntry).mockResolvedValueOnce(planned);
+    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({ keyword: planned.keyword, brief: planned });
+    expect(fetchTopKeyword).not.toHaveBeenCalled();
+    vi.mocked(fetchTopKeyword).mockResolvedValueOnce('pauta do GSC').mockResolvedValueOnce('pauta antiga');
+    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({ keyword: 'pauta do GSC', brief: null });
+    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({ keyword: 'pauta antiga', brief: null });
+    expect(getAvailableEditorialReserves).not.toHaveBeenCalled();
+  });
+
+  it('preserva a falha terminal original quando todas as fontes estão esgotadas', async () => {
+    const failure = new FatalError('gsc_invalid_grant_no_keyword');
+    vi.mocked(fetchTopKeyword).mockRejectedValue(failure);
+    vi.mocked(getAvailableEditorialReserves).mockResolvedValue([]);
+    await expect(resolveKeywordAndBriefStep()).rejects.toBe(failure);
+  });
+
+  it('consulta a reserva quando o Search Console não retorna pauta inédita', async () => {
+    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({ keyword: reserve.keyword, brief: reserve });
+  });
+
+  it('mantém falhas inesperadas retentáveis sem mudar de fonte', async () => {
+    const failure = new Error('unexpected');
+    vi.mocked(fetchTopKeyword).mockRejectedValue(failure);
+    await expect(resolveKeywordAndBriefStep()).rejects.toBe(failure);
+    expect(getAvailableEditorialReserves).not.toHaveBeenCalled();
   });
 });

@@ -2,7 +2,7 @@
 // Calendário editorial no banco: pauta planejada TEM precedência sobre o seed
 // rotativo — o dono agenda, o pipeline publica na data (se scheduled_date for
 // hoje ou antes; data futura espera, e o dia sem pauta cai no seed).
-import { getServiceClient } from '@/lib/blog/supabase-blog';
+import { getServiceClient, readAllBlogRows } from '@/lib/blog/supabase-blog';
 
 const getClient = getServiceClient;
 
@@ -82,6 +82,32 @@ export async function getNextPlannedEntry(): Promise<PlannedEntry | null> {
   if (error || !data) return null;
   const row = data as PlannedRow;
   return { keyword: row.keyword, ...toBrief(row) };
+}
+
+export async function getAvailableEditorialReserves(existingKeywords: string[], signal?: AbortSignal): Promise<PlannedEntry[]> {
+  const today = new Date().toISOString().slice(0, 10);
+  const client = getClient();
+  const rows = await readAllBlogRows<PlannedRow>((from, to) => {
+    const query = client.from('coesa_editorial_calendar')
+      .select('keyword, related_keywords, competitors, attention_points', { count: 'exact' })
+      .eq('status', 'reserve')
+      .or(`scheduled_date.is.null,scheduled_date.lte.${today}`)
+      .order('scheduled_date', { ascending: true, nullsFirst: false })
+      .order('created_at', { ascending: true })
+      .order('id', { ascending: true })
+      .range(from, to);
+    return signal ? query.abortSignal(signal) : query;
+  }, 'editorial_reserve_unavailable');
+
+  const seen = new Set(existingKeywords.map(keyword => keyword.trim().toLowerCase()));
+  const entries: PlannedEntry[] = [];
+  for (const row of rows) {
+    const normalized = row.keyword.trim().toLowerCase();
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    entries.push({ keyword: row.keyword, ...toBrief(row) });
+  }
+  return entries;
 }
 
 /** Marca a pauta como publicada, vinculando o slug do artigo. */

@@ -1,6 +1,12 @@
 // REGRESSÃO: calendário editorial — pauta planejada vence o seed; pauta enriquece o prompt.
-import { describe, it, expect } from 'vitest';
-import { pickPlannedKeyword, buildEditorialBriefSection, type EditorialBrief } from './editorial-calendar';
+import { describe, it, expect, vi } from 'vitest';
+import { getServiceClient } from '@/lib/blog/supabase-blog';
+import { pickPlannedKeyword, buildEditorialBriefSection, getAvailableEditorialReserves, type EditorialBrief } from './editorial-calendar';
+
+vi.mock('@/lib/blog/supabase-blog', async importOriginal => ({
+  ...await importOriginal<typeof import('@/lib/blog/supabase-blog')>(),
+  getServiceClient: vi.fn(),
+}));
 
 describe('REGRESSÃO: calendário editorial', () => {
   describe('pickPlannedKeyword', () => {
@@ -73,5 +79,56 @@ describe('REGRESSÃO: calendário editorial', () => {
     it('retorna vazio para brief nulo (keyword do seed)', () => {
       expect(buildEditorialBriefSection(null)).toBe('');
     });
+  });
+});
+
+describe('reserva editorial', () => {
+  function calendarQuery(...results: unknown[]) {
+    const query = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      or: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      range: vi.fn(),
+    };
+    for (const result of results) query.range.mockResolvedValueOnce(result);
+    const from = vi.fn().mockReturnValue(query);
+    vi.mocked(getServiceClient).mockReturnValue({ from } as unknown as ReturnType<typeof getServiceClient>);
+    return { from, ...query };
+  }
+
+  it('lê reservas disponíveis, ignora publicadas e deduplica pautas mantendo o briefing', async () => {
+    const row = { related_keywords: ['cliente b2b'], competitors: [], attention_points: 'Dados oficiais' };
+    const query = calendarQuery({ data: [
+      { ...row, keyword: ' Já Publicada ' },
+      { ...row, keyword: 'Pauta inédita' },
+      { ...row, keyword: ' pauta inédita ' },
+      { ...row, keyword: '  ' },
+    ], count: 4, error: null });
+
+    await expect(getAvailableEditorialReserves(['já publicada'])).resolves.toEqual([{
+      keyword: 'Pauta inédita', relatedKeywords: ['cliente b2b'], competitors: [], attentionPoints: 'Dados oficiais',
+    }]);
+    expect(query.from).toHaveBeenCalledWith('coesa_editorial_calendar');
+    expect(query.eq).toHaveBeenCalledExactlyOnceWith('status', 'reserve');
+    expect(query.or).toHaveBeenCalledExactlyOnceWith(`scheduled_date.is.null,scheduled_date.lte.${new Date().toISOString().slice(0, 10)}`);
+  });
+
+  it('distingue falha de leitura de estoque vazio', async () => {
+    calendarQuery({ data: null, count: null, error: { message: 'consulta indisponível' } });
+    await expect(getAvailableEditorialReserves([])).rejects.toThrow('editorial_reserve_unavailable');
+  });
+
+  it('conta reservas elegíveis posteriores ao limite da primeira página', async () => {
+    const row = { related_keywords: [], competitors: [], attention_points: null };
+    const query = calendarQuery(
+      { data: [{ ...row, keyword: 'já publicada' }], count: 2, error: null },
+      { data: [{ ...row, keyword: 'reserva da segunda página' }], count: 2, error: null },
+    );
+
+    expect((await getAvailableEditorialReserves(['já publicada'])).map(entry => entry.keyword)).toEqual([
+      'reserva da segunda página',
+    ]);
+    expect(query.range.mock.calls.map(([from]) => from)).toEqual([0, 1]);
   });
 });

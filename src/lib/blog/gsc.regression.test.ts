@@ -1,11 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SEED_KEYWORDS } from './seed-keywords';
-import { fetchTopKeyword, getSeedSkippingPublished, pickTopEligibleGscKeyword } from './gsc';
+import { fetchTopKeyword, getSeedSkippingPublished, pickTopEligibleGscKeyword, readGscKeyword } from './gsc';
 
-const { query } = vi.hoisted(() => ({ query: vi.fn() }));
+const { query, oauthOptions } = vi.hoisted(() => ({ query: vi.fn(), oauthOptions: vi.fn() }));
 vi.mock('googleapis', () => ({
   google: {
-    auth: { OAuth2: class { setCredentials = vi.fn(); } },
+    auth: { OAuth2: class {
+      constructor(options: unknown) { oauthOptions(options); }
+      setCredentials = vi.fn();
+    } },
     searchconsole: () => ({ searchanalytics: { query } }),
   },
 }));
@@ -52,6 +55,7 @@ describe('falha de renovação da credencial GSC', () => {
     vi.stubEnv('GOOGLE_CLIENT_SECRET', 'fixture-secret');
     vi.stubEnv('GOOGLE_REFRESH_TOKEN', 'fixture-token');
     query.mockReset();
+    oauthOptions.mockReset();
   });
 
   afterEach(() => {
@@ -97,5 +101,14 @@ describe('falha de renovação da credencial GSC', () => {
     await expect(fetchTopKeyword(SEED_KEYWORDS)).resolves.toBeUndefined();
     await expect(fetchTopKeyword(SEED_KEYWORDS)).resolves.toBe('pauta inédita');
     expect(warn).toHaveBeenCalledExactlyOnceWith('[gsc] Search Console indisponível:', 'request_failed', 503);
+  });
+
+  it('aplica o mesmo prazo à renovação OAuth e à consulta de palavras-chave', async () => {
+    const { signal } = new AbortController();
+    query.mockResolvedValue({ data: { rows: [] } });
+
+    await expect(readGscKeyword([], signal)).resolves.toEqual({ state: 'no_eligible' });
+    expect(oauthOptions).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ transporterOptions: { signal } }));
+    expect(query).toHaveBeenCalledExactlyOnceWith(expect.any(Object), { signal });
   });
 });
