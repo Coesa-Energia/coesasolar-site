@@ -118,18 +118,26 @@ describe('seleção de pauta com reserva editorial', () => {
 
   it('usa a reserva aprovada quando o Google recusa a credencial e a reserva antiga está esgotada', async () => {
     vi.mocked(fetchTopKeyword).mockRejectedValue(new FatalError('gsc_invalid_grant_no_keyword'));
-    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({ keyword: reserve.keyword, brief: reserve });
+    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({
+      keyword: reserve.keyword, brief: reserve, usedEditorialReserve: true,
+    });
     expect(getAvailableEditorialReserves).toHaveBeenCalledExactlyOnceWith(['pauta publicada']);
   });
 
   it('conserva a precedência da pauta planejada, do GSC e da reserva antiga', async () => {
     const planned = { ...reserve, keyword: 'pauta planejada' };
     vi.mocked(getNextPlannedEntry).mockResolvedValueOnce(planned);
-    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({ keyword: planned.keyword, brief: planned });
+    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({
+      keyword: planned.keyword, brief: planned, usedEditorialReserve: false,
+    });
     expect(fetchTopKeyword).not.toHaveBeenCalled();
     vi.mocked(fetchTopKeyword).mockResolvedValueOnce('pauta do GSC').mockResolvedValueOnce('pauta antiga');
-    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({ keyword: 'pauta do GSC', brief: null });
-    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({ keyword: 'pauta antiga', brief: null });
+    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({
+      keyword: 'pauta do GSC', brief: null, usedEditorialReserve: false,
+    });
+    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({
+      keyword: 'pauta antiga', brief: null, usedEditorialReserve: false,
+    });
     expect(getAvailableEditorialReserves).not.toHaveBeenCalled();
   });
 
@@ -141,7 +149,17 @@ describe('seleção de pauta com reserva editorial', () => {
   });
 
   it('consulta a reserva quando o Search Console não retorna pauta inédita', async () => {
-    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({ keyword: reserve.keyword, brief: reserve });
+    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({
+      keyword: reserve.keyword, brief: reserve, usedEditorialReserve: true,
+    });
+  });
+
+  it('registra a decisão de origem quando o GSC devolve o mesmo termo de uma reserva', async () => {
+    vi.mocked(fetchTopKeyword).mockResolvedValue(reserve.keyword);
+    await expect(resolveKeywordAndBriefStep()).resolves.toEqual({
+      keyword: reserve.keyword, brief: null, usedEditorialReserve: false,
+    });
+    expect(getAvailableEditorialReserves).not.toHaveBeenCalled();
   });
 
   it('mantém falhas inesperadas retentáveis sem mudar de fonte', async () => {
