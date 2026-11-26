@@ -45,11 +45,15 @@ export async function checkBalanceStep(): Promise<void> {
   }
 }
 
-export async function resolveKeywordAndBriefStep(): Promise<{ keyword: string; brief: EditorialBrief | null }> {
+export async function resolveKeywordAndBriefStep(): Promise<{
+  keyword: string;
+  brief: EditorialBrief | null;
+  usedEditorialReserve: boolean;
+}> {
   'use step';
   try {
     const planned = await getNextPlannedEntry();
-    if (planned?.keyword) return { keyword: planned.keyword, brief: planned };
+    if (planned?.keyword) return { keyword: planned.keyword, brief: planned, usedEditorialReserve: false };
   } catch (err) {
     console.warn('[workflow/generate-article] Calendário indisponível:', err);
   }
@@ -58,14 +62,14 @@ export async function resolveKeywordAndBriefStep(): Promise<{ keyword: string; b
   let rejectedGrant: FatalError | undefined;
   try {
     const keyword = await fetchTopKeyword(existingKeywords);
-    if (keyword) return { keyword, brief: null };
+    if (keyword) return { keyword, brief: null, usedEditorialReserve: false };
   } catch (error) {
     if (!(error instanceof FatalError) || error.message !== 'gsc_invalid_grant_no_keyword') throw error;
     rejectedGrant = error;
   }
 
   const [reserve] = await getAvailableEditorialReserves(existingKeywords);
-  if (reserve) return { keyword: reserve.keyword, brief: reserve };
+  if (reserve) return { keyword: reserve.keyword, brief: reserve, usedEditorialReserve: true };
   throw rejectedGrant ?? new Error('keyword_not_resolved');
 }
 
